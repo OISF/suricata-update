@@ -1,0 +1,22 @@
+# suricata-update - threshold.in
+
+# This file contains thresholding configurations that will be turned into
+# a Suricata compatible threshold.conf file.
+
+# This file can contain standard threshold.conf configurations:
+#
+# suppress gen_id <gid>, sig_id <sid>
+# suppress gen_id <gid>, sig_id <sid>, track <by_src|by_dst>, ip <ip|subnet>
+# threshold gen_id 0, sig_id 0, type threshold, track by_src, count 10, seconds 10
+# suppress gen_id 1, sig_id 2009557, track by_src, ip 217.110.97.128/25
+
+# Or ones that will be preprocessed...
+
+# Suppress all rules containing "java".
+#
+# suppress re:java
+# suppress re:java, track by_src, ip 217.110.97.128/25
+
+# Threshold all rules containing "java".
+#
+# threshold re:java, type threshold, track by_dst, count 1, seconds 10

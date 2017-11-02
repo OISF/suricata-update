@@ -1,0 +1,65 @@
+# Copyright (C) 2017 Open Information Security Foundation
+# Copyright (c) 2016 Jason Ish
+#
+# You can copy, redistribute or modify this Program under the terms of
+# the GNU General Public License version 2 as published by the Free
+# Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# version 2 along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+import logging
+import time
+
+class SuriColourLogHandler(logging.StreamHandler):
+    """An alternative stream log handler that logs with Suricata inspired
+    log colours."""
+
+    GREEN = "\x1b[32m"
+    BLUE = "\x1b[34m"
+    REDB = "\x1b[1;31m"
+    YELLOW = "\x1b[33m"
+    RED = "\x1b[31m"
+    YELLOWB = "\x1b[1;33m"
+    ORANGE = "\x1b[38;5;208m"
+    RESET = "\x1b[0m"
+
+    def formatTime(self, record):
+        lt = time.localtime(record.created)
+        t = "%d/%d/%d -- %02d:%02d:%02d" % (lt.tm_mday,
+                                            lt.tm_mon,
+                                            lt.tm_year,
+                                            lt.tm_hour,
+                                            lt.tm_min,
+                                            lt.tm_sec)
+        return "%s" % (t)
+
+    def emit(self, record):
+
+        if record.levelname == "ERROR":
+            level_prefix = self.REDB
+            message_prefix = self.REDB
+        elif record.levelname == "WARNING":
+            level_prefix = self.ORANGE
+            message_prefix = self.ORANGE
+        else:
+            level_prefix = self.YELLOW
+            message_prefix = ""
+
+        self.stream.write("%s%s%s - <%s%s%s> -- %s%s%s\n" % (
+            self.GREEN,
+            self.formatTime(record),
+            self.RESET,
+            level_prefix,
+            record.levelname.title(),
+            self.RESET,
+            message_prefix,
+            record.getMessage(),
+            self.RESET))

@@ -1,0 +1,57 @@
+# Configuration with disable filters.
+# - Overrided by --disable-conf
+# - Default: /etc/suricata/disable.conf
+disable-conf: /etc/suricata/disable.conf
+
+# Configuration with enable filters.
+# - Overrided by --enable-conf
+# - Default: /etc/suricata/enable.conf
+enable-conf: /etc/suricata/enable.conf
+
+# Configuration with drop filters.
+# - Overrided by --drop-conf
+# - Default: /etc/suricata/drop.conf
+drop-conf: /etc/suricata/drop.conf
+
+# Configuration with modify filters.
+# - Overrided by --modify-conf
+# - Default: /etc/suricata/modify.conf
+modify-conf: /etc/suricata/modify.conf
+
+# List of files to ignore. Overrided by the --ignore command line option.
+ignore:
+  - "*deleted.rules"
+
+# Provide an alternate command to the default test command.
+#
+# The following environment variables can be used.
+# SURICATA_PATH - The path to the discovered suricata program.
+# OUTPUT_DIR - The directory the rules are written to.
+# OUTPUT_FILENAME - The name of the rule file. Will be empty if the rules
+#                   were not merged.
+#test-command: ${SURICATA_PATH} -T -S ${OUTPUT_FILENAME} -l /tmp
+
+# Provide a command to reload the Suricata rules.
+# May be overrided by the --reload-command command line option.
+#reload-command: sudo systemctl reload suricata
+
+# Remote rule sources.
+sources:
+  # Emerging Threats Open
+  - type: etopen
+  # Emerging Threats Pro
+  - type: etpro
+    code: xxxxx
+  # A URL
+  - type: url
+    url: https://sslbl.abuse.ch/blacklist/sslblacklist.rules
+
+# A list of local rule sources. Each entry can be a rule file, a
+# directory or a wild card specification.
+local:
+  # A directory of rules.
+  - /etc/suricata/rules
+  # A single rule file.
+  - /etc/suricata/rules/app-layer-events.rules
+  # A wildcard.
+  - /etc/suricata/rules/*.rules

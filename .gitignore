@@ -1,0 +1,9 @@
+*~
+*.pyc
+_build
+build
+.DS_Store
+_work
+
+# Development update.yaml
+/update.yaml

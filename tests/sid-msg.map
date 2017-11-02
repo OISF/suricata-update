@@ -1,0 +1,122 @@
+648 || GPL SHELLCODE x86 NOOP || arachnids,181
+653 || GPL SHELLCODE x86 0x90 unicode NOOP
+1266 || GPL RPC portmap mountd request TCP || arachnids,13
+1429 || GPL DELETED poll.gotomypc.com access || url,www.gotomypc.com/help2.tmpl
+2351 || GPL NETBIOS DCERPC ISystemActivator path overflow attempt little endian unicode || url,www.microsoft.com/technet/security/bulletin/MS03-026.mspx || nessus,11808 || cve,2003-0352 || bugtraq,8205
+2352 || GPL NETBIOS DCERPC ISystemActivator path overflow attempt big endian unicode || url,www.microsoft.com/technet/security/bulletin/MS03-026.mspx || nessus,11808 || cve,2003-0352 || bugtraq,8205
+2492 || GPL NETBIOS SMB DCERPC ISystemActivator bind attempt || url,www.microsoft.com/technet/security/bulletin/MS04-011.mspx || nessus,12206 || cve,2003-0813 || bugtraq,8811
+2493 || GPL NETBIOS SMB DCERPC ISystemActivator unicode bind attempt || url,www.microsoft.com/technet/security/bulletin/MS04-011.mspx || nessus,12206 || cve,2003-0813 || bugtraq,8811
+2494 || GPL NETBIOS DCEPRC ORPCThis request flood attempt || url,www.microsoft.com/technet/security/bulletin/MS04-011.mspx || nessus,12206 || cve,2003-0813 || bugtraq,8811
+2495 || GPL NETBIOS SMB DCEPRC ORPCThis request flood attempt || url,www.microsoft.com/technet/security/bulletin/MS04-011.mspx || nessus,12206 || cve,2003-0813 || bugtraq,8811
+2873 || GPL DELETED sys.dbms_repcat_conf.alter_priority_nvarchar2 buffer overflow attempt || url,www.appsecinc.com/resources/alerts/oracle/2004-0001/25.html
+2952 || GPL NETBIOS SMB IPC$ andx share access
+2953 || GPL NETBIOS SMB IPC$ unicode andx share access
+2972 || GPL NETBIOS SMB D$ andx share access
+2973 || GPL NETBIOS SMB D$ unicode andx share access
+2976 || GPL NETBIOS SMB C$ andx share access
+2977 || GPL NETBIOS SMB C$ unicode andx share access
+2980 || GPL NETBIOS SMB ADMIN$ andx share access
+2981 || GPL NETBIOS SMB ADMIN$ unicode andx share access
+2000005 || ET EXPLOIT Cisco Telnet Buffer Overflow || url,doc.emergingthreats.net/bin/view/Main/2000005 || url,www.cisco.com/warp/public/707/cisco-sn-20040326-exploits.shtml
+2000006 || ET DOS Cisco Router HTTP DoS || url,www.cisco.com/warp/public/707/cisco-sn-20040326-exploits.shtml
+2000007 || ET EXPLOIT Catalyst SSH protocol mismatch || url,doc.emergingthreats.net/bin/view/Main/2000007 || url,www.cisco.com/warp/public/707/catalyst-ssh-protocolmismatch-pub.shtml
+2000009 || ET DELETED Cisco IOS HTTP DoS || url,doc.emergingthreats.net/bin/view/Main/2000009 || url,www.cisco.com/warp/public/707/ioshttpserverquery-pub.shtml
+2000010 || ET DOS Cisco 514 UDP flood DoS || url,doc.emergingthreats.net/bin/view/Main/2000010 || url,www.cisco.com/warp/public/707/IOS-cbac-dynacl-pub.shtml
+2000011 || ET DOS Catalyst memory leak attack || url,doc.emergingthreats.net/bin/view/Main/2000011 || url,www.cisco.com/en/US/products/products_security_advisory09186a00800b138e.shtml
+2000012 || ET DELETED Cisco %u IDS evasion || url,doc.emergingthreats.net/bin/view/Main/2000012
+2000013 || ET DELETED Cisco IOS HTTP server DoS || url,doc.emergingthreats.net/bin/view/Main/2000013
+2000015 || ET P2P Phatbot Control Connection || url,doc.emergingthreats.net/bin/view/Main/2000015 || url,www.lurhq.com/phatbot.html
+2000016 || ET DOS SSL Bomb DoS Attempt || url,doc.emergingthreats.net/bin/view/Main/2000016 || url,www.microsoft.com/technet/security/bulletin/MS04-011.mspx || cve,CAN-2004-0120
+2000017 || ET NETBIOS NII Microsoft ASN.1 Library Buffer Overflow Exploit || url,doc.emergingthreats.net/bin/view/Main/2000017 || url,www.microsoft.com/technet/security/bulletin/ms04-007.asp
+2000024 || ET DELETED rcprograms || url,doc.emergingthreats.net/bin/view/Main/2000024 || url,sarc.com/avcenter/venc/data/adware.rcprograms.html
+2000025 || ET MALWARE Gator Cookie || url,doc.emergingthreats.net/bin/view/Main/2000025 || url,www3.ca.com/securityadvisor/pest/content.aspx?q=67999
+2000026 || ET USER_AGENTS Gator Agent Traffic || url,doc.emergingthreats.net/2000026
+2000031 || ET EXPLOIT CVS server heap overflow attempt (target BSD) || url,doc.emergingthreats.net/bin/view/Main/2000031
+2000032 || ET NETBIOS LSA exploit || url,doc.emergingthreats.net/bin/view/Main/2000032 || url,www.upenn.edu/computing/virus/04/w32.sasser.worm.html || url,www.eeye.com/html/research/advisories/AD20040501.html
+2000033 || ET NETBIOS MS04011 Lsasrv.dll RPC exploit (WinXP) || cve,2003-0533 || url,doc.emergingthreats.net/bin/view/Main/2000033
+2000035 || ET POLICY Hotmail Inbox Access || url,doc.emergingthreats.net/2000035
+2000036 || ET POLICY Hotmail Message Access || url,doc.emergingthreats.net/2000036
+2000037 || ET POLICY Hotmail Compose Message Access || url,doc.emergingthreats.net/2000037
+2000038 || ET POLICY Hotmail Compose Message Submit || url,doc.emergingthreats.net/2000038
+2000039 || ET POLICY Hotmail Compose Message Submit Data || url,doc.emergingthreats.net/2000039
+2000040 || ET WORM Sasser FTP Traffic || url,doc.emergingthreats.net/2000040 || url,vil.mcafeesecurity.com/vil/content/Print125009.htm
+2000041 || ET POLICY Yahoo Mail Inbox View || url,doc.emergingthreats.net/2000041
+2000042 || ET POLICY Yahoo Mail Message View || url,doc.emergingthreats.net/2000042
+2000043 || ET POLICY Yahoo Mail Message Compose Open || url,doc.emergingthreats.net/2000043
+2000044 || ET POLICY Yahoo Mail Message Send || url,doc.emergingthreats.net/2000044
+2000045 || ET DELETED Yahoo Mail Message Send Info Capture || url,doc.emergingthreats.net/2000045
+2000046 || ET NETBIOS MS04011 Lsasrv.dll RPC exploit (Win2k) || cve,2003-0533 || url,doc.emergingthreats.net/bin/view/Main/2000046
+2000047 || ET WORM Sasser Transfer _up.exe || url,doc.emergingthreats.net/2000047 || url,vil.mcafeesecurity.com/vil/content/Print125009.htm
+2000048 || ET EXPLOIT CVS server heap overflow attempt (target Linux) || url,doc.emergingthreats.net/bin/view/Main/2000048
+2000049 || ET EXPLOIT CVS server heap overflow attempt (target Solaris) || url,doc.emergingthreats.net/bin/view/Main/2000049
+2000105 || ET WEB_SERVER SQL sp_password attempt || url,doc.emergingthreats.net/2000105
+2000106 || ET WEB_SERVER SQL sp_delete_alert attempt || url,doc.emergingthreats.net/2000106
+2000306 || ET DELETED Virtumonde Spyware siae3123.exe GET || url,doc.emergingthreats.net/bin/view/Main/2000306 || url,sarc.com/avcenter/venc/data/adware.virtumonde.html
+2000307 || ET DELETED Virtumonde Spyware siae3123.exe GET (8081) || url,doc.emergingthreats.net/bin/view/Main/2000307 || url,sarc.com/avcenter/venc/data/adware.virtumonde.html
+2000308 || ET DELETED Virtumonde Spyware Information Post || url,doc.emergingthreats.net/bin/view/Main/2000308 || url,sarc.com/avcenter/venc/data/adware.virtumonde.html
+2000309 || ET DELETED GotoMyPC Polling Client || url,doc.emergingthreats.net/2000309
+2000327 || ET DELETED Spyware 2020 || url,doc.emergingthreats.net/bin/view/Main/2000327 || url,securityresponse.symantec.com/avcenter/venc/data/spyware.2020search.html
+2000328 || ET POLICY Outbound Multiple Non-SMTP Server Emails || url,doc.emergingthreats.net/2000328
+2000330 || ET P2P ed2k connection to server || url,doc.emergingthreats.net/bin/view/Main/2000330 || url,www.giac.org/practical/GCIH/Ian_Gosling_GCIH.pdf
+2000332 || ET P2P ed2k request part || url,doc.emergingthreats.net/bin/view/Main/2000332 || url,www.giac.org/practical/GCIH/Ian_Gosling_GCIH.pdf
+2000333 || ET P2P ed2k file request answer || url,doc.emergingthreats.net/bin/view/Main/2000333 || url,www.giac.org/practical/GCIH/Ian_Gosling_GCIH.pdf
+2000334 || ET P2P BitTorrent peer sync || url,doc.emergingthreats.net/bin/view/Main/2000334 || url,bitconjurer.org/BitTorrent/protocol.html
+2000335 || ET P2P Overnet (Edonkey) Server Announce || url,doc.emergingthreats.net/bin/view/Main/2000335 || url,www.overnet.com
+2000336 || ET DELETED Yesadvertising Banking Spyware RETRIEVE || url,doc.emergingthreats.net/bin/view/Main/2000336 || url,isc.sans.org/presentations/banking_malware.pdf
+2000337 || ET DELETED Yesadvertising Banking Spyware INFORMATION SUBMIT || url,doc.emergingthreats.net/bin/view/Main/2000337 || url,isc.sans.org/presentations/banking_malware.pdf
+2000338 || ET P2P iroffer IRC Bot help message || url,doc.emergingthreats.net/bin/view/Main/2000338 || url,iroffer.org
+2000339 || ET P2P iroffer IRC Bot offered files advertisement || url,doc.emergingthreats.net/bin/view/Main/2000339 || url,iroffer.org
+2000340 || ET P2P Kaaza Media desktop p2pnetworking.exe Activity || url,doc.emergingthreats.net/bin/view/Main/2000340 || url,www.giac.org/practical/GCIH/Ian_Gosling_GCIH.pdf
+2000341 || ET POLICY Yahoo Mail General Page View || url,doc.emergingthreats.net/2000341
+2000342 || ET EXPLOIT Squid NTLM Auth Overflow Exploit || url,doc.emergingthreats.net/bin/view/Main/2000342 || cve,CAN-2004-0541 || url,www.idefense.com/application/poi/display?id=107
+2000345 || ET TROJAN IRC Nick change on non-standard port || url,doc.emergingthreats.net/bin/view/Main/2000345
+2000346 || ET DELETED IRC Name response on non-standard port || url,doc.emergingthreats.net/bin/view/Main/2000346
+2000347 || ET TROJAN IRC Private message on non-standard port || url,doc.emergingthreats.net/bin/view/Main/2000347
+2000348 || ET TROJAN IRC Channel JOIN on non-standard port || url,doc.emergingthreats.net/bin/view/Main/2000348
+2000349 || ET TROJAN IRC DCC file transfer request on non-std port || url,doc.emergingthreats.net/bin/view/Main/2000349
+2000350 || ET TROJAN IRC DCC chat request on non-standard port || url,doc.emergingthreats.net/bin/view/Main/2000350
+2000351 || ET TROJAN IRC Channel join on non-standard port || url,doc.emergingthreats.net/bin/view/Main/2000351
+2000352 || ET TROJAN IRC DNS request on non-standard port || url,doc.emergingthreats.net/bin/view/Main/2000352
+2000355 || ET CHAT IRC authorization message || url,doc.emergingthreats.net/2000355
+2000356 || ET POLICY IRC connection || url,doc.emergingthreats.net/2000356
+2000357 || ET P2P BitTorrent Traffic || url,doc.emergingthreats.net/bin/view/Main/2000357 || url,bitconjurer.org/BitTorrent/protocol.html
+2000366 || ET MALWARE Binet (download complete) || url,doc.emergingthreats.net/bin/view/Main/2000366 || url,sarc.com/avcenter/venc/data/pf/adware.betterinternet.html
+2000367 || ET MALWARE Binet (set_pix) || url,doc.emergingthreats.net/bin/view/Main/2000367 || url,sarc.com/avcenter/venc/data/pf/adware.betterinternet.html
+2000369 || ET P2P BitTorrent Announce || url,doc.emergingthreats.net/bin/view/Main/2000369 || url,bitconjurer.org/BitTorrent/protocol.html
+2000371 || ET MALWARE Binet (randreco.exe) || url,doc.emergingthreats.net/bin/view/Main/2000371 || url,sarc.com/avcenter/venc/data/pf/adware.betterinternet.html
+2000372 || ET EXPLOIT MS-SQL SQL Injection running SQL statements line comment || url,doc.emergingthreats.net/bin/view/Main/2000372 || url,www.securitymap.net/sdm/docs/windows/mssql-checklist.html || url,www.nextgenss.com/papers/more_advanced_sql_injection.pdf
+2000373 || ET EXPLOIT MS-SQL SQL Injection line comment || url,doc.emergingthreats.net/bin/view/Main/2000373 || url,www.securitymap.net/sdm/docs/windows/mssql-checklist.html || url,www.nextgenss.com/papers/more_advanced_sql_injection.pdf
+2000377 || ET EXPLOIT MS-SQL heap overflow attempt || url,doc.emergingthreats.net/bin/view/Main/2000377 || url,www.nextgenss.com/papers/tp-SQL2000.pdf
+2000378 || ET EXPLOIT MS-SQL DOS attempt (08) || url,doc.emergingthreats.net/bin/view/Main/2000378 || url,www.nextgenss.com/papers/tp-SQL2000.pdf
+2000379 || ET EXPLOIT MS-SQL DOS attempt (08) 1 byte || url,doc.emergingthreats.net/bin/view/Main/2000379 || url,www.nextgenss.com/papers/tp-SQL2000.pdf
+2000380 || ET EXPLOIT MS-SQL Spike buffer overflow || url,doc.emergingthreats.net/bin/view/Main/2000380 || bugtraq,5411
+2000381 || ET EXPLOIT MS-SQL DOS bouncing packets || url,doc.emergingthreats.net/bin/view/Main/2000381 || url,www.nextgenss.com/papers/tp-SQL2000.pdf
+2000418 || ET POLICY Executable and linking format (ELF) file download || url,doc.emergingthreats.net/bin/view/Main/2000418 || url,www.itee.uq.edu.au/~cristina/students/david/honoursThesis96/bff.htm
+2000419 || ET POLICY PE EXE or DLL Windows file download || url,doc.emergingthreats.net/bin/view/Main/2000419
+2000420 || ET POLICY REG files version 4 download || url,doc.emergingthreats.net/bin/view/Main/2000420 || url,www.ss64.com/nt/regedit.html
+2000421 || ET POLICY REG files version 5 download || url,doc.emergingthreats.net/bin/view/Main/2000421 || url,www.ss64.com/nt/regedit.html
+2000422 || ET POLICY REG files version 5 Unicode download || url,doc.emergingthreats.net/bin/view/Main/2000422 || url,www.ss64.com/nt/regedit.html
+2000423 || ET DELETED NE EXE OS2 file download || url,doc.emergingthreats.net/bin/view/Main/2000423 || url,www.itee.uq.edu.au/~cristina/students/david/honoursThesis96/bff.htm
+2000424 || ET DELETED LX EXE OS2 file download || url,doc.emergingthreats.net/bin/view/Main/2000424 || url,www.itee.uq.edu.au/~cristina/students/david/honoursThesis96/bff.htm
+2000425 || ET DELETED NE EXE Windows 3.x file download || url,doc.emergingthreats.net/bin/view/Main/2000425 || url,www.itee.uq.edu.au/~cristina/students/david/honoursThesis96/bff.htm
+2000426 || ET POLICY EXE compressed PKWARE Windows file download || url,doc.emergingthreats.net/bin/view/Main/2000426 || url,www.program-transformation.org/Transform/PcExeFormat
+2000427 || ET DELETED PE EXE Install Windows file download || url,doc.emergingthreats.net/bin/view/Main/2000427 || url,www.program-transformation.org/Transform/PcExeFormat
+2000428 || ET POLICY ZIP file download || url,doc.emergingthreats.net/bin/view/Main/2000428 || url,zziplib.sourceforge.net/zzip-parse.print.html
+2000429 || ET POLICY Download Windows Help File CHM 2 || url,doc.emergingthreats.net/bin/view/Main/2000429 || url,www.securiteam.com/windowsntfocus/6V00N000AU.html || url,www.speakeasy.org/~russotto/chm/chmformat.html
+2000466 || ET MALWARE User-Agent (iexplore) || url,doc.emergingthreats.net/2000466
+2000488 || ET EXPLOIT MS-SQL SQL Injection closing string plus line comment || url,doc.emergingthreats.net/bin/view/Main/2000488 || url,www.securitymap.net/sdm/docs/windows/mssql-checklist.html || url,www.nextgenss.com/papers/more_advanced_sql_injection.pdf
+2000489 || ET POLICY Download Windows Help File CHM || url,doc.emergingthreats.net/bin/view/Main/2000489 || url,www.securiteam.com/windowsntfocus/6V00N000AU.html || url,www.speakeasy.org/~russotto/chm/chmformat.html
+2000499 || ET ATTACK_RESPONSE FTP inaccessible directory access COM1 || url,doc.emergingthreats.net/bin/view/Main/2000499
+2000500 || ET ATTACK_RESPONSE FTP inaccessible directory access COM2 || url,doc.emergingthreats.net/bin/view/Main/2000500
+2000501 || ET ATTACK_RESPONSE FTP inaccessible directory access COM3 || url,doc.emergingthreats.net/bin/view/Main/2000501
+2000502 || ET ATTACK_RESPONSE FTP inaccessible directory access COM4 || url,doc.emergingthreats.net/bin/view/Main/2000502
+2000503 || ET ATTACK_RESPONSE FTP inaccessible directory access LPT1 || url,doc.emergingthreats.net/bin/view/Main/2000503
+2000504 || ET ATTACK_RESPONSE FTP inaccessible directory access LPT2 || url,doc.emergingthreats.net/bin/view/Main/2000504
+2000505 || ET ATTACK_RESPONSE FTP inaccessible directory access LPT3 || url,doc.emergingthreats.net/bin/view/Main/2000505
+2000506 || ET ATTACK_RESPONSE FTP inaccessible directory access LPT4 || url,doc.emergingthreats.net/bin/view/Main/2000506
+2000507 || ET ATTACK_RESPONSE FTP inaccessible directory access AUX || url,doc.emergingthreats.net/bin/view/Main/2000507
+2000508 || ET ATTACK_RESPONSE FTP inaccessible directory access NULL || url,doc.emergingthreats.net/bin/view/Main/2000508
+2000514 || ET MALWARE IE homepage hijacking || url,doc.emergingthreats.net/bin/view/Main/2000514 || url,www.geek.com/news/geeknews/2004Jun/gee20040610025522.htm
+2000519 || ET MALWARE shell browser vulnerability W9x/XP || url,doc.emergingthreats.net/bin/view/Main/2000519 || url,www.packetfocus.com/shell_exploit.htm
+2000520 || ET MALWARE shell browser vulnerability NT/2K || url,doc.emergingthreats.net/bin/view/Main/2000520 || url,www.packetfocus.com/shell_exploit.htm
+71918985 || SN: Inbound TCP traffic from suspect network (AS29073 - NL) || url,https://suspect-networks.io/networks/cidr/13/
