@@ -90,6 +90,7 @@ def test_configuration(path, rule_filename=None):
     env = {
         "SC_LOG_FORMAT": "%t - <%d> -- ",
         "SC_LOG_LEVEL": "Warning",
+        "ASAN_OPTIONS": "detect_leaks=0",
     }
 
     rc = subprocess.Popen(test_command, env=env).wait()
