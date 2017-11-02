@@ -179,6 +179,8 @@ class GroupMatcher(object):
                 return cls(group.strip())
             except:
                 pass
+        if buf.endswith(".rules"):
+            return cls(buf.strip())
         return None
 
 class ReRuleMatcher(object):
@@ -240,7 +242,7 @@ class ModifyRuleFilter(object):
             raise Exception("Bad number of arguments.")
         matcher = parse_rule_match(matchstring)
         if not matcher:
-            raise Exception("Bad match string: %s" % (tokens[0]))
+            raise Exception("Bad match string: %s" % (matchstring))
         pattern = re.compile(a)
 
         # Convert Oinkmaster backticks to Python.
@@ -386,11 +388,11 @@ def parse_rule_match(match):
     if matcher:
         return matcher
 
-    matcher = GroupMatcher.parse(match)
+    matcher = FilenameMatcher.parse(match)
     if matcher:
         return matcher
 
-    matcher = FilenameMatcher.parse(match)
+    matcher = GroupMatcher.parse(match)
     if matcher:
         return matcher
 
