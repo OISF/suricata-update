@@ -195,7 +195,7 @@ Options
    A command to run after the rules have been updated; will not run if
    no change to the output files was made.  For example::
 
-     --post-hook=sudo kill -USR2 $(cat /var/run/suricata.pid)
+     --reload-command=sudo kill -USR2 $(cat /var/run/suricata.pid)
 
    will tell Suricata to reload its rules.
 
