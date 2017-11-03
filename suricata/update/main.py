@@ -809,13 +809,21 @@ class Config:
                 config = yaml.load(fileobj)
                 if config:
                     self.config.update(config)
-            return
-        for path in self.DEFAULT_LOCATIONS:
-            if os.path.exists(path):
-                with open(path) as fileobj:
-                    config = yaml.load(fileobj)
-                    if config:
-                        self.config.update(config)
+        else:
+            for path in self.DEFAULT_LOCATIONS:
+                if os.path.exists(path):
+                    with open(path) as fileobj:
+                        config = yaml.load(fileobj)
+                        if config:
+                            self.config.update(config)
+
+        # Make sure sources is a list if empty/none.
+        if not self.config["sources"]:
+            self.config["sources"] = []
+
+        # Make sure local is a list if empty/none.
+        if not self.config["local"]:
+            self.config["local"] = []
 
     def get_arg(self, key):
         """Return the value for a command line argument. To be compatible
