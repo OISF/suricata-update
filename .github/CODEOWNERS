@@ -8,5 +8,5 @@
 # additionally, it seems only the directoy syntax works.
 # e.g. '/src/source-*.[ch]  @regit' seems to have no effect.
 
-*                   @jasonish
+*                   @jasonish @OISF/core-team
 
