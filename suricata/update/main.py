@@ -906,14 +906,6 @@ def load_sources(config, suricata_version):
 
     urls = []
 
-    # If --etopen was provided on the command line, add it.
-    if config.get("etopen"):
-        urls.append(resolve_etopen_url(suricata_version))
-
-    # If --etpro was provided on the command line, add it.
-    if config.get("etpro"):
-        urls.append(resolve_etpro_url(config.get("etpro"), suricata_version))
-
     # Add any URLs added with the --url command line parameter.
     if config.args.url:
         for url in config.args.url:
@@ -940,6 +932,14 @@ def load_sources(config, suricata_version):
                     urls.append(resolve_etpro_url(code, suricata_version))
             else:
                 logger.error("Unknown source type: %s", source["type"])
+
+    # If --etpro, add it.
+    if config.get("etpro"):
+        urls.append(resolve_etpro_url(config.get("etpro"), suricata_version))
+
+    # If --etopen or urls is still empty, add ET Open.
+    if config.get("etopen") or not urls:
+        urls.append(resolve_etopen_url(suricata_version))
 
     # Converting the URLs to a set removed dupes.
     urls = set(urls)
