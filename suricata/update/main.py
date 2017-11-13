@@ -899,7 +899,17 @@ def copytree(src, dst):
             dst_path = os.path.join(dst, src_path[len(src) + 1:])
             if not os.path.exists(os.path.dirname(dst_path)):
                 os.makedirs(os.path.dirname(dst_path), mode=0o770)
-            shutil.copy2(src_path, dst_path)
+            shutil.copyfile(src_path, dst_path)
+
+            # Also attempt to copy the stat bits, but this may fail
+            # if the owner of the file is not the same as the user
+            # running the program.
+            try:
+                shutil.copystat(src_path, dst_path)
+            except OSError as err:
+                logger.debug(
+                    "Failed to copy stat info from %s to %s", src_path,
+                    dst_path)
 
 def load_sources(config, suricata_version):
     files = {}
