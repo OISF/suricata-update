@@ -983,6 +983,10 @@ def load_sources(config, suricata_version):
 
     return files
 
+def copytree_ignore_backup(src, names):
+    """ Returns files to ignore when doing a backup of the rules. """
+    return [".cache"]
+
 def main():
     global args
 
@@ -1278,7 +1282,7 @@ def main():
     logger.info("Backing up current rules.")
     backup_directory = util.mktempdir()
     shutil.copytree(args.output, os.path.join(
-        backup_directory, "backup"))
+        backup_directory, "backup"), ignore=copytree_ignore_backup)
 
     if not args.no_merge:
         # The default, write out a merged file.
