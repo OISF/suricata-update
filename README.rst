@@ -118,5 +118,5 @@ Files and Directories
   This is a single file that contains all the rules from all input
   files and should be used by Suricata.
 
-``/var/lib/suricata/cache``
+``/var/lib/suricata/rules/.cache``
   Downloaded rule files are cached here.

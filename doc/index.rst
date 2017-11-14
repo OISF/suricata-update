@@ -35,13 +35,6 @@ Options
 
    Default: */var/lib/suricata/rules*
 
-.. option:: --cache-dir <directory>
-
-   Directory where files are cached, such as files downloaded from a
-   URL.
-
-   Default: */var/lib/suricata/cache*
-
 .. option:: --suricata=<path>
 
    The path to the Suricata program used to determine which version of
