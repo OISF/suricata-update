@@ -70,6 +70,11 @@ decoder_rule_pattern = re.compile(
     r")"
     % "|".join(actions))
 
+class NoEndOfOptionError(Exception):
+    """Exception raised when the end of option terminator (semicolon) is
+    missing."""
+    pass
+
 class Rule(dict):
     """Class representing a rule.
 
@@ -233,6 +238,8 @@ def parse(buf, group=None):
         if not options:
             break
         index = find_opt_end(options)
+        if index < 0:
+            raise NoEndOfOptionError("no end of option")
         option = options[:index].strip()
         options = options[index + 1:].strip()
 
@@ -291,13 +298,13 @@ def parse_fileobj(fileobj, group=None):
         if line.rstrip().endswith("\\"):
             buf = "%s%s " % (buf, line.rstrip()[0:-1])
             continue
+        buf = buf + line
         try:
-            rule = parse(buf + line, group)
+            rule = parse(buf, group)
             if rule:
                 rules.append(rule)
-        except:
-            logger.error("failed to parse rule: %s" % (buf))
-            raise
+        except Exception as err:
+            logger.error("Failed to parse rule: %s: %s", buf.rstrip(), err)
         buf = ""
     return rules
 
