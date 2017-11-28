@@ -21,6 +21,7 @@ import hashlib
 import tempfile
 import atexit
 import shutil
+import zipfile
 
 def md5_hexdigest(filename):
     """ Compute the MD5 checksum for the contents of the provided filename.
@@ -37,3 +38,39 @@ def mktempdir(delete_on_exit=True):
     if delete_on_exit:
         atexit.register(shutil.rmtree, tmpdir, ignore_errors=True)
     return tmpdir
+
+class ZipArchiveReader:
+
+    def __init__(self, zipfile):
+        self.zipfile = zipfile
+        self.names = self.zipfile.namelist()
+
+    def __iter__(self):
+        return self
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.zipfile.close()
+
+    def next(self):
+        if self.names:
+            name = self.names.pop(0)
+            if name.endswith("/"):
+                # Is a directory, ignore
+                return self.next()
+            return name
+        raise StopIteration
+
+    def open(self, name):
+        return self.zipfile.open(name)
+
+    def read(self, name):
+        return self.zipfile.read(name)
+
+    @classmethod
+    def from_fileobj(cls, fileobj):
+        zf = zipfile.ZipFile(fileobj)
+        return cls(zf)
+

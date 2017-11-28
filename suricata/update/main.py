@@ -49,6 +49,7 @@ import suricata.update.loghandler
 from suricata.update import configs
 from suricata.update import extract
 from suricata.update import util
+from suricata.update import sources
 
 # Initialize logging, use colour if on a tty.
 if len(logging.root.handlers) == 0 and os.isatty(sys.stderr.fileno()):
@@ -807,7 +808,7 @@ class Config:
         self.args = args
         self.config = {}
         self.config.update(self.DEFAULTS)
-
+        self.filename = self.DEFAULT_LOCATIONS[0]
         self.cache_dir = None
 
     def load(self):
@@ -864,6 +865,13 @@ class Config:
 
     def set_cache_dir(self, directory):
         self.cache_dir = directory
+
+    def save_new_source(self, source):
+        config = yaml.load(open(self.filename))
+        if not "sources" in config:
+            config["sources"] = []
+        config["sources"].append(source)
+        print(yaml.dump(config, default_flow_style=False))
 
 def test_suricata(config, suricata_path):
     if not suricata_path:
@@ -993,85 +1001,118 @@ def main():
 
     suricata_path = suricata.update.engine.get_path()
 
+    # If no command given, default to the "update" command.
+    if len(sys.argv) == 1 or sys.argv[1].startswith("-"):
+        sys.argv.insert(1, "update")
+
     # Support the Python argparse style of configuration file.
-    parser = argparse.ArgumentParser(fromfile_prefix_chars="@")
+    parser = argparse.ArgumentParser(fromfile_prefix_chars="@", add_help=False)
 
-    parser.add_argument("-v", "--verbose", action="store_true", default=False,
-                        help="Be more verbose")
-    parser.add_argument("-c", "--config", metavar="<filename>",
-                        help="Configuration file")
-    parser.add_argument("-o", "--output", metavar="<directory>",
-                        dest="output", default="/var/lib/suricata/rules",
-                        help="Directory to write rules to")
-    parser.add_argument("--suricata", metavar="<path>",
-                        help="Path to Suricata program")
-    parser.add_argument("--suricata-version", metavar="<version>",
-                        help="Override Suricata version")
-    parser.add_argument("-f", "--force", action="store_true", default=False,
-                        help="Force operations that might otherwise be skipped")
-    parser.add_argument("--yaml-fragment", metavar="<filename>",
-                        help="Output YAML fragment for rule inclusion")
-    parser.add_argument("--url", metavar="<url>", action="append",
-                        default=[],
-                        help="URL to use instead of auto-generating one (can be specified multiple times)")
-    parser.add_argument("--local", metavar="<path>", action="append",
-                        default=[],
-                        help="Local rule files or directories (can be specified multiple times)")
-    parser.add_argument("--sid-msg-map", metavar="<filename>",
-                        help="Generate a sid-msg.map file")
-    parser.add_argument("--sid-msg-map-2", metavar="<filename>",
-                        help="Generate a v2 sid-msg.map file")
+    # Arguments that are common to all sub-commands.
+    common_parser = argparse.ArgumentParser(add_help=False)
+    common_parser.add_argument(
+        "-c", "--config", metavar="<filename>", help="Configuration file")
+    common_parser.add_argument(
+        "-v", "--verbose", action="store_true", default=False,
+        help="Be more verbose")
+    common_parser.add_argument(
+        "-q", "--quiet", action="store_true", default=False,
+        help="Be quiet, warning and error messages only")
+    common_parser.add_argument(
+        "-o", "--output", metavar="<directory>", dest="output",
+        default="/var/lib/suricata/rules", help="Directory to write rules to")
+    
+    subparsers = parser.add_subparsers(dest="subcommand")
 
-    parser.add_argument("--disable-conf", metavar="<filename>",
-                        help="Filename of rule disable filters")
-    parser.add_argument("--enable-conf", metavar="<filename>",
-                        help="Filename of rule enable filters")
-    parser.add_argument("--modify-conf", metavar="<filename>",
-                        help="Filename of rule modification filters")
-    parser.add_argument("--drop-conf", metavar="<filename>",
-                        help="Filename of drop rules filters")
+    # The "update" (default) sub-command parser.
+    update_parser = subparsers.add_parser(
+        "update", add_help=False, parents=[common_parser])
 
-    parser.add_argument("--ignore", metavar="<pattern>", action="append",
-                        default=[],
-                        help="Filenames to ignore (can be specified multiple times; default: *deleted.rules)")
-    parser.add_argument("--no-ignore", action="store_true", default=False,
-                        help="Disables the ignore option.")
+    update_parser.add_argument("--suricata", metavar="<path>",
+                               help="Path to Suricata program")
+    update_parser.add_argument("--suricata-version", metavar="<version>",
+                               help="Override Suricata version")
+    update_parser.add_argument("-f", "--force", action="store_true",
+                               default=False,
+                               help="Force operations that might otherwise be skipped")
+    update_parser.add_argument("--yaml-fragment", metavar="<filename>",
+                               help="Output YAML fragment for rule inclusion")
+    update_parser.add_argument("--url", metavar="<url>", action="append",
+                               default=[],
+                               help="URL to use instead of auto-generating one (can be specified multiple times)")
+    update_parser.add_argument("--local", metavar="<path>", action="append",
+                               default=[],
+                               help="Local rule files or directories (can be specified multiple times)")
+    update_parser.add_argument("--sid-msg-map", metavar="<filename>",
+                               help="Generate a sid-msg.map file")
+    update_parser.add_argument("--sid-msg-map-2", metavar="<filename>",
+                               help="Generate a v2 sid-msg.map file")
+    
+    update_parser.add_argument("--disable-conf", metavar="<filename>",
+                               help="Filename of rule disable filters")
+    update_parser.add_argument("--enable-conf", metavar="<filename>",
+                               help="Filename of rule enable filters")
+    update_parser.add_argument("--modify-conf", metavar="<filename>",
+                               help="Filename of rule modification filters")
+    update_parser.add_argument("--drop-conf", metavar="<filename>",
+                               help="Filename of drop rules filters")
+    
+    update_parser.add_argument("--ignore", metavar="<pattern>", action="append",
+                               default=[],
+                               help="Filenames to ignore (can be specified multiple times; default: *deleted.rules)")
+    update_parser.add_argument("--no-ignore", action="store_true",
+                               default=False,
+                               help="Disables the ignore option.")
+    
+    update_parser.add_argument("--threshold-in", metavar="<filename>",
+                               help="Filename of rule thresholding configuration")
+    update_parser.add_argument("--threshold-out", metavar="<filename>",
+                               help="Output of processed threshold configuration")
+    
+    update_parser.add_argument("--dump-sample-configs", action="store_true",
+                               default=False,
+                               help="Dump sample config files to current directory")
+    update_parser.add_argument("--etpro", metavar="<etpro-code>",
+                               help="Use ET-Pro rules with provided ET-Pro code")
+    update_parser.add_argument("--etopen", action="store_true",
+                               help="Use ET-Open rules (default)")
+    update_parser.add_argument("--reload-command", metavar="<command>",
+                               help="Command to run after update if modified")
+    update_parser.add_argument("--no-reload", action="store_true", default=False,
+                               help="Disable reload")
+    update_parser.add_argument("-T", "--test-command", metavar="<command>",
+                               help="Command to test Suricata configuration")
+    update_parser.add_argument("--no-test", action="store_true", default=False,
+                               help="Disable testing rules with Suricata")
+    update_parser.add_argument("-V", "--version", action="store_true", default=False,
+                               help="Display version")
+    
+    update_parser.add_argument("--no-merge", action="store_true", default=False,
+                               help="Do not merge the rules into a single file")
 
-    parser.add_argument("--threshold-in", metavar="<filename>",
-                        help="Filename of rule thresholding configuration")
-    parser.add_argument("--threshold-out", metavar="<filename>",
-                        help="Output of processed threshold configuration")
-
-    parser.add_argument("--dump-sample-configs", action="store_true",
-                        default=False,
-                        help="Dump sample config files to current directory")
-    parser.add_argument("--etpro", metavar="<etpro-code>",
-                        help="Use ET-Pro rules with provided ET-Pro code")
-    parser.add_argument("--etopen", action="store_true",
-                        help="Use ET-Open rules (default)")
-    parser.add_argument("-q", "--quiet", action="store_true", default=False,
-                       help="Be quiet, warning and error messages only")
-    parser.add_argument("--reload-command", metavar="<command>",
-                        help="Command to run after update if modified")
-    parser.add_argument("--no-reload", action="store_true", default=False,
-                        help="Disable reload")
-    parser.add_argument("-T", "--test-command", metavar="<command>",
-                        help="Command to test Suricata configuration")
-    parser.add_argument("--no-test", action="store_true", default=False,
-                        help="Disable testing rules with Suricata")
-    parser.add_argument("-V", "--version", action="store_true", default=False,
-                        help="Display version")
-
-    parser.add_argument("--no-merge", action="store_true", default=False,
-                        help="Do not merge the rules into a single file")
-
+    update_parser.add_argument("-h", "--help", action="store_true")
+    
     # The Python 2.7 argparse module does prefix matching which can be
     # undesirable. Reserve some names here that would match existing
     # options to prevent prefix matching.
-    parser.add_argument("--disable", default=False, help=argparse.SUPPRESS)
-    parser.add_argument("--enable", default=False, help=argparse.SUPPRESS)
-    parser.add_argument("--modify", default=False, help=argparse.SUPPRESS)
-    parser.add_argument("--drop", default=False, help=argparse.SUPPRESS)
+    update_parser.add_argument("--disable", default=False,
+                               help=argparse.SUPPRESS)
+    update_parser.add_argument("--enable", default=False,
+                               help=argparse.SUPPRESS)
+    update_parser.add_argument("--modify", default=False,
+                               help=argparse.SUPPRESS)
+    update_parser.add_argument("--drop", default=False, help=argparse.SUPPRESS)
+
+    list_sources_parser = subparsers.add_parser(
+        "list-sources", parents=[common_parser])
+
+    enable_source_parser = subparsers.add_parser(
+        "enable-source", parents=[common_parser])
+    enable_source_parser.add_argument("name")
+    enable_source_parser.add_argument("params", nargs="*", metavar="param=val")
+
+    update_sources_parser = subparsers.add_parser(
+        "update-sources", parents=[common_parser])
 
     args = parser.parse_args()
 
@@ -1083,13 +1124,9 @@ def main():
         "drop",
     ]
     for arg in unimplemented_args:
-        if getattr(args, arg):
+        if hasattr(args, arg) and getattr(args, arg):
             logger.error("--%s not implemented", arg)
             return 1
-
-    if args.version:
-        print("suricata-update version %s" % suricata.update.version)
-        return 0
 
     if args.verbose:
         logger.setLevel(logging.DEBUG)
@@ -1100,9 +1137,6 @@ def main():
         suricata.update.version,
         sys.version.replace("\n", "- ")))
 
-    if args.dump_sample_configs:
-        return dump_sample_configs()
-
     config = Config(args)
     try:
         config.load()
@@ -1110,9 +1144,35 @@ def main():
         logger.error("Failed to load configuration: %s" % (err))
         return 1
 
+    if args.subcommand:
+        if args.subcommand == "update-sources":
+            return sources.update_sources(config)
+        elif args.subcommand == "list-sources":
+            return sources.list_sources(config)
+        elif args.subcommand == "enable-source":
+            return sources.enable_source(config)
+        elif args.subcommand != "update":
+            logger.error("Unknown command: %s", args.command)
+            return 1
+
+    if args.dump_sample_configs:
+        return dump_sample_configs()
+
+    if args.version:
+        print("suricata-update version %s" % suricata.update.version)
+        return 0
+
+    if args.help:
+        print(update_parser.format_help())
+        print("""other commands:
+    update-sources
+    list-sources
+    enable-source
+""")
+        return 0
+
     # If --no-ignore was provided, make sure args.ignore is
     # empty. Otherwise if no ignores are provided, set a sane default.
-
     if args.no_ignore:
         config.set("ignore", [])
     elif not config.get("ignore"):
