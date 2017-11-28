@@ -25,11 +25,57 @@ import yaml
 
 from suricata.update import net
 from suricata.update import util
+from suricata.update import loghandler
 
 logger = logging.getLogger()
 
 DEFAULT_SOURCE_INDEX_URL = "https://raw.githubusercontent.com/jasonish/suricata-intel-index/master/index.yaml"
 SOURCE_INDEX_FILENAME = "index.yaml"
+ENABLED_SOURCE_DIRECTORY = "/var/lib/suricata/update/sources"
+
+def get_index_filename(config):
+    return os.path.join(config.get_cache_dir(), SOURCE_INDEX_FILENAME)
+
+class Index:
+
+    def __init__(self, filename):
+        self.filename = filename
+
+        self.index = {}
+        self.reload()
+
+    def reload(self):
+        if os.path.exists(self.filename):
+            index = yaml.load(open(self.filename))
+            self.index = index
+
+    def resolve_url(self, name, params={}):
+        if not name in self.index["sources"]:
+            raise Exception("Source name not in index: %s" % (name))
+        source = self.index["sources"][name]
+        try:
+            return source["url"] % params
+        except KeyError as err:
+            raise Exception("Missing URL parameter: %s" % (str(err.args[0])))
+
+def get_enabled_sources():
+    """Return a map of enabled sources, keyed by name."""
+    if not os.path.exists(ENABLED_SOURCE_DIRECTORY):
+        return {}
+    sources = {}
+    for dirpath, dirnames, filenames in os.walk(ENABLED_SOURCE_DIRECTORY):
+        for filename in filenames:
+            if filename.endswith(".yaml"):
+                path = os.path.join(dirpath, filename)
+                source = yaml.load(open(path, "rb"))
+                sources[source["source"]] = source
+
+                if "params" in source:
+                    for param in source["params"]:
+                        if param.startswith("secret"):
+                            loghandler.add_secret(source["params"][param], param)
+
+    return sources
 
 def get_source_index_url(config):
     if os.getenv("SOURCE_INDEX_URL"):
@@ -72,6 +118,29 @@ def list_sources(config):
 
 def enable_source(config):
     name = config.args.name
+
+    # Check if source is already enabled.
+    enabled_source_filename = os.path.join(
+        ENABLED_SOURCE_DIRECTORY, "%s.yaml" % (safe_filename(name)))
+    if os.path.exists(enabled_source_filename):
+        logger.error("The source %s is already enabled.", name)
+        return 1
+
+    # First check if this source was previous disabled and then just
+    # re-enable it.
+    disabled_source_filename = os.path.join(
+        ENABLED_SOURCE_DIRECTORY, "%s.yaml.disabled" % (safe_filename(name)))
+    if os.path.exists(disabled_source_filename):
+        logger.info("Re-enabling previous disabled source for %s.", name)
+        os.rename(disabled_source_filename, enabled_source_filename)
+        return 0
+
+    if not os.path.exists(get_index_filename(config)):
+        logger.warning(
+            "Source index does not exist, "
+            "try running suricata-update update-sources.")
+        return 1
+
     sources = load_sources(config)
     if not config.args.name in sources:
         logger.error("Unknown source: %s", config.args.name)
@@ -79,8 +148,8 @@ def enable_source(config):
 
     # Parse key=val options.
     opts = {}
-    for opt in config.args.params:
-        key, val = opt.params("=", 1)
+    for param in config.args.params:
+        key, val = param.split("=", 1)
         opts[key] = val
 
     source = sources[config.args.name]
@@ -99,4 +168,64 @@ def enable_source(config):
     if params:
         new_source["params"] = params
     new_sources = [new_source]
-    config.save_new_source(new_source)
+
+    if not os.path.exists(ENABLED_SOURCE_DIRECTORY):
+        try:
+            logger.info("Creating directory %s", ENABLED_SOURCE_DIRECTORY)
+            os.makedirs(ENABLED_SOURCE_DIRECTORY)
+        except Exception as err:
+            logger.error("Failed to create directory %s: %s",
+                         ENABLED_SOURCE_DIRECTORY, err)
+            return 1
+
+    filename = os.path.join(
+        ENABLED_SOURCE_DIRECTORY, "%s.yaml" % (safe_filename(name)))
+    logger.info("Writing %s", filename)
+    with open(filename, "w") as fileobj:
+        fileobj.write(yaml.dump(new_source, default_flow_style=False))
+
+def disable_source(config):
+    name = config.args.name
+    filename = os.path.join(ENABLED_SOURCE_DIRECTORY, "%s.yaml" % (
+        safe_filename(name)))
+    if not os.path.exists(filename):
+        logger.debug("Filename %s does not exist.", filename)
+        logger.warning("Source %s is not enabled.", name)
+        return 1
+    logger.debug("Renaming %s to %s.disabled.", filename, filename)
+    os.rename(filename, "%s.disabled" % (filename))
+
+def remove_source(config):
+    name = config.args.name
+
+    enabled_source_filename = get_enabled_source_filename(name)
+    if os.path.exists(enabled_source_filename):
+        logger.debug("Deleting file %s.", enabled_source_filename)
+        os.remove(enabled_source_filename)
+        logger.info("Source %s removed, previously enabled.", name)
+        return 0
+
+    disabled_source_filename = get_disabled_source_filename(name)
+    if os.path.exists(disabled_source_filename):
+        logger.debug("Deleting file %s.", disabled_source_filename)
+        os.remove(disabled_source_filename)
+        logger.info("Source %s removed, previously disabled.", name)
+        return 0
+    
+    logger.warning("Source %s does not exist.", name)
+    return 1
+
+def get_enabled_source_filename(name):
+    return os.path.join(ENABLED_SOURCE_DIRECTORY, "%s.yaml" % (
+        safe_filename(name)))
+
+def get_disabled_source_filename(name):
+    return os.path.join(ENABLED_SOURCE_DIRECTORY, "%s.yaml.disabled" % (
+        safe_filename(name)))
+
+def safe_filename(name):
+    """Utility function to make a source short-name safe as a
+    filename."""
+    name = name.replace("/", "-")
+    return name
+

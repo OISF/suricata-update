@@ -944,6 +944,33 @@ def load_sources(config, suricata_version):
         for url in config.args.url:
             urls.append(url)
 
+    # Get the new style sources.
+    enabled_sources = sources.get_enabled_sources()
+
+    # If we have new sources, we also need to load the index.
+    if enabled_sources:
+        index_filename = os.path.join(
+            config.get_cache_dir(), sources.SOURCE_INDEX_FILENAME)
+        if not os.path.exists(index_filename):
+            raise Exception(
+                ("Source index is required but does not exist.",
+                 ("Run suricata-update update-sources")))
+        index = sources.Index(index_filename)
+
+        version_string = "%d.%d.%d" % (
+            suricata_version.major, suricata_version.minor,
+            suricata_version.patch)
+
+        for (name, source) in enabled_sources.items():
+            if "params" in source and source["params"]:
+                params = source["params"]
+            else:
+                params = {}
+            params["__version__"] = version_string
+            url = index.resolve_url(name, params)
+            logger.debug("Resolved source %s to URL %s.", name, url)
+            urls.append(url)
+
     if config.get("sources"):
         for source in config.get("sources"):
             if not "type" in source:
@@ -1106,6 +1133,14 @@ def main():
     list_sources_parser = subparsers.add_parser(
         "list-sources", parents=[common_parser])
 
+    disable_source_parser = subparsers.add_parser(
+        "disable-source", parents=[common_parser])
+    disable_source_parser.add_argument("name")
+
+    remove_source_parser = subparsers.add_parser(
+        "remove-source", help="Remove a source", parents=[common_parser])
+    remove_source_parser.add_argument("name")
+
     enable_source_parser = subparsers.add_parser(
         "enable-source", parents=[common_parser])
     enable_source_parser.add_argument("name")
@@ -1151,8 +1186,12 @@ def main():
             return sources.list_sources(config)
         elif args.subcommand == "enable-source":
             return sources.enable_source(config)
+        elif args.subcommand == "disable-source":
+            return sources.disable_source(config)
+        elif args.subcommand == "remove-source":
+            return sources.remove_source(config)
         elif args.subcommand != "update":
-            logger.error("Unknown command: %s", args.command)
+            logger.error("Unknown command: %s", args.subcommand)
             return 1
 
     if args.dump_sample_configs:
@@ -1165,9 +1204,11 @@ def main():
     if args.help:
         print(update_parser.format_help())
         print("""other commands:
-    update-sources
-    list-sources
-    enable-source
+    update-sources             Update the source index
+    list-sources               List available sources
+    enable-source              Enable a source from the index
+    disable-source             Disable an enabled source
+    remove-source              Remove an enabled or disabled source
 """)
         return 0
 
