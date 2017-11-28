@@ -45,8 +45,8 @@ if sys.argv[0] == __file__:
 import suricata.update.rule
 import suricata.update.engine
 import suricata.update.net
+import suricata.update.loghandler
 from suricata.update import configs
-from suricata.update.loghandler import SuriColourLogHandler
 from suricata.update import extract
 from suricata.update import util
 
@@ -54,7 +54,7 @@ from suricata.update import util
 if len(logging.root.handlers) == 0 and os.isatty(sys.stderr.fileno()):
     logger = logging.getLogger()
     logger.setLevel(level=logging.INFO)
-    logger.addHandler(SuriColourLogHandler())
+    logger.addHandler(suricata.update.loghandler.SuriColourLogHandler())
 else:
     logging.basicConfig(
         level=logging.INFO,
@@ -950,6 +950,7 @@ def load_sources(config, suricata_version):
                     code = source["code"]
                 else:
                     code = config.get("etpro")
+                suricata.update.loghandler.add_secret(code, "code")
                 if not code:
                     logger.error("ET-Pro source specified without code: %s",
                                  str(source))
