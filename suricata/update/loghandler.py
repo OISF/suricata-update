@@ -18,6 +18,15 @@
 import logging
 import time
 
+# A list of secrets that will be replaced in the log output.
+secrets = {}
+
+def add_secret(secret, replacement):
+    """Register a secret to be masked. The secret will be replaced with:
+           <replacement>
+    """
+    secrets[str(secret)] = str(replacement)
+
 class SuriColourLogHandler(logging.StreamHandler):
     """An alternative stream log handler that logs with Suricata inspired
     log colours."""
@@ -61,5 +70,10 @@ class SuriColourLogHandler(logging.StreamHandler):
             record.levelname.title(),
             self.RESET,
             message_prefix,
-            record.getMessage(),
+            self.mask_secrets(record.getMessage()),
             self.RESET))
+
+    def mask_secrets(self, msg):
+        for secret in secrets:
+            msg = msg.replace(secret, "<%s>" % secrets[secret])
+        return msg
