@@ -50,6 +50,7 @@ from suricata.update import configs
 from suricata.update import extract
 from suricata.update import util
 from suricata.update import sources
+from suricata.update import commands
 
 # Initialize logging, use colour if on a tty.
 if len(logging.root.handlers) == 0 and os.isatty(sys.stderr.fileno()):
@@ -63,18 +64,7 @@ else:
     logger = logging.getLogger()
 
 # If Suricata is not found, default to this version.
-DEFAULT_SURICATA_VERSION = "4.0"
-
-# Template URL for Emerging Threats Pro rules.
-ET_PRO_URL = ("https://rules.emergingthreatspro.com/"
-              "%(code)s/"
-              "suricata%(version)s/"
-              "etpro.rules.tar.gz")
-
-# Template URL for Emerging Threats Open rules.
-ET_OPEN_URL = ("https://rules.emergingthreats.net/open/"
-               "suricata%(version)s/"
-               "emerging.rules.tar.gz")
+DEFAULT_SURICATA_VERSION = "4.0.0"
 
 # The default filename to use for the output rule file. This is a
 # single file concatenating all input rule files together.
@@ -758,19 +748,12 @@ class FileTracker:
                 return True
         return False
 
-def resolve_etpro_url(etpro, suricata_version):
-    mappings = {
-        "code": etpro,
-        "version": "",
-    }
-
-    mappings["version"] = "-%d.%d.%d" % (suricata_version.major,
-                                      suricata_version.minor,
-                                      suricata_version.patch)
-
-    return ET_PRO_URL % mappings
-
 def resolve_etopen_url(suricata_version):
+    # Template URL for Emerging Threats Open rules.
+    template_url = ("https://rules.emergingthreats.net/open/"
+                    "suricata%(version)s/"
+                    "emerging.rules.tar.gz")
+
     mappings = {
         "version": "",
     }
@@ -779,7 +762,7 @@ def resolve_etopen_url(suricata_version):
                                          suricata_version.minor,
                                          suricata_version.patch)
 
-    return ET_OPEN_URL % mappings
+    return template_url % mappings
 
 def ignore_file(ignore_files, filename):
     if not ignore_files:
@@ -947,6 +930,15 @@ def load_sources(config, suricata_version):
     # Get the new style sources.
     enabled_sources = sources.get_enabled_sources()
 
+    # Convert the Suricata version to a version string.
+    version_string = "%d.%d.%d" % (
+        suricata_version.major, suricata_version.minor,
+        suricata_version.patch)
+
+    # Construct the URL replacement parameters that are internal to
+    # suricata-update.
+    internal_params = {"__version__": version_string}
+
     # If we have new sources, we also need to load the index.
     if enabled_sources:
         index_filename = os.path.join(
@@ -957,49 +949,43 @@ def load_sources(config, suricata_version):
                  ("Run suricata-update update-sources")))
         index = sources.Index(index_filename)
 
-        version_string = "%d.%d.%d" % (
-            suricata_version.major, suricata_version.minor,
-            suricata_version.patch)
-
         for (name, source) in enabled_sources.items():
-            if "params" in source and source["params"]:
-                params = source["params"]
+            params = source["params"] if "params" in source else {}
+            params.update(internal_params)
+            if "url" in source:
+                # No need to go off to the index.
+                url = source["url"] % params
             else:
-                params = {}
-            params["__version__"] = version_string
-            url = index.resolve_url(name, params)
+                url = index.resolve_url(name, params)
             logger.debug("Resolved source %s to URL %s.", name, url)
             urls.append(url)
 
     if config.get("sources"):
         for source in config.get("sources"):
-            if not "type" in source:
-                logger.error("Source is missing a type: %s", str(source))
-                continue
-            if source["type"] == "url":
-                urls.append(source["url"])
-            elif source["type"] == "etopen":
-                urls.append(resolve_etopen_url(suricata_version))
-            elif source["type"] == "etpro":
-                if "code" in source:
-                    code = source["code"]
-                else:
-                    code = config.get("etpro")
-                suricata.update.loghandler.add_secret(code, "code")
-                if not code:
-                    logger.error("ET-Pro source specified without code: %s",
-                                 str(source))
-                else:
-                    urls.append(resolve_etpro_url(code, suricata_version))
+            source_name = None
+            if "source" in source :
+                source_name = source["source"]
             else:
-                logger.error("Unknown source type: %s", source["type"])
+                logger.error("Source is missing the \"source\" field.")
+                continue
 
-    # If --etpro, add it.
-    if config.get("etpro"):
-        urls.append(resolve_etpro_url(config.get("etpro"), suricata_version))
+            if source_name == "url":
+                urls.append(source["url"])
+            elif source_name == "etopen":
+                urls.append(resolve_etopen_url(suricata_version))
+            else:
+                logger.error(
+                    "Unknown source: %s; "
+                    "try running suricata-update update-sources",
+                    source["source"])
 
-    # If --etopen or urls is still empty, add ET Open.
-    if config.get("etopen") or not urls:
+    # If no URLs, default to ET/Open.
+    if not urls:
+        logger.info("No sources configured, will use Emerging Threats Open")
+        urls.append(resolve_etopen_url(suricata_version))
+
+    # If --etopen is on the command line, make sure its added.
+    if config.get("etopen"):
         urls.append(resolve_etopen_url(suricata_version))
 
     # Converting the URLs to a set removed dupes.
@@ -1033,7 +1019,7 @@ def main():
         sys.argv.insert(1, "update")
 
     # Support the Python argparse style of configuration file.
-    parser = argparse.ArgumentParser(fromfile_prefix_chars="@", add_help=False)
+    parser = argparse.ArgumentParser()
 
     # Arguments that are common to all sub-commands.
     common_parser = argparse.ArgumentParser(add_help=False)
@@ -1049,7 +1035,7 @@ def main():
         "-o", "--output", metavar="<directory>", dest="output",
         default="/var/lib/suricata/rules", help="Directory to write rules to")
     
-    subparsers = parser.add_subparsers(dest="subcommand")
+    subparsers = parser.add_subparsers(dest="subcommand", metavar="<command>")
 
     # The "update" (default) sub-command parser.
     update_parser = subparsers.add_parser(
@@ -1099,8 +1085,6 @@ def main():
     update_parser.add_argument("--dump-sample-configs", action="store_true",
                                default=False,
                                help="Dump sample config files to current directory")
-    update_parser.add_argument("--etpro", metavar="<etpro-code>",
-                               help="Use ET-Pro rules with provided ET-Pro code")
     update_parser.add_argument("--etopen", action="store_true",
                                help="Use ET-Open rules (default)")
     update_parser.add_argument("--reload-command", metavar="<command>",
@@ -1130,9 +1114,6 @@ def main():
                                help=argparse.SUPPRESS)
     update_parser.add_argument("--drop", default=False, help=argparse.SUPPRESS)
 
-    list_sources_parser = subparsers.add_parser(
-        "list-sources", parents=[common_parser])
-
     disable_source_parser = subparsers.add_parser(
         "disable-source", parents=[common_parser])
     disable_source_parser.add_argument("name")
@@ -1148,6 +1129,13 @@ def main():
 
     update_sources_parser = subparsers.add_parser(
         "update-sources", parents=[common_parser])
+
+    commands.listsources.register(subparsers.add_parser(
+        "list-sources", parents=[common_parser]))
+    commands.listenabledsources.register(subparsers.add_parser(
+        "list-enabled-sources", parents=[common_parser]))
+    commands.addsource.register(subparsers.add_parser(
+        "add-source", parents=[common_parser]))
 
     args = parser.parse_args()
 
@@ -1182,14 +1170,14 @@ def main():
     if args.subcommand:
         if args.subcommand == "update-sources":
             return sources.update_sources(config)
-        elif args.subcommand == "list-sources":
-            return sources.list_sources(config)
         elif args.subcommand == "enable-source":
             return sources.enable_source(config)
         elif args.subcommand == "disable-source":
             return sources.disable_source(config)
         elif args.subcommand == "remove-source":
             return sources.remove_source(config)
+        elif hasattr(args, "func"):
+            return args.func(config)
         elif args.subcommand != "update":
             logger.error("Unknown command: %s", args.subcommand)
             return 1
@@ -1209,6 +1197,8 @@ def main():
     enable-source              Enable a source from the index
     disable-source             Disable an enabled source
     remove-source              Remove an enabled or disabled source
+    list-enabled-sources       List all enabled sources
+    add-source                 Add a new source by URL
 """)
         return 0
 
@@ -1291,7 +1281,8 @@ def main():
             os.makedirs(config.get_cache_dir(), mode=0o770)
         except Exception as err:
             logger.warning(
-                "Cache directory does exist and could not be created. /var/tmp will be used instead.")
+                "Cache directory does not exist and could not be created. "
+                "/var/tmp will be used instead.")
             config.set_cache_dir("/var/tmp")
 
     files = load_sources(config, suricata_version)

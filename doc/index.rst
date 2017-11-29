@@ -145,16 +145,14 @@ Options
 
 .. option:: --etopen
 
-   Download the ET open ruleset. This is the default if ``--url`` or
-   ``--etpro`` are not provided.
+   Download the ET/Open ruleset.
 
-   If one of ``etpro`` or ``--url`` is also specified, this option
-   will at the ET open URL to the list of remote ruleset to be
-   downloaded.
+   This is the default action of no ``--url`` options are provided or
+   no sources are configured.
 
-.. option:: --etpro=<code>
-
-   Download the ET pro ruleset using the provided code.
+   Use this option to enable the ET/Open ruleset in addition to any
+   URLs provided on the command line or sources provided in the
+   configuration.
 
 .. option:: -q, --quiet
 

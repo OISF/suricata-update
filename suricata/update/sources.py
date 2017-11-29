@@ -36,18 +36,57 @@ ENABLED_SOURCE_DIRECTORY = "/var/lib/suricata/update/sources"
 def get_index_filename(config):
     return os.path.join(config.get_cache_dir(), SOURCE_INDEX_FILENAME)
 
+def get_enabled_source_filename(name):
+    return os.path.join(ENABLED_SOURCE_DIRECTORY, "%s.yaml" % (
+        safe_filename(name)))
+
+def get_disabled_source_filename(name):
+    return os.path.join(ENABLED_SOURCE_DIRECTORY, "%s.yaml.disabled" % (
+        safe_filename(name)))
+
+def source_name_exists(name):
+    """Return True if a source already exists with name."""
+    if os.path.exists(get_enabled_source_filename(name)) or \
+       os.path.exists(get_disabled_source_filename(name)):
+        return True
+    return False
+
+def source_index_exists(config):
+    """Return True if the source index file exists."""
+    return os.path.exists(get_index_filename(config))
+
+def save_source_config(source_config):
+    with open(get_enabled_source_filename(source_config.name), "wb") as fileobj:
+        fileobj.write(yaml.safe_dump(
+            source_config.dict(), default_flow_style=False))
+
+class SourceConfiguration:
+
+    def __init__(self, name, url=None, params={}):
+        self.name = name
+        self.url = url
+        self.params = params
+
+    def dict(self):
+        d = {
+            "source": self.name,
+        }
+        if self.url:
+            d["url"] = self.url
+        if self.params:
+            d["params"] = self.params
+        return d
+
 class Index:
 
     def __init__(self, filename):
         self.filename = filename
-
         self.index = {}
         self.reload()
 
     def reload(self):
-        if os.path.exists(self.filename):
-            index = yaml.load(open(self.filename))
-            self.index = index
+        index = yaml.load(open(self.filename, "rb"))
+        self.index = index
 
     def resolve_url(self, name, params={}):
         if not name in self.index["sources"]:
@@ -57,6 +96,12 @@ class Index:
             return source["url"] % params
         except KeyError as err:
             raise Exception("Missing URL parameter: %s" % (str(err.args[0])))
+
+    def get_sources(self):
+        return self.index["sources"]
+
+def load_source_index(config):
+    return Index(get_index_filename(config))
 
 def get_enabled_sources():
     """Return a map of enabled sources, keyed by name."""
@@ -93,6 +138,13 @@ def update_sources(config):
             net.get(get_source_index_url(config), fileobj)
         except Exception as err:
             raise Exception("Failed to download index: %s: %s" % (url, err))
+        if not os.path.exists(config.get_cache_dir()):
+            try:
+                os.makedirs(config.get_cache_dir())
+            except Exception as err:
+                logger.error("Failed to create directory %s: %s",
+                             config.get_cache_dir(), err)
+                return 1
         with open(source_cache_filename, "w") as outobj:
             outobj.write(fileobj.getvalue())
         logger.debug("Saved %s", source_cache_filename)
@@ -104,17 +156,6 @@ def load_sources(config):
         index = yaml.load(open(sources_cache_filename).read())
         return index["sources"]
     return {}
-
-def list_sources(config):
-    sources = load_sources(config)
-    if not sources:
-        logger.error("No sources exist. Try running update-sources.")
-        return
-    for name, source in sources.items():
-        print("Name: %s" % (name))
-        print("  Vendor: %s" % (source["vendor"]))
-        print("  Description: %s" % (source["description"]))
-        print("  License: %s" % (source["license"]))
 
 def enable_source(config):
     name = config.args.name
@@ -153,6 +194,11 @@ def enable_source(config):
         opts[key] = val
 
     source = sources[config.args.name]
+
+    if "subscribe-url" in source:
+        print("The source %s requires a subscription. Subscribe here:" % (name))
+        print("  %s" % source["subscribe-url"])
+
     params = {}
     if "parameters" in source:
         for param in source["parameters"]:
@@ -160,14 +206,13 @@ def enable_source(config):
                 params[param] = opts[param]
             else:
                 prompt = source["parameters"][param]["prompt"]
-                r = raw_input("%s (%s): " % (prompt, param))
+                while True:
+                    r = raw_input("%s (%s): " % (prompt, param))
+                    r = r.strip()
+                    if r:
+                        break
                 params[param] = r.strip()
-    new_source = {
-        "source": name,
-    }
-    if params:
-        new_source["params"] = params
-    new_sources = [new_source]
+    new_source = SourceConfiguration(name, params=params).dict()
 
     if not os.path.exists(ENABLED_SOURCE_DIRECTORY):
         try:
@@ -214,14 +259,6 @@ def remove_source(config):
     
     logger.warning("Source %s does not exist.", name)
     return 1
-
-def get_enabled_source_filename(name):
-    return os.path.join(ENABLED_SOURCE_DIRECTORY, "%s.yaml" % (
-        safe_filename(name)))
-
-def get_disabled_source_filename(name):
-    return os.path.join(ENABLED_SOURCE_DIRECTORY, "%s.yaml.disabled" % (
-        safe_filename(name)))
 
 def safe_filename(name):
     """Utility function to make a source short-name safe as a

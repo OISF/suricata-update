@@ -11,6 +11,7 @@ setup(
     packages=[
         "suricata",
         "suricata.update",
+        "suricata.update.commands",
         "suricata.update.configs",
         "suricata.update.compat",
         "suricata.update.compat.argparse",

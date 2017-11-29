@@ -38,12 +38,12 @@ ignore:
 # Remote rule sources.
 sources:
   # Emerging Threats Open
-  - type: etopen
+  - source: etopen
   # Emerging Threats Pro
-  - type: etpro
+  - source: etpro
     code: xxxxx
   # A URL
-  - type: url
+  - source: url
     url: https://sslbl.abuse.ch/blacklist/sslblacklist.rules
 
 # A list of local rule sources. Each entry can be a rule file, a
