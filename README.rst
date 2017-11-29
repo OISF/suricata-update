@@ -119,4 +119,11 @@ Files and Directories
   files and should be used by Suricata.
 
 ``/var/lib/suricata/rules/.cache``
-  Downloaded rule files are cached here.
+  Directory where downloaded rule files are cached here.
+
+``/var/lib/suricata/rules/.cache/index.yaml``
+  Cached copy of the rule source index.
+
+``/var/lib/suricata/update/sources``
+  Configuration direction for sources enabled or added with
+  ``enable-source`` or ``add-source``.
