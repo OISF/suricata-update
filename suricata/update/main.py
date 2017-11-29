@@ -961,31 +961,16 @@ def load_sources(config, suricata_version):
             urls.append(url)
 
     if config.get("sources"):
-        for source in config.get("sources"):
-            source_name = None
-            if "source" in source :
-                source_name = source["source"]
-            else:
-                logger.error("Source is missing the \"source\" field.")
-                continue
+        for url in config.get("sources"):
+            url = url % internal_params
+            logger.debug("Adding source %s.", url)
+            urls.append(url)
 
-            if source_name == "url":
-                urls.append(source["url"])
-            elif source_name == "etopen":
-                urls.append(resolve_etopen_url(suricata_version))
-            else:
-                logger.error(
-                    "Unknown source: %s; "
-                    "try running suricata-update update-sources",
-                    source["source"])
-
-    # If no URLs, default to ET/Open.
-    if not urls:
-        logger.info("No sources configured, will use Emerging Threats Open")
-        urls.append(resolve_etopen_url(suricata_version))
-
-    # If --etopen is on the command line, make sure its added.
-    if config.get("etopen"):
+    # If --etopen is on the command line, make sure its added. Or if
+    # there are no URLs, default to ET/Open.
+    if config.get("etopen") or not urls:
+        if not urls:
+            logger.info("No sources configured, will use Emerging Threats Open")
         urls.append(resolve_etopen_url(suricata_version))
 
     # Converting the URLs to a set removed dupes.
