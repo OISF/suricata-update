@@ -1,19 +1,20 @@
+#############################################
 suricata-update - A Suricata rule update tool
-=============================================
+#############################################
 
 Synopsis
---------
+========
 
 ``suricata-update`` [OPTIONS]
 
 Description
------------
+===========
 
 ``suricata-update`` aims to be a simple to use rule download and
 management tool for Suricata.
 
 Options
--------
+=======
 
 .. option:: -h, --help
 
@@ -199,7 +200,7 @@ Options
    Display the version of **suricata-update**.
 
 Rule Matching
--------------
+=============
 
 Matching rules for disabling, enabling, converting to drop or
 modification can be done with the following:
@@ -210,7 +211,7 @@ modification can be done with the following:
 - filename
 
 Signature ID Matching
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 A signature ID can be matched by just its signature ID, for example::
 
@@ -221,7 +222,7 @@ The generator ID can also be used for compatibility with other tools::
     1:1034
 
 Regular Expression Matching
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 Regular expression matching will match a regular expression over the
 complete rule. Example::
@@ -230,7 +231,7 @@ complete rule. Example::
     re:MS(0[7-9]|10)-\d+
 
 Group Matching
-~~~~~~~~~~~~~~
+--------------
 
 The group matcher matches against the group the rule was loaded
 from. Basically this is the filename without the leading path or file
@@ -245,7 +246,7 @@ be used::
   group:*deleted*
 
 Filename Matching
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The filename matcher matches against the filename the rule was loaded
 from taking into consideration the full path. Shell wildcard patterns
@@ -255,7 +256,7 @@ are allowed::
   filename:*/emerging-dos.rules
 
 Modifying Rules
-~~~~~~~~~~~~~~~
+---------------
 
 Rule modification can be done with regular expression search and
 replace. The basic format for a rule modification specifier is::
@@ -273,40 +274,65 @@ Example converting all drop rules with noalert back to alert::
 
   re:. "^drop(.*)noalert(.*)" "alert\\1noalert\\2"  
 
+Sub Commands
+============
+
+add-source - Add a new source by URL
+------------------------------------
+
+Description
+~~~~~~~~~~~
+
+The ``add-source`` adds a source to the set of enabled sources by
+URL. It is useful to add a source that is not provided in the index.
+
+Options
+~~~~~~~
+
+.. option:: --name <name>
+
+   The name of the source. If not provided on the command line the
+   user will be prompted.
+
+.. option:: --url <url>
+
+   The URL of the source. If not provided on the command line the user
+   will be prompted.
+
 Example Configuration Files
----------------------------
+===========================
 
 .. _example_update_yaml:
 
 Example Configuration File (/etc/suricata/update.yaml)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------------------------
 
 .. literalinclude:: ../suricata/update/configs/update.yaml
 
 .. _example-enable-conf:
 
 Example Configuration to Enable Rules (--enable-conf)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------------------
 
 .. literalinclude:: ../suricata/update/configs/enable.conf
 
 .. _example-disable-conf:
 
 Example Configuration to Enable Disable (--disable-conf)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------------------------
 
 .. literalinclude:: ../suricata/update/configs/disable.conf
 
 .. _example-drop-conf:
 
 Example Configuration to convert Rules to Drop (--drop-conf)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------------------------------
 
 .. literalinclude:: ../suricata/update/configs/drop.conf
 
 .. _example-modify-conf:
 
 Example Configuration to modify Rules (--modify-conf)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------------------
 
 .. literalinclude:: ../suricata/update/configs/modify.conf
