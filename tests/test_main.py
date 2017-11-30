@@ -95,6 +95,10 @@ class TestRulecat(unittest.TestCase):
                  "--no-test",
                  "--reload-command", "true",
                 ],
+                env={
+                    "PATH": os.getenv("PATH"),
+                    "SOURCE_DIRECTORY": "/tmp",
+                },
                 stdout=open("./tmp/stdout", "wb"),
                 stderr=open("./tmp/stderr", "wb"),
             )
@@ -134,6 +138,10 @@ class TestRulecat(unittest.TestCase):
                  "--no-test",
                  "--reload-command", "true",
                 ],
+                env={
+                    "PATH": os.getenv("PATH"),
+                    "SOURCE_DIRECTORY": "/tmp",
+                },
                 stdout=open("./tmp/stdout", "wb"),
                 stderr=open("./tmp/stderr", "wb"),
             )
