@@ -7,3 +7,6 @@ _work
 
 # Development update.yaml
 /update.yaml
+
+# The file containing the git revision.
+/suricata/update/revision.py*

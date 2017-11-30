@@ -1,10 +1,22 @@
+import subprocess
 from setuptools import setup
 
-import suricata.update
+from suricata.update.version import version
+
+def write_revision():
+    try:
+        revision = subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"])
+        with open("./suricata/update/revision.py", "w") as fileobj:
+            fileobj.write("revision = '%s'" % (revision.strip()))
+    except Exception as err:
+        print("Failed to get current git revision: %s" % (err))
+
+write_revision()
 
 setup(
     name="suricata-update",
-    version=suricata.update.version,
+    version=version,
     description="Suricata Update Tool",
     author="Jason Ish",
     author_email="ish@unx.ca",

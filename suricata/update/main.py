@@ -52,6 +52,12 @@ from suricata.update import util
 from suricata.update import sources
 from suricata.update import commands
 
+from suricata.update.version import version
+try:
+    from suricata.update.revision import revision
+except:
+    revision = "unknown"
+
 # Initialize logging, use colour if on a tty.
 if len(logging.root.handlers) == 0 and os.isatty(sys.stderr.fileno()):
     logger = logging.getLogger()
@@ -1159,9 +1165,8 @@ def _main():
     if args.quiet:
         logger.setLevel(logging.WARNING)
 
-    logger.debug("This is suricata-update version %s; Python: %s" % (
-        suricata.update.version,
-        sys.version.replace("\n", "- ")))
+    logger.debug("This is suricata-update version %s (rev: %s); Python: %s" % (
+        version, revision, sys.version.replace("\n", "- ")))
 
     config = Config(args)
     try:
@@ -1189,7 +1194,7 @@ def _main():
         return dump_sample_configs()
 
     if args.version:
-        print("suricata-update version %s" % suricata.update.version)
+        print("suricata-update version %s (rev: %s)" % (version, revision))
         return 0
 
     if args.help:
