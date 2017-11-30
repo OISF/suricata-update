@@ -70,6 +70,12 @@ DEFAULT_SURICATA_VERSION = "4.0.0"
 # single file concatenating all input rule files together.
 DEFAULT_OUTPUT_RULE_FILENAME = "suricata.rules"
 
+class InvalidConfigurationError(Exception):
+    pass
+
+class ApplicationError(Exception):
+    pass
+
 class AllRuleMatcher(object):
     """Matcher object to match all rules. """
 
@@ -943,11 +949,10 @@ def load_sources(config, suricata_version):
     if enabled_sources:
         index_filename = os.path.join(
             config.get_cache_dir(), sources.SOURCE_INDEX_FILENAME)
-        if not os.path.exists(index_filename):
-            raise Exception(
-                ("Source index is required but does not exist.",
-                 ("Run suricata-update update-sources")))
-        index = sources.Index(index_filename)
+        if os.path.exists(index_filename):
+            index = sources.Index(index_filename)
+        else:
+            index = None
 
         for (name, source) in enabled_sources.items():
             params = source["params"] if "params" in source else {}
@@ -956,12 +961,19 @@ def load_sources(config, suricata_version):
                 # No need to go off to the index.
                 url = source["url"] % params
             else:
+                if not index:
+                    raise ApplicationError(
+                        "Source index is required for source %s; "
+                        "run suricata-udpate update-sources" % (source["source"]))
                 url = index.resolve_url(name, params)
             logger.debug("Resolved source %s to URL %s.", name, url)
             urls.append(url)
 
     if config.get("sources"):
         for url in config.get("sources"):
+            if type(url) not in [type("")]:
+                raise InvalidConfigurationError(
+                    "Invalid datatype for source URL: %s" % (str(url)))
             url = url % internal_params
             logger.debug("Adding source %s.", url)
             urls.append(url)
@@ -994,7 +1006,7 @@ def copytree_ignore_backup(src, names):
     """ Returns files to ignore when doing a backup of the rules. """
     return [".cache"]
 
-def main():
+def _main():
     global args
 
     suricata_path = suricata.update.engine.get_path()
@@ -1409,5 +1421,12 @@ def main():
 
     return 0
 
+def main():
+    try:
+        sys.exit(_main())
+    except ApplicationError as err:
+        logger.error(err)
+    sys.exit(1)
+
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
