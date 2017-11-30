@@ -70,10 +70,10 @@ DEFAULT_SURICATA_VERSION = "4.0.0"
 # single file concatenating all input rule files together.
 DEFAULT_OUTPUT_RULE_FILENAME = "suricata.rules"
 
-class InvalidConfigurationError(Exception):
+class ApplicationError(Exception):
     pass
 
-class ApplicationError(Exception):
+class InvalidConfigurationError(ApplicationError):
     pass
 
 class AllRuleMatcher(object):
@@ -328,7 +328,8 @@ class Fetch:
     def fetch(self, url):
         tmp_filename = self.get_tmp_filename(url)
         if not self.args.force and os.path.exists(tmp_filename):
-            if time.time() - os.stat(tmp_filename).st_mtime < (60 * 15):
+            if not self.args.now and \
+               time.time() - os.stat(tmp_filename).st_mtime < (60 * 15):
                 logger.info(
                     "Last download less than 15 minutes ago. Not downloading %s.",
                     url)
@@ -1100,6 +1101,11 @@ def _main():
 
     update_parser.add_argument("-h", "--help", action="store_true")
     
+    # Hidden argument, --now to bypass the timebased bypass of
+    # updating a ruleset.
+    update_parser.add_argument(
+        "--now", default=False, action="store_true", help=argparse.SUPPRESS)
+
     # The Python 2.7 argparse module does prefix matching which can be
     # undesirable. Reserve some names here that would match existing
     # options to prevent prefix matching.
