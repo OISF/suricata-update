@@ -25,12 +25,58 @@ import os.path
 import subprocess
 import re
 import logging
+import yaml
 from collections import namedtuple
 
 logger = logging.getLogger()
 
 SuricataVersion = namedtuple(
     "SuricataVersion", ["major", "minor", "patch", "full", "short", "raw"])
+
+class Configuration:
+    """An abstraction over the Suricata configuration file."""
+
+    def __init__(self, conf):
+        self.conf = conf
+
+    def keys(self):
+        return self.conf.keys()
+
+    def is_true(self, key, truthy=[]):
+        if not key in self.conf:
+            logger.warning(
+                "Suricata configuration key does not exist: %s" % (key))
+            return False
+        if key in self.conf:
+            val = self.conf[key]
+            if val.lower() in ["1", "yes", "true"] + truthy:
+                return True
+        return False
+
+    @classmethod
+    def load(cls, config_filename, suricata_path=None):
+        env = {
+            "SC_LOG_FORMAT": "%t - <%d> -- ",
+            "SC_LOG_LEVEL": "Error",
+            "ASAN_OPTIONS": "detect_leaks=0",
+        }
+        if not suricata_path:
+            suricata_path = get_path()
+        if not suricata_path:
+            raise Exception("Suricata program could not be found.")
+        if not os.path.exists(suricata_path):
+            raise Exception("Suricata program %s does not exist.", suricata_path)
+        configuration_dump = subprocess.check_output(
+            [suricata_path, "-c", config_filename, "--dump-config"],
+            env=env)
+        conf = {}
+        for line in configuration_dump.splitlines():
+            try:
+                key, val = line.split(" = ")
+                conf[key] = val
+            except:
+                logger.warning("Failed to parse: %s", line)
+        return cls(conf)
 
 def get_path(program="suricata"):
     """Find Suricata in the shell path."""

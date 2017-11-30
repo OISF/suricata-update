@@ -47,7 +47,7 @@ rule_pattern = re.compile(
     r"(?P<raw>"
     r"(?P<header>"
     r"(?P<action>%s)\s*"        # Action
-    r"[^\s]*\s*"                # Protocol
+    r"(?P<proto>[^\s]*)\s*"     # Protocol
     r"[^\s]*\s*"                # Source address(es)
     r"[^\s]*\s*"                # Source port
     r"(?P<direction>[-><]+)\s*"	# Direction
@@ -87,6 +87,7 @@ class Rule(dict):
       disabled (commented)
     - **action**: The action of the rule (alert, pass, etc) as a
       string
+    - **proto**: The protocol of the rule.
     - **direction**: The direction string of the rule.
     - **gid**: The gid of the rule as an integer
     - **sid**: The sid of the rule as an integer
@@ -109,6 +110,7 @@ class Rule(dict):
         dict.__init__(self)
         self["enabled"] = enabled
         self["action"] = action
+        self["proto"] = None
         self["direction"] = None
         self["group"] = group
         self["gid"] = 1
@@ -229,8 +231,9 @@ def parse(buf, group=None):
                 action=m.group("action"),
                 group=group)
 
-    rule["direction"] = m.groupdict().get("direction", None)
     rule["header"] = m.groupdict().get("header", None)
+    rule["proto"] = m.groupdict().get("proto", None)
+    rule["direction"] = m.groupdict().get("direction", None)
 
     options = m.group("options")
 

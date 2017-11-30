@@ -94,6 +94,15 @@ class AllRuleMatcher(object):
             return cls()
         return None
 
+class ProtoRuleMatcher:
+    """A rule matcher that matches on the protocol of a rule."""
+
+    def __init__(self, proto):
+        self.proto = proto
+
+    def match(self, rule):
+        return rule.proto == self.proto
+
 class IdRuleMatcher(object):
     """Matcher object to match an idstools rule object by its signature
     ID."""
@@ -1282,6 +1291,19 @@ def _main():
     if drop_conf_filename and os.path.exists(drop_conf_filename):
         logger.info("Loading %s.", drop_conf_filename)
         drop_filters += load_drop_filters(drop_conf_filename)
+
+    if os.path.exists("/etc/suricata/suricata.yaml") and \
+       suricata_path and os.path.exists(suricata_path):
+        logger.info("Loading /etc/suricata/suricata.yaml")
+        suriconf = suricata.update.engine.Configuration.load(
+            "/etc/suricata/suricata.yaml", suricata_path=suricata_path)
+        for key in suriconf.keys():
+            if key.startswith("app-layer.protocols") and \
+               key.endswith(".enabled"):
+                if not suriconf.is_true(key, ["detection-only"]):
+                    proto = key.split(".")[2]
+                    logger.info("Disabling rules with proto %s", proto)
+                    disable_matchers.append(ProtoRuleMatcher(proto))
 
     # Check that the cache directory exists and is writable.
     if not os.path.exists(config.get_cache_dir()):
