@@ -6,3 +6,4 @@
   assigned to the OISF.
 - Features are derived from idstools-rulecat, but with more
   opinionated defaults.
+- Supports an index of rule sources to aid in discovery of rulesets.
