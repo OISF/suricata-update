@@ -53,6 +53,8 @@ def build_user_agent():
         params.append("Dist: %s/%s" % (
             str(distribution[0]), str(distribution[1])))
 
+    params.append("Suricata: %s" % (user_agent_suricata_verison))
+
     return "Suricata-Update/%s (%s)" % (
         version, "; ".join(params))
 
