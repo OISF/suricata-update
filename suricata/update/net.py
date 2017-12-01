@@ -17,17 +17,44 @@
 
 """ Module for network related operations. """
 
+import platform
+
 try:
     # Python 3.3...
-    from urllib.request import urlopen
+    from urllib.request import urlopen, build_opener
     from urllib.error import HTTPError
 except ImportError:
     # Python 2.6, 2.7.
-    from urllib2 import urlopen
+    from urllib2 import urlopen, build_opener
     from urllib2 import HTTPError
+
+from suricata.update.version import version
 
 # Number of bytes to read at a time in a GET request.
 GET_BLOCK_SIZE = 8192
+
+user_agent_suricata_verison = "Unknown"
+
+def set_user_agent_suricata_version(version):
+    global user_agent_suricata_verison
+    user_agent_suricata_verison = version
+
+def build_user_agent():
+    params = []
+
+    uname_system = platform.uname()[0]
+
+    params.append("OS: %s" % (uname_system))
+    params.append("CPU: %s" % (platform.processor()))
+    params.append("Python: %s" % (platform.python_version()))
+
+    if uname_system == "Linux":
+        distribution = platform.linux_distribution()
+        params.append("Dist: %s/%s" % (
+            str(distribution[0]), str(distribution[1])))
+
+    return "Suricata-Update/%s (%s)" % (
+        version, "; ".join(params))
 
 def get(url, fileobj, progress_hook=None):
     """ Perform a GET request against a URL writing the contents into
@@ -44,7 +71,14 @@ def get(url, fileobj, progress_hook=None):
       provided fileobj may occur.
     """
 
-    remote = urlopen(url)
+    user_agent = build_user_agent()
+
+    opener = build_opener()
+    opener.addheaders = [
+        ("User-Agent", build_user_agent()),
+    ]
+
+    remote = opener.open(url)
     info = remote.info()
     try:
         content_length = int(info["content-length"])

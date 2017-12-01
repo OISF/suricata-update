@@ -1261,6 +1261,8 @@ def _main():
         suricata_version = suricata.update.engine.parse_version(
             DEFAULT_SURICATA_VERSION)
 
+    suricata.update.net.set_user_agent_suricata_version(suricata_version.full)
+
     file_tracker = FileTracker()
 
     disable_matchers = []
