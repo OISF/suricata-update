@@ -74,3 +74,22 @@ class ZipArchiveReader:
         zf = zipfile.ZipFile(fileobj)
         return cls(zf)
 
+GREEN = "\x1b[32m"
+BLUE = "\x1b[34m"
+REDB = "\x1b[1;31m"
+YELLOW = "\x1b[33m"
+RED = "\x1b[31m"
+YELLOWB = "\x1b[1;33m"
+ORANGE = "\x1b[38;5;208m"
+BRIGHT_MAGENTA = "\x1b[1;35m"
+BRIGHT_CYAN = "\x1b[1;36m"
+RESET = "\x1b[0m"
+
+def blue(msg):
+    return "%s%s%s" % (BLUE, msg, RESET)
+
+def bright_magenta(msg):
+    return "%s%s%s" % (BRIGHT_MAGENTA, msg, RESET)
+
+def bright_cyan(msg):
+    return "%s%s%s" % (BRIGHT_CYAN, msg, RESET)
