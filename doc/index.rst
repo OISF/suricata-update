@@ -1,6 +1,10 @@
 #############################################
-suricata-update - A Suricata rule update tool
+suricata-update - A Suricata Rule Update Tool
 #############################################
+
+.. toctree::
+
+   quickstart
 
 Synopsis
 ========
@@ -276,6 +280,9 @@ Example converting all drop rules with noalert back to alert::
 
 Sub Commands
 ============
+
+add-sources
+  Add a new source by URL
 
 add-source - Add a new source by URL
 ------------------------------------
