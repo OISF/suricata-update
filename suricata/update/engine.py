@@ -72,7 +72,7 @@ class Configuration:
         conf = {}
         for line in configuration_dump.splitlines():
             try:
-                key, val = line.split(" = ")
+                key, val = line.decode().split(" = ")
                 conf[key] = val
             except:
                 logger.warning("Failed to parse: %s", line)
