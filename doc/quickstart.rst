@@ -1,5 +1,5 @@
-Suricata-Update Quick Start
-###########################
+Quick Start
+###########
 
 Install Suricata Update
 =======================
