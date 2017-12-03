@@ -62,6 +62,11 @@ def source_index_exists(config):
     """Return True if the source index file exists."""
     return os.path.exists(get_index_filename(config))
 
+def get_source_index_url(config):
+    if os.getenv("SOURCE_INDEX_URL"):
+        return os.getenv("SOURCE_INDEX_URL")
+    return DEFAULT_SOURCE_INDEX_URL
+
 def save_source_config(source_config):
     with open(get_enabled_source_filename(source_config.name), "wb") as fileobj:
         fileobj.write(yaml.safe_dump(
@@ -128,33 +133,6 @@ def get_enabled_sources():
                             loghandler.add_secret(source["params"][param], param)
 
     return sources
-
-def get_source_index_url(config):
-    if os.getenv("SOURCE_INDEX_URL"):
-        return os.getenv("SOURCE_INDEX_URL")
-    return DEFAULT_SOURCE_INDEX_URL
-
-def update_sources(config):
-    source_cache_filename = os.path.join(
-        config.get_cache_dir(), SOURCE_INDEX_FILENAME)
-    source_templates = {}
-    with io.BytesIO() as fileobj:
-        try:
-            url = get_source_index_url(config)
-            logger.debug("Downloading %s", url)
-            net.get(get_source_index_url(config), fileobj)
-        except Exception as err:
-            raise Exception("Failed to download index: %s: %s" % (url, err))
-        if not os.path.exists(config.get_cache_dir()):
-            try:
-                os.makedirs(config.get_cache_dir())
-            except Exception as err:
-                logger.error("Failed to create directory %s: %s",
-                             config.get_cache_dir(), err)
-                return 1
-        with open(source_cache_filename, "w") as outobj:
-            outobj.write(fileobj.getvalue())
-        logger.debug("Saved %s", source_cache_filename)
 
 def load_sources(config):
     sources_cache_filename = os.path.join(
