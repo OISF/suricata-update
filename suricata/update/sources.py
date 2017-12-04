@@ -112,6 +112,11 @@ class Index:
     def get_sources(self):
         return self.index["sources"]
 
+    def get_source_by_name(self, name):
+        if name in self.index["sources"]:
+            return self.index["sources"][name]
+        return None
+
 def load_source_index(config):
     return Index(get_index_filename(config))
 
@@ -161,7 +166,7 @@ def remove_source(config):
         os.remove(disabled_source_filename)
         logger.info("Source %s removed, previously disabled.", name)
         return 0
-    
+
     logger.warning("Source %s does not exist.", name)
     return 1
 
