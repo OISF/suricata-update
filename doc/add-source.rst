@@ -28,3 +28,4 @@ Options
    The URL of the source. If not provided on the command line the user
    will be prompted.
 
+.. include:: ./common-options.rst

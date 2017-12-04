@@ -20,10 +20,6 @@ Options
 
    Show help.
 
-.. option:: -v, --verbose
-
-   Be more verbose.
-
 .. option:: -c <filename>, --config <filename>
    
    Path to the suricata-update config file.
@@ -155,10 +151,6 @@ Options
    URLs provided on the command line or sources provided in the
    configuration.
 
-.. option:: -q, --quiet
-
-   Run quietly. Only warning and error message will be displayed.
-
 .. option:: --dump-sample-configs
 
    Output sample configuration files for the ``--disable``,
@@ -198,6 +190,8 @@ Options
 .. option:: -V, --version
 
    Display the version of **suricata-update**.
+
+.. include:: ./common-options.rst
 
 Rule Matching
 =============

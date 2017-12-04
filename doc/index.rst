@@ -8,3 +8,4 @@ suricata-update - A Suricata Rule Update Tool
    quickstart
    update
    add-source
+   update-sources
