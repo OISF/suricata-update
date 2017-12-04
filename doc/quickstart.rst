@@ -115,30 +115,13 @@ Then list the sources from the index. Example::
 
   suricata-update list-sources
 
-Now lets at the **ptresearch/attackdetection** ruleset::
+Now enable the **ptresearch/attackdetection** ruleset::
 
   suricata-update enable-source ptresearch/attackdetection
 
 And update your rules again::
 
   suricata-update
-
-.. note:: Note that enabling a source changes the default behaviour of
-          using Emerging Threats Open when no other source has been
-          configured. So after enabling our first source, Emerging
-          Threats Open will no longer be downloaded.
-
-Now we want to add Emerging Threats back, but this time we will choose
-the Pro rul eset. Using ``list-sources`` we can see it exists with the
-name **et/pro**::
-
-  suricata-update enable-source et/pro
-
-Make sure to have your Emerging Threats Pro access code ready as you
-will be prompted for it.
-
-Now run ``suricata-update`` againg to download Emerging Threats Pro
-along with the Attack Detection rules.
 
 List Enabled Sources
 ====================
