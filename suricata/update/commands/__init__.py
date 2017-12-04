@@ -18,3 +18,4 @@ from suricata.update.commands import listenabledsources
 from suricata.update.commands import addsource
 from suricata.update.commands import listsources
 from suricata.update.commands import updatesources
+from suricata.update.commands import enablesource

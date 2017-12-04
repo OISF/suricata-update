@@ -1140,11 +1140,6 @@ def _main():
         "remove-source", help="Remove a source", parents=[common_parser])
     remove_source_parser.add_argument("name")
 
-    enable_source_parser = subparsers.add_parser(
-        "enable-source", parents=[common_parser])
-    enable_source_parser.add_argument("name")
-    enable_source_parser.add_argument("params", nargs="*", metavar="param=val")
-
     commands.listsources.register(subparsers.add_parser(
         "list-sources", parents=[common_parser]))
     commands.listenabledsources.register(subparsers.add_parser(
@@ -1153,6 +1148,8 @@ def _main():
         "add-source", parents=[common_parser]))
     commands.updatesources.register(subparsers.add_parser(
         "update-sources", parents=[common_parser]))
+    commands.enablesource.register(subparsers.add_parser(
+        "enable-source", parents=[common_parser]))
 
     args = parser.parse_args()
 
@@ -1184,9 +1181,7 @@ def _main():
         return 1
 
     if args.subcommand:
-        if args.subcommand == "enable-source":
-            return sources.enable_source(config)
-        elif args.subcommand == "disable-source":
+        if args.subcommand == "disable-source":
             return sources.disable_source(config)
         elif args.subcommand == "remove-source":
             return sources.remove_source(config)
