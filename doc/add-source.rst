@@ -7,7 +7,7 @@ Synopsis
 
 ::
 
-   suricata-update add-source [--name name] [--url <url>]
+   suricata-update add-source <name> <url>
 
 Description
 ===========
@@ -17,15 +17,5 @@ URL. It is useful to add a source that is not provided in the index.
 
 Options
 =======
-
-.. option:: --name <name>
-
-   The name of the source. If not provided on the command line the
-   user will be prompted.
-
-.. option:: --url <url>
-
-   The URL of the source. If not provided on the command line the user
-   will be prompted.
 
 .. include:: ./common-options.rst

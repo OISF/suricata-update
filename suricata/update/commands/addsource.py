@@ -23,8 +23,8 @@ from suricata.update import sources
 logger = logging.getLogger()
 
 def register(parser):
-    parser.add_argument("--name", metavar="<name>", help="Name of source")
-    parser.add_argument("--url", metavar="<url>", help="Source URL")
+    parser.add_argument("name", metavar="<name>", help="Name of source")
+    parser.add_argument("url", metavar="<url>", help="Source URL")
     parser.set_defaults(func=add_source)
 
 def add_source(config):
