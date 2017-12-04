@@ -1132,10 +1132,6 @@ def _main():
                                help=argparse.SUPPRESS)
     update_parser.add_argument("--drop", default=False, help=argparse.SUPPRESS)
 
-    remove_source_parser = subparsers.add_parser(
-        "remove-source", help="Remove a source", parents=[common_parser])
-    remove_source_parser.add_argument("name")
-
     commands.listsources.register(subparsers.add_parser(
         "list-sources", parents=[common_parser]))
     commands.listenabledsources.register(subparsers.add_parser(
@@ -1148,6 +1144,8 @@ def _main():
         "enable-source", parents=[common_parser]))
     commands.disablesource.register(subparsers.add_parser(
         "disable-source", parents=[common_parser]))
+    commands.removesource.register(subparsers.add_parser(
+        "remove-source", parents=[common_parser]))
 
     args = parser.parse_args()
 
@@ -1179,9 +1177,7 @@ def _main():
         return 1
 
     if args.subcommand:
-        if args.subcommand == "remove-source":
-            return sources.remove_source(config)
-        elif hasattr(args, "func"):
+        if hasattr(args, "func"):
             return args.func(config)
         elif args.subcommand != "update":
             logger.error("Unknown command: %s", args.subcommand)
