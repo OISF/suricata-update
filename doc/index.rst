@@ -10,3 +10,4 @@ suricata-update - A Suricata Rule Update Tool
    add-source
    update-sources
    enable-source
+   disable-source
