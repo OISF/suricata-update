@@ -45,3 +45,7 @@ def list_sources(config):
             print("  %s: %s" % (
                 util.bright_cyan("Tags"),
                 util.bright_magenta(", ".join(source["tags"]))))
+        if "replaces" in source:
+            print("  %s: %s" % (
+                util.bright_cyan("Replaces"),
+                util.bright_magenta(", ".join(source["replaces"]))))
