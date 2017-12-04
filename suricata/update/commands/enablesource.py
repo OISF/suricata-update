@@ -119,6 +119,16 @@ def enable_source(config):
     write_source_config(new_source, True)
     logger.info("Source %s enabled", new_source.name)
 
+    if "replaces" in source:
+        for replaces in source["replaces"]:
+            filename = sources.get_enabled_source_filename(replaces)
+            if os.path.exists(filename):
+                logger.info(
+                    "Removing source %s as its replaced by %s", replaces,
+                    new_source.name)
+                logger.debug("Deleting %s", filename)
+                os.unlink(filename)
+
 def write_source_config(config, enabled):
     if enabled:
         filename = sources.get_enabled_source_filename(config.name)
