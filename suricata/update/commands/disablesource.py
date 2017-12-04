@@ -14,9 +14,26 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-from suricata.update.commands import listenabledsources
-from suricata.update.commands import addsource
-from suricata.update.commands import listsources
-from suricata.update.commands import updatesources
-from suricata.update.commands import enablesource
-from suricata.update.commands import disablesource
+from __future__ import print_function
+
+import os
+import logging
+
+from suricata.update import sources
+
+logger = logging.getLogger()
+
+def register(parser):
+    parser.add_argument("name")
+    parser.set_defaults(func=disable_source)
+
+def disable_source(config):
+    name = config.args.name
+    filename = sources.get_enabled_source_filename(name)
+    if not os.path.exists(filename):
+        logger.debug("Filename %s does not exist.", filename)
+        logger.warning("Source %s is not enabled.", name)
+        return 1
+    logger.debug("Renaming %s to %s.disabled.", filename, filename)
+    os.rename(filename, "%s.disabled" % (filename))
+    logger.info("Source %s has been disabled", name)

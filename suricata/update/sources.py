@@ -139,17 +139,6 @@ def get_enabled_sources():
 
     return sources
 
-def disable_source(config):
-    name = config.args.name
-    filename = os.path.join(get_source_directory(), "%s.yaml" % (
-        safe_filename(name)))
-    if not os.path.exists(filename):
-        logger.debug("Filename %s does not exist.", filename)
-        logger.warning("Source %s is not enabled.", name)
-        return 1
-    logger.debug("Renaming %s to %s.disabled.", filename, filename)
-    os.rename(filename, "%s.disabled" % (filename))
-
 def remove_source(config):
     name = config.args.name
 

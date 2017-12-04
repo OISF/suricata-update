@@ -1132,10 +1132,6 @@ def _main():
                                help=argparse.SUPPRESS)
     update_parser.add_argument("--drop", default=False, help=argparse.SUPPRESS)
 
-    disable_source_parser = subparsers.add_parser(
-        "disable-source", parents=[common_parser])
-    disable_source_parser.add_argument("name")
-
     remove_source_parser = subparsers.add_parser(
         "remove-source", help="Remove a source", parents=[common_parser])
     remove_source_parser.add_argument("name")
@@ -1150,6 +1146,8 @@ def _main():
         "update-sources", parents=[common_parser]))
     commands.enablesource.register(subparsers.add_parser(
         "enable-source", parents=[common_parser]))
+    commands.disablesource.register(subparsers.add_parser(
+        "disable-source", parents=[common_parser]))
 
     args = parser.parse_args()
 
@@ -1181,9 +1179,7 @@ def _main():
         return 1
 
     if args.subcommand:
-        if args.subcommand == "disable-source":
-            return sources.disable_source(config)
-        elif args.subcommand == "remove-source":
+        if args.subcommand == "remove-source":
             return sources.remove_source(config)
         elif hasattr(args, "func"):
             return args.func(config)
