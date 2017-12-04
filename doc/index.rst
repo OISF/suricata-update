@@ -7,8 +7,8 @@ suricata-update - A Suricata Rule Update Tool
 
    quickstart
    update
-   add-source
    update-sources
    enable-source
+   add-source
    disable-source
    remove-source
