@@ -6,7 +6,7 @@ The tool for updating your Suricata rules.
 Installation
 ------------
 
-    pip install https://github.com/OISF/suricata-update/archive/master.zip
+    pip install --pre --upgrade suricata-update
 
 Documentation
 -------------

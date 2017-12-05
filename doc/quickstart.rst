@@ -16,11 +16,11 @@ directory for use by your user.
 
 To install ``suricata-update`` globally::
 
-    pip install --pre --upgrade https://github.com/OISF/suricata-update/archive/master.zip
+    pip install --pre --upgrade suricata-update
 
 or to install it to your own directory::
 
-    pip install --user --pre --upgrade https://github.com/OISF/suricata-update/archive/master.zip
+    pip install --user --pre --upgrade suricata-update
 
 .. note:: When installing to your home directory the
           ``suricata-update`` program will be installed to
