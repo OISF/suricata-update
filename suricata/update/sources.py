@@ -29,7 +29,7 @@ from suricata.update import loghandler
 
 logger = logging.getLogger()
 
-DEFAULT_SOURCE_INDEX_URL = "https://raw.githubusercontent.com/jasonish/suricata-intel-index/master/index.yaml"
+DEFAULT_SOURCE_INDEX_URL = "https://www.openinfosecfoundation.org/rules/index.yaml"
 SOURCE_INDEX_FILENAME = "index.yaml"
 DEFAULT_SOURCE_DIRECTORY = "/var/lib/suricata/update/sources"
 
