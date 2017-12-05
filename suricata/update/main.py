@@ -1037,7 +1037,8 @@ def _main():
     # Arguments that are common to all sub-commands.
     common_parser = argparse.ArgumentParser(add_help=False)
     common_parser.add_argument(
-        "-c", "--config", metavar="<filename>", help="Configuration file")
+        "-c", "--config", metavar="<filename>",
+        help="Suricata-Update configuration file (default: /etc/suricata/update.yaml)")
     common_parser.add_argument(
         "-v", "--verbose", action="store_true", default=False,
         help="Be more verbose")
