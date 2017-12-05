@@ -1,3 +1,4 @@
 include LICENSE
 include suricata/update/configs/*.conf
 include suricata/update/configs/*.in
+include suricata/update/configs/*.yaml
