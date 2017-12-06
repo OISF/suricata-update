@@ -44,6 +44,6 @@ def update_sources(config):
                 logger.error("Failed to create directory %s: %s",
                              config.get_cache_dir(), err)
                 return 1
-        with open(local_index_filename, "w") as outobj:
+        with open(local_index_filename, "wb") as outobj:
             outobj.write(fileobj.getvalue())
         logger.info("Saved %s", local_index_filename)

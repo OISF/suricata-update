@@ -134,6 +134,6 @@ def write_source_config(config, enabled):
         filename = sources.get_enabled_source_filename(config.name)
     else:
         filename = sources.get_disabled_source_filename(config.name)
-    with open(filename, "wb") as fileobj:
+    with open(filename, "w") as fileobj:
         logger.debug("Writing %s", filename)
         fileobj.write(yaml.safe_dump(config.dict(), default_flow_style=False))

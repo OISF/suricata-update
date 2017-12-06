@@ -8,7 +8,7 @@ def write_revision():
         revision = subprocess.check_output(
             ["git", "rev-parse", "--short", "HEAD"])
         with open("./suricata/update/revision.py", "w") as fileobj:
-            fileobj.write("revision = '%s'" % (revision.strip()))
+            fileobj.write("revision = '%s'" % (revision.decode().strip()))
     except Exception as err:
         print("Failed to get current git revision: %s" % (err))
 
