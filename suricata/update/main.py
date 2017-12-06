@@ -33,6 +33,13 @@ import glob
 import io
 
 try:
+    # Python 3.
+    from urllib.error import HTTPError
+except ImportError:
+    # Python 2.7.
+    from urllib2 import URLError
+
+try:
     import yaml
 except:
     print("error: pyyaml is required")
@@ -374,8 +381,9 @@ class Fetch:
             files = {}
         if url:
             try:
-                files.update(self.fetch(url))
-            except Exception as err:
+                fetched = self.fetch(url)
+                files.update(fetched)
+            except URLError as err:
                 logger.error("Failed to fetch %s: %s", url, err)
         else:
             for url in self.args.url:
