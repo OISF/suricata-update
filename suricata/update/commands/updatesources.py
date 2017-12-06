@@ -20,6 +20,7 @@ import os
 import logging
 import io
 
+from suricata.update import config
 from suricata.update import sources
 from suricata.update import net
 
@@ -28,11 +29,11 @@ logger = logging.getLogger()
 def register(parser):
     parser.set_defaults(func=update_sources)
 
-def update_sources(config):
-    local_index_filename = sources.get_index_filename(config)
+def update_sources():
+    local_index_filename = sources.get_index_filename()
     with io.BytesIO() as fileobj:
         try:
-            url = sources.get_source_index_url(config)
+            url = sources.get_source_index_url()
             logger.info("Downloading %s", url)
             net.get(url, fileobj)
         except Exception as err:

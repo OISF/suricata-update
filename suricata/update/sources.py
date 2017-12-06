@@ -23,6 +23,7 @@ import argparse
 
 import yaml
 
+from suricata.update import config
 from suricata.update import net
 from suricata.update import util
 from suricata.update import loghandler
@@ -40,7 +41,7 @@ def get_source_directory():
     else:
         return DEFAULT_SOURCE_DIRECTORY
 
-def get_index_filename(config):
+def get_index_filename():
     return os.path.join(config.get_cache_dir(), SOURCE_INDEX_FILENAME)
 
 def get_enabled_source_filename(name):
@@ -60,9 +61,9 @@ def source_name_exists(name):
 
 def source_index_exists(config):
     """Return True if the source index file exists."""
-    return os.path.exists(get_index_filename(config))
+    return os.path.exists(get_index_filename())
 
-def get_source_index_url(config):
+def get_source_index_url():
     if os.getenv("SOURCE_INDEX_URL"):
         return os.getenv("SOURCE_INDEX_URL")
     return DEFAULT_SOURCE_INDEX_URL
@@ -118,7 +119,7 @@ class Index:
         return None
 
 def load_source_index(config):
-    return Index(get_index_filename(config))
+    return Index(get_index_filename())
 
 def get_enabled_sources():
     """Return a map of enabled sources, keyed by name."""

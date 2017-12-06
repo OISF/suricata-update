@@ -18,6 +18,7 @@ from __future__ import print_function
 
 import logging
 
+from suricata.update import config
 from suricata.update import sources
 from suricata.update import util
 
@@ -26,7 +27,7 @@ logger = logging.getLogger()
 def register(parser):
     parser.set_defaults(func=list_sources)
 
-def list_sources(config):
+def list_sources():
     if not sources.source_index_exists(config):
         logger.warning(
             "Source index does not exist, please run: "

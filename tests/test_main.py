@@ -163,7 +163,7 @@ class TestFetch(unittest.TestCase):
         """Test that we detect when the checksum are the same. This is mainly
         to catch issues between Python 2 and 3.
         """
-        fetch = main.Fetch(None)
+        fetch = main.Fetch()
         url = "file://%s/emerging.rules.tar.gz" % (
             os.path.dirname(os.path.realpath(__file__)))
         local_file = "%s/emerging.rules.tar.gz" % (

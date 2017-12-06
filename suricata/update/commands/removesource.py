@@ -19,6 +19,7 @@ from __future__ import print_function
 import os
 import logging
 
+from suricata.update import config
 from suricata.update import sources
 
 logger = logging.getLogger()
@@ -27,8 +28,8 @@ def register(parser):
     parser.add_argument("name")
     parser.set_defaults(func=remove_source)
 
-def remove_source(config):
-    name = config.args.name
+def remove_source():
+    name = config.args().name
 
     enabled_source_filename = sources.get_enabled_source_filename(name)
     if os.path.exists(enabled_source_filename):

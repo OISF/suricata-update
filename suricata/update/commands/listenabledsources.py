@@ -18,6 +18,7 @@ from __future__ import print_function
 
 import logging
 
+from suricata.update import config
 from suricata.update import sources
 
 logger = logging.getLogger()
@@ -25,7 +26,7 @@ logger = logging.getLogger()
 def register(parser):
     parser.set_defaults(func=list_enabled_sources)
 
-def list_enabled_sources(config):
+def list_enabled_sources():
 
     found = False
 

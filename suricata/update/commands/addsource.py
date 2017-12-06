@@ -18,6 +18,7 @@ from __future__ import print_function
 
 import logging
 
+from suricata.update import config
 from suricata.update import sources
 
 logger = logging.getLogger()
@@ -27,8 +28,8 @@ def register(parser):
     parser.add_argument("url", metavar="<url>", help="Source URL")
     parser.set_defaults(func=add_source)
 
-def add_source(config):
-    args = config.args
+def add_source():
+    args = config.args()
 
     if args.name:
         name = args.name
