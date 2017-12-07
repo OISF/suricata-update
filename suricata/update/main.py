@@ -771,22 +771,6 @@ class FileTracker:
                 return True
         return False
 
-def resolve_etopen_url(suricata_version):
-    # Template URL for Emerging Threats Open rules.
-    template_url = ("https://rules.emergingthreats.net/open/"
-                    "suricata%(version)s/"
-                    "emerging.rules.tar.gz")
-
-    mappings = {
-        "version": "",
-    }
-
-    mappings["version"] = "-%d.%d.%d" % (suricata_version.major,
-                                         suricata_version.minor,
-                                         suricata_version.patch)
-
-    return template_url % mappings
-
 def ignore_file(ignore_files, filename):
     if not ignore_files:
         return False
@@ -916,7 +900,7 @@ def load_sources(suricata_version):
     if config.get("etopen") or not urls:
         if not urls:
             logger.info("No sources configured, will use Emerging Threats Open")
-        urls.append(resolve_etopen_url(suricata_version))
+        urls.append(sources.get_etopen_url(internal_params))
 
     # Converting the URLs to a set removed dupes.
     urls = set(urls)

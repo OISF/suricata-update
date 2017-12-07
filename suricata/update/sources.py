@@ -33,6 +33,8 @@ logger = logging.getLogger()
 DEFAULT_SOURCE_INDEX_URL = "https://www.openinfosecfoundation.org/rules/index.yaml"
 SOURCE_INDEX_FILENAME = "index.yaml"
 
+DEFAULT_ETOPEN_URL = "https://rules.emergingthreats.net/open/suricata-%(__version__)s/emerging.rules.tar.gz"
+
 def get_source_directory():
     """Return the directory where source configuration files are kept."""
     return os.path.join(config.get_state_dir(), config.SOURCE_DIRECTORY)
@@ -162,3 +164,7 @@ def safe_filename(name):
     name = name.replace("/", "-")
     return name
 
+def get_etopen_url(params):
+    if os.getenv("ETOPEN_URL"):
+        return os.getenv("ETOPEN_URL") % params
+    return DEFAULT_ETOPEN_URL % params
