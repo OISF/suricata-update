@@ -12,7 +12,7 @@ test_commands() {
     test -e /var/lib/suricata/rules/suricata.rules
 
     suricata-update update-sources
-    test -e /var/lib/suricata/rules/.cache/index.yaml
+    test -e /var/lib/suricata/update/cache/index.yaml
 
     suricata-update enable-source oisf/trafficid
     test -e /var/lib/suricata/update/sources/et-open.yaml

@@ -22,10 +22,16 @@ import yaml
 
 logger = logging.getLogger()
 
-DEFAULT_STATE_DIRECTORY = "/var/lib/suricata"
+DEFAULT_DATA_DIRECTORY = "/var/lib/suricata"
+
+# Cache directory - relative to the data directory.
+CACHE_DIRECTORY = os.path.join("update", "cache")
+
+# Source directory - relative to the data directory.
+SOURCE_DIRECTORY = os.path.join("update", "sources")
 
 # Configuration keys.
-STATE_DIRECTORY_KEY = "state-directory"
+DATA_DIRECTORY_KEY = "data-directory"
 CACHE_DIRECTORY_KEY = "cache-directory"
 IGNORE_KEY = "ignore"
 DISABLE_CONF_KEY = "disable-conf"
@@ -33,6 +39,7 @@ ENABLE_CONF_KEY = "enable-conf"
 MODIFY_CONF_KEY = "modify-conf"
 DROP_CONF_KEY = "drop-conf"
 LOCAL_CONF_KEY = "local"
+OUTPUT_KEY = "output"
 
 DEFAULT_UPDATE_YAML_PATH = "/etc/suricata/update.yaml"
 
@@ -64,12 +71,18 @@ def get(key):
     return None
 
 def set_state_dir(directory):
-    _config[STATE_DIRECTORY_KEY] = directory
+    _config[DATA_DIRECTORY_KEY] = directory
 
 def get_state_dir():
-    if STATE_DIRECTORY_KEY in _config:
-        return _config[STATE_DIRECTORY_KEY]
-    return DEFAULT_STATE_DIRECTORY
+    """Get the data directory. This is more of the Suricata state
+    directory than a specific Suricata-Update directory, and is used
+    as the root directory for Suricata-Update data.
+    """
+    if os.getenv("DATA_DIRECTORY"):
+        return os.getenv("DATA_DIRECTORY")
+    if DATA_DIRECTORY_KEY in _config:
+        return _config[DATA_DIRECTORY_KEY]
+    return DEFAULT_DATA_DIRECTORY
 
 def set_cache_dir(directory):
     """Set an alternate cache directory."""
@@ -79,7 +92,13 @@ def get_cache_dir():
     """Get the cache directory."""
     if CACHE_DIRECTORY_KEY in _config:
         return _config[CACHE_DIRECTORY_KEY]
-    return os.path.join(_args.output, ".cache")
+    return os.path.join(get_state_dir(), CACHE_DIRECTORY)
+
+def get_output_dir():
+    """Get the rule output directory."""
+    if OUTPUT_KEY in _config:
+        return _config[OUTPUT_KEY]
+    return os.path.join(get_state_dir(), "rules")
 
 def args():
     """Return sthe parsed argument object."""
@@ -119,7 +138,7 @@ def init(args):
             for local in args.local:
                 logger.debug("Adding local ruleset to config: %s", local)
                 _config[LOCAL_CONF_KEY].append(local)
-        elif arg == "data_dir":
+        elif arg == "data_dir" and args.data_dir:
             logger.debug("Setting data directory to %s", args.data_dir)
             _config[DATA_DIRECTORY_KEY] = args.data_dir
         elif getattr(args, arg):

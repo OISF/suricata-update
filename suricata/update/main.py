@@ -823,7 +823,7 @@ def test_suricata(suricata_path):
         if not config.get("no-merge"):
             if not suricata.update.engine.test_configuration(
                     suricata_path, os.path.join(
-                        config.get("output"), DEFAULT_OUTPUT_RULE_FILENAME)):
+                        config.get_output_dir(), DEFAULT_OUTPUT_RULE_FILENAME)):
                 return False
         else:
             if not suricata.update.engine.test_configuration(
@@ -944,9 +944,6 @@ def _main():
     if len(sys.argv) == 1 or sys.argv[1].startswith("-"):
         sys.argv.insert(1, "update")
 
-    # Support the Python argparse style of configuration file.
-    parser = argparse.ArgumentParser()
-
     # Arguments that are common to all sub-commands.
     common_parser = argparse.ArgumentParser(add_help=False)
     common_parser.add_argument(
@@ -959,8 +956,13 @@ def _main():
         "-q", "--quiet", action="store_true", default=False,
         help="Be quiet, warning and error messages only")
     common_parser.add_argument(
-        "-o", "--output", metavar="<directory>", dest="output",
-        default="/var/lib/suricata/rules", help="Directory to write rules to")
+        "-D", "--data-dir", metavar="<directory>", dest="data_dir",
+        help="Data directory (default: /var/lib/suricata)")
+
+    # Create the root parser with the common_parser as a parent,
+    # allowing the common options to be specified before or after the
+    # sub-command.
+    parser = argparse.ArgumentParser(parents=[common_parser])
 
     subparsers = parser.add_subparsers(dest="subcommand", metavar="<command>")
 
@@ -968,6 +970,9 @@ def _main():
     update_parser = subparsers.add_parser(
         "update", add_help=False, parents=[common_parser])
 
+    update_parser.add_argument(
+        "-o", "--output", metavar="<directory>", dest="output",
+        help="Directory to write rules to")
     update_parser.add_argument("--suricata", metavar="<path>",
                                help="Path to Suricata program")
     update_parser.add_argument("--suricata-version", metavar="<version>",
@@ -1063,6 +1068,12 @@ def _main():
 
     args = parser.parse_args()
 
+    # Go verbose or quiet sooner than later.
+    if args.verbose:
+        logger.setLevel(logging.DEBUG)
+    if args.quiet:
+        logger.setLevel(logging.WARNING)
+
     try:
         config.init(args)
     except Exception as err:
@@ -1080,11 +1091,6 @@ def _main():
         if hasattr(args, arg) and getattr(args, arg):
             logger.error("--%s not implemented", arg)
             return 1
-
-    if args.verbose:
-        logger.setLevel(logging.DEBUG)
-    if args.quiet:
-        logger.setLevel(logging.WARNING)
 
     logger.debug("This is suricata-update version %s (rev: %s); Python: %s" % (
         version, revision, sys.version.replace("\n", "- ")))
@@ -1278,43 +1284,40 @@ def _main():
     # Fixup flowbits.
     resolve_flowbits(rulemap, disabled_rules)
 
-    # Don't allow an empty output directory.
-    if not args.output:
-        logger.error("No output directory provided.")
-        return 1
-
     # Check that output directory exists.
-    if not os.path.exists(args.output):
+    if not os.path.exists(config.get_output_dir()):
         try:
-            os.makedirs(args.output, mode=0o770)
+            os.makedirs(config.get_output_dir(), mode=0o770)
         except Exception as err:
             logger.error(
                 "Output directory does not exist and could not be created: %s",
-                args.output)
+                config.get_output_dir())
             return 1
 
     # Check that output directory is writable.
-    if not os.access(args.output, os.W_OK):
-        logger.error("Output directory is not writable: %s", args.output)
+    if not os.access(config.get_output_dir(), os.W_OK):
+        logger.error(
+            "Output directory is not writable: %s", config.get_output_dir())
         return 1
 
     # Backup the output directory.
     logger.info("Backing up current rules.")
     backup_directory = util.mktempdir()
-    shutil.copytree(args.output, os.path.join(
+    shutil.copytree(config.get_output_dir(), os.path.join(
         backup_directory, "backup"), ignore=copytree_ignore_backup)
 
     if not args.no_merge:
         # The default, write out a merged file.
         output_filename = os.path.join(
-            args.output, DEFAULT_OUTPUT_RULE_FILENAME)
+            config.get_output_dir(), DEFAULT_OUTPUT_RULE_FILENAME)
         file_tracker.add(output_filename)
         write_merged(os.path.join(output_filename), rulemap)
     else:
         for filename in files:
             file_tracker.add(
-                os.path.join(args.output, os.path.basename(filename)))
-        write_to_directory(args.output, files, rulemap)
+                os.path.join(
+                    config.get_output_dir(), os.path.basename(filename)))
+        write_to_directory(config.get_output_dir(), files, rulemap)
 
     if args.yaml_fragment:
         file_tracker.add(args.yaml_fragment)
@@ -1338,7 +1341,8 @@ def _main():
     if not test_suricata(suricata_path):
         logger.error("Suricata test failed, aborting.")
         logger.error("Restoring previous rules.")
-        copytree(os.path.join(backup_directory, "backup"), args.output)
+        copytree(
+            os.path.join(backup_directory, "backup"), config.get_output_dir())
         return 1
 
     if not config.args().no_reload and config.get("reload-command"):

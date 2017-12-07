@@ -32,14 +32,10 @@ logger = logging.getLogger()
 
 DEFAULT_SOURCE_INDEX_URL = "https://www.openinfosecfoundation.org/rules/index.yaml"
 SOURCE_INDEX_FILENAME = "index.yaml"
-DEFAULT_SOURCE_DIRECTORY = "/var/lib/suricata/update/sources"
 
 def get_source_directory():
     """Return the directory where source configuration files are kept."""
-    if os.getenv("SOURCE_DIRECTORY"):
-        return os.getenv("SOURCE_DIRECTORY")
-    else:
-        return DEFAULT_SOURCE_DIRECTORY
+    return os.path.join(config.get_state_dir(), config.SOURCE_DIRECTORY)
 
 def get_index_filename():
     return os.path.join(config.get_cache_dir(), SOURCE_INDEX_FILENAME)
