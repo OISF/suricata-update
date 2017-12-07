@@ -1,0 +1,51 @@
+# This is a version 1 formatted index.
+version: 1
+
+sources:
+
+  # Proofpoint/Emerging Threats Open ruleset.
+  et/open:
+    vendor: Proofpoint
+    license: MIT
+    summary: Emerging Threats Open Ruleset
+    url: https://rules.emergingthreats.net/open/suricata-%(__version__)s/emerging.rules.tar.gz
+
+  # Proofpoint/Emerging Threats Pro ruleset.
+  et/pro:
+    summary: Emerging Threats Pro Ruleset
+    description: |
+      Proofpoint ET Pro is a timely and accurate rule set for detecting and blocking advanced threats
+    vendor: Proofpoint
+    license: Commercial
+    url: https://rules.emergingthreatspro.com/%(secret-code)s/suricata-%(__version__)s/etpro.rules.tar.gz
+    subscribe-url: https://www.proofpoint.com/us/threat-insight/et-pro-ruleset
+    parameters:
+      secret-code:
+        prompt: Emerging Threats Pro access code
+    replaces:
+      - et/open
+
+  # The OISF Traffic ID ruleset.
+  oisf/trafficid:
+    vendor: OISF
+    summary: Suricata Traffic ID ruleset
+    license: MIT
+    url: https://raw.githubusercontent.com/jasonish/suricata-trafficid/master/rules/traffic-id.rules
+    support-url: https://redmine.openinfosecfoundation.org/
+    min-version: 4.0.0
+
+  ptresearch/attackdetection:
+    vendor: Positive Technologies
+    summary: Positive Technologies Attack Detection Team ruleset
+    description: |
+      The Attack Detection Team searches for new vulnerabilities and 0-days, reproduces it and creates PoC exploits to understand how these security flaws work and how related attacks can be detected on the network layer. Additionally, we are interested in malware and hackers’ TTPs, so we develop Suricata rules for detecting all sorts of such activities.
+    url: https://raw.githubusercontent.com/ptresearch/AttackDetection/master/pt.rules.tar.gz
+    license: Custom
+    license-url: https://raw.githubusercontent.com/ptresearch/AttackDetection/master/LICENSE
+
+  # SSBL FP blacklist ruleset.
+  sslbl/ssl-fp-blacklist:
+    summary: Abuse.ch SSL Blacklist
+    vendor: Abuse.ch
+    license: Non-Commercial
+    url: https://sslbl.abuse.ch/blacklist/sslblacklist.rules

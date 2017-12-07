@@ -8,12 +8,17 @@ build:
 install:
 	python setup.py install
 
-test:
+tox:
 	@if ! which tox 2>&1 > /dev/null; then \
 		echo "error: tox required to run tests"; \
 		exit 1; \
 	fi
+
+test: tox
 	@tox
+
+integration-test: tox
+	@tox -c tox-integration.ini
 
 clean:
 	find . -name \*.pyc -print0 | xargs -0 rm -f

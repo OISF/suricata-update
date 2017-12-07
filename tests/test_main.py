@@ -17,35 +17,12 @@
 
 from __future__ import print_function
 
-import sys
 import os
 import unittest
-import shlex
-import re
-import subprocess
-import shutil
 
 import suricata.update.rule
 from suricata.update import main
 import suricata.update.extract
-
-def has_python2():
-    r = subprocess.call(
-        ["python2", "--version"],
-        stderr=open("/dev/null", "wb"),
-        stdout=open("/dev/null", "wb"))
-    if r == 0:
-        return True
-    return False
-
-def has_python3():
-    r = subprocess.call(
-        ["python3", "--version"],
-        stderr=open("/dev/null", "wb"),
-        stdout=open("/dev/null", "wb"))
-    if r == 0:
-        return True
-    return False
 
 class TestRulecat(unittest.TestCase):
 
@@ -71,49 +48,6 @@ class TestRulecat(unittest.TestCase):
         files = suricata.update.extract.try_extract(
             "tests/emerging-current_events.rules")
         self.assertIsNone(files)
-
-    def test_run(self):
-        old_path = os.getcwd()
-        try:
-            os.chdir(os.path.dirname(os.path.realpath(__file__)))
-            if os.path.exists("./tmp"):
-                shutil.rmtree("tmp")
-            os.makedirs("./tmp/rules")
-            subprocess.check_call(
-                ["/usr/bin/env", sys.executable,
-                 "../bin/suricata-update",
-                 "-D", "./tmp",
-                 "-v",
-                 "-c", "./update.yaml",
-                 "--url",
-                 "file://%s/emerging.rules.tar.gz" % (
-                     os.getcwd()),
-                 "--local", "./rule-with-unicode.rules",
-                 "--force",
-                 "--output", "./tmp/rules/",
-                 "--yaml-fragment", "./tmp/suricata-rules.yaml",
-                 "--sid-msg-map", "./tmp/sid-msg.map",
-                 "--sid-msg-map-2", "./tmp/sid-msg-v2.map",
-                 "--no-test",
-                 "--reload-command", "true",
-                ],
-                env={
-                    "PATH": os.getenv("PATH"),
-                },
-                stdout=open("./tmp/stdout", "wb"),
-                stderr=open("./tmp/stderr", "wb"),
-            )
-            shutil.rmtree("tmp")
-        except:
-            if os.path.exists("./tmp/stdout"):
-                print("STDOUT")
-                print(open("./tmp/stdout").read())
-            if os.path.exists("./tmp/stderr"):
-                print("STDERR")
-                print(open("./tmp/stderr").read())
-            raise
-        finally:
-            os.chdir(old_path)
 
 class TestFetch(unittest.TestCase):
 
