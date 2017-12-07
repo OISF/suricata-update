@@ -940,35 +940,30 @@ def _main():
 
     suricata_path = suricata.update.engine.get_path()
 
-    # If no command given, default to the "update" command.
-    if len(sys.argv) == 1 or sys.argv[1].startswith("-"):
-        sys.argv.insert(1, "update")
-
-    # Arguments that are common to all sub-commands.
-    common_parser = argparse.ArgumentParser(add_help=False)
-    common_parser.add_argument(
-        "-c", "--config", metavar="<filename>",
-        help="configuration file (default: /etc/suricata/update.yaml)")
-    common_parser.add_argument(
+    global_parser = argparse.ArgumentParser(add_help=False)
+    global_parser.add_argument(
         "-v", "--verbose", action="store_true", default=False,
         help="Be more verbose")
-    common_parser.add_argument(
+    global_parser.add_argument(
         "-q", "--quiet", action="store_true", default=False,
         help="Be quiet, warning and error messages only")
-    common_parser.add_argument(
+    global_parser.add_argument(
         "-D", "--data-dir", metavar="<directory>", dest="data_dir",
         help="Data directory (default: /var/lib/suricata)")
+    global_parser.add_argument(
+        "-c", "--config", metavar="<filename>",
+        help="configuration file (default: /etc/suricata/update.yaml)")
+    global_args, rem = global_parser.parse_known_args()
 
-    # Create the root parser with the common_parser as a parent,
-    # allowing the common options to be specified before or after the
-    # sub-command.
-    parser = argparse.ArgumentParser(parents=[common_parser])
+    if not rem or rem[0].startswith("-"):
+        rem.insert(0, "update")
 
+    parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="subcommand", metavar="<command>")
 
     # The "update" (default) sub-command parser.
     update_parser = subparsers.add_parser(
-        "update", add_help=False, parents=[common_parser])
+        "update", add_help=False, parents=[global_parser])
 
     update_parser.add_argument(
         "-o", "--output", metavar="<directory>", dest="output",
@@ -1052,21 +1047,28 @@ def _main():
     update_parser.add_argument("--drop", default=False, help=argparse.SUPPRESS)
 
     commands.listsources.register(subparsers.add_parser(
-        "list-sources", parents=[common_parser]))
+        "list-sources", parents=[global_parser]))
     commands.listenabledsources.register(subparsers.add_parser(
-        "list-enabled-sources", parents=[common_parser]))
+        "list-enabled-sources", parents=[global_parser]))
     commands.addsource.register(subparsers.add_parser(
-        "add-source", parents=[common_parser]))
+        "add-source", parents=[global_parser]))
     commands.updatesources.register(subparsers.add_parser(
-        "update-sources", parents=[common_parser]))
+        "update-sources", parents=[global_parser]))
     commands.enablesource.register(subparsers.add_parser(
-        "enable-source", parents=[common_parser]))
+        "enable-source", parents=[global_parser]))
     commands.disablesource.register(subparsers.add_parser(
-        "disable-source", parents=[common_parser]))
+        "disable-source", parents=[global_parser]))
     commands.removesource.register(subparsers.add_parser(
-        "remove-source", parents=[common_parser]))
+        "remove-source", parents=[global_parser]))
 
-    args = parser.parse_args()
+    args = parser.parse_args(rem)
+
+    # Merge global args into args.
+    for arg in vars(global_args):
+        if not hasattr(args, arg):
+            setattr(args, arg, getattr(global_args, arg))
+        elif hasattr(args, arg) and getattr(args, arg) is None:
+            setattr(args, arg, getattr(global_args, arg))
 
     # Go verbose or quiet sooner than later.
     if args.verbose:
