@@ -881,7 +881,7 @@ def load_sources(suricata_version):
                 if not index:
                     raise ApplicationError(
                         "Source index is required for source %s; "
-                        "run suricata-udpate update-sources" % (source["source"]))
+                        "run suricata-update update-sources" % (source["source"]))
                 url = index.resolve_url(name, params)
             logger.debug("Resolved source %s to URL %s.", name, url)
             urls.append(url)

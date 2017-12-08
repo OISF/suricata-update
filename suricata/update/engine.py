@@ -131,7 +131,7 @@ def test_configuration(path, rule_filename=None):
     if rule_filename:
         test_command += ["-S", rule_filename]
 
-    # This makes the Suricata output look just like suricata-udpate
+    # This makes the Suricata output look just like suricata-update
     # output.
     env = {
         "SC_LOG_FORMAT": "%t - <%d> -- ",
