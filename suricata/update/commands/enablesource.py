@@ -21,6 +21,7 @@ import logging
 
 import yaml
 
+from suricata.update import config
 from suricata.update import sources
 
 logger = logging.getLogger()
@@ -32,8 +33,8 @@ def register(parser):
     parser.add_argument("params", nargs="*", metavar="param=val")
     parser.set_defaults(func=enable_source)
 
-def enable_source(config):
-    name = config.args.name
+def enable_source():
+    name = config.args().name
 
     # Check if source is already enabled.
     enabled_source_filename = sources.get_enabled_source_filename(name)
@@ -49,7 +50,7 @@ def enable_source(config):
         os.rename(disabled_source_filename, enabled_source_filename)
         return 0
 
-    if not os.path.exists(sources.get_index_filename(config)):
+    if not os.path.exists(sources.get_index_filename()):
         logger.warning(
             "Source index does not exist, "
             "try running suricata-update update-sources.")
@@ -63,7 +64,7 @@ def enable_source(config):
 
     # Parse key=val options.
     opts = {}
-    for param in config.args.params:
+    for param in config.args().params:
         key, val = param.split("=", 1)
         opts[key] = val
 
@@ -134,6 +135,6 @@ def write_source_config(config, enabled):
         filename = sources.get_enabled_source_filename(config.name)
     else:
         filename = sources.get_disabled_source_filename(config.name)
-    with open(filename, "wb") as fileobj:
+    with open(filename, "w") as fileobj:
         logger.debug("Writing %s", filename)
         fileobj.write(yaml.safe_dump(config.dict(), default_flow_style=False))

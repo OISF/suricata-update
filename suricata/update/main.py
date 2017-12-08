@@ -33,6 +33,13 @@ import glob
 import io
 
 try:
+    # Python 3.
+    from urllib.error import HTTPError
+except ImportError:
+    # Python 2.7.
+    from urllib2 import URLError
+
+try:
     import yaml
 except:
     print("error: pyyaml is required")
@@ -46,6 +53,7 @@ import suricata.update.rule
 import suricata.update.engine
 import suricata.update.net
 import suricata.update.loghandler
+from suricata.update import config
 from suricata.update import configs
 from suricata.update import extract
 from suricata.update import util
@@ -286,14 +294,6 @@ class DropRuleFilter(object):
 
 class Fetch:
 
-    def __init__(self, config):
-        self.config = config
-        if config is not None:
-            self.args = config.args
-        else:
-            # Should only happen in tests.
-            self.args = None
-
     def check_checksum(self, tmp_filename, url):
         try:
             checksum_url = url + ".md5"
@@ -313,7 +313,7 @@ class Fetch:
         return False
 
     def progress_hook(self, content_length, bytes_read):
-        if self.args.quiet:
+        if config.args().quiet:
             return
         if not content_length or content_length == 0:
             percent = 0
@@ -337,13 +337,13 @@ class Fetch:
     def get_tmp_filename(self, url):
         url_hash = hashlib.md5(url.encode("utf-8")).hexdigest()
         return os.path.join(
-            self.config.get_cache_dir(),
+            config.get_cache_dir(),
             "%s-%s" % (url_hash, self.url_basename(url)))
 
     def fetch(self, url):
         tmp_filename = self.get_tmp_filename(url)
-        if not self.args.force and os.path.exists(tmp_filename):
-            if not self.args.now and \
+        if not config.args().force and os.path.exists(tmp_filename):
+            if not config.args().now and \
                time.time() - os.stat(tmp_filename).st_mtime < (60 * 15):
                 logger.info(
                     "Last download less than 15 minutes ago. Not downloading %s.",
@@ -352,8 +352,8 @@ class Fetch:
             if self.check_checksum(tmp_filename, url):
                 logger.info("Remote checksum has not changed. Not fetching.")
                 return self.extract_files(tmp_filename)
-        if not os.path.exists(self.config.get_cache_dir()):
-            os.makedirs(self.config.get_cache_dir(), mode=0o770)
+        if not os.path.exists(config.get_cache_dir()):
+            os.makedirs(config.get_cache_dir(), mode=0o770)
         logger.info("Fetching %s." % (url))
         try:
             suricata.update.net.get(
@@ -364,7 +364,7 @@ class Fetch:
             if os.path.exists(tmp_filename):
                 os.unlink(tmp_filename)
             raise
-        if not self.args.quiet:
+        if not config.args().quiet:
             self.progress_hook_finish()
         logger.info("Done.")
         return self.extract_files(tmp_filename)
@@ -374,8 +374,9 @@ class Fetch:
             files = {}
         if url:
             try:
-                files.update(self.fetch(url))
-            except Exception as err:
+                fetched = self.fetch(url)
+                files.update(fetched)
+            except URLError as err:
                 logger.error("Failed to fetch %s: %s", url, err)
         else:
             for url in self.args.url:
@@ -770,22 +771,6 @@ class FileTracker:
                 return True
         return False
 
-def resolve_etopen_url(suricata_version):
-    # Template URL for Emerging Threats Open rules.
-    template_url = ("https://rules.emergingthreats.net/open/"
-                    "suricata%(version)s/"
-                    "emerging.rules.tar.gz")
-
-    mappings = {
-        "version": "",
-    }
-
-    mappings["version"] = "-%d.%d.%d" % (suricata_version.major,
-                                         suricata_version.minor,
-                                         suricata_version.patch)
-
-    return template_url % mappings
-
 def ignore_file(ignore_files, filename):
     if not ignore_files:
         return False
@@ -794,91 +779,7 @@ def ignore_file(ignore_files, filename):
             return True
     return False
 
-class Config:
-
-    DEFAULT_LOCATIONS = [
-        "/etc/suricata/update.yaml",
-    ]
-
-    DEFAULTS = {
-        "disable-conf": "/etc/suricata/disable.conf",
-        "enable-conf": "/etc/suricata/enable.conf",
-        "drop-conf": "/etc/suricata/drop.conf",
-        "modify-conf": "/etc/suricata/modify.conf",
-        "sources": [],
-        "local": [],
-    }
-
-    def __init__(self, args):
-        self.args = args
-        self.config = {}
-        self.config.update(self.DEFAULTS)
-        self.filename = self.DEFAULT_LOCATIONS[0]
-        self.cache_dir = None
-
-    def load(self):
-        if self.args.config:
-            with open(self.args.config) as fileobj:
-                config = yaml.load(fileobj)
-                if config:
-                    self.config.update(config)
-        else:
-            for path in self.DEFAULT_LOCATIONS:
-                if os.path.exists(path):
-                    with open(path) as fileobj:
-                        config = yaml.load(fileobj)
-                        if config:
-                            self.config.update(config)
-
-        # Make sure sources is a list if empty/none.
-        if not self.config["sources"]:
-            self.config["sources"] = []
-
-        # Make sure local is a list if empty/none.
-        if not self.config["local"]:
-            self.config["local"] = []
-
-    def get_arg(self, key):
-        """Return the value for a command line argument. To be compatible
-        with the configuration file, hypens are converted to underscores."""
-        key = key.replace("-", "_")
-        if hasattr(self.args, key) and getattr(self.args, key) != None:
-            val = getattr(self.args, key)
-            if not val in [[], None]:
-                return getattr(self.args, key)
-        return None
-
-    def get(self, key):
-        """Get a configuration file preferring the value provided on the
-        command line, then checking the configuration file."""
-        val = self.get_arg(key)
-        if val:
-            return val
-
-        if key in self.config:
-            return self.config[key]
-
-        return None
-
-    def set(self, key, val):
-        self.config[key] = val
-
-    def get_cache_dir(self):
-        if self.cache_dir:
-            return self.cache_dir
-        return os.path.join(self.args.output, ".cache")
-
-    def set_cache_dir(self, directory):
-        self.cache_dir = directory
-
-    def save_new_source(self, source):
-        config = yaml.load(open(self.filename))
-        if not "sources" in config:
-            config["sources"] = []
-        config["sources"].append(source)
-        print(yaml.dump(config, default_flow_style=False))
-
-def test_suricata(config, suricata_path):
+def test_suricata(suricata_path):
     if not suricata_path:
         logger.info("No suricata application binary found, skipping test.")
         return True
@@ -906,7 +807,7 @@ def test_suricata(config, suricata_path):
         if not config.get("no-merge"):
             if not suricata.update.engine.test_configuration(
                     suricata_path, os.path.join(
-                        config.get("output"), DEFAULT_OUTPUT_RULE_FILENAME)):
+                        config.get_output_dir(), DEFAULT_OUTPUT_RULE_FILENAME)):
                 return False
         else:
             if not suricata.update.engine.test_configuration(
@@ -939,14 +840,14 @@ def copytree(src, dst):
                     "Failed to copy stat info from %s to %s", src_path,
                     dst_path)
 
-def load_sources(config, suricata_version):
+def load_sources(suricata_version):
     files = {}
 
     urls = []
 
     # Add any URLs added with the --url command line parameter.
-    if config.args.url:
-        for url in config.args.url:
+    if config.args().url:
+        for url in config.args().url:
             urls.append(url)
 
     # Get the new style sources.
@@ -999,21 +900,17 @@ def load_sources(config, suricata_version):
     if config.get("etopen") or not urls:
         if not urls:
             logger.info("No sources configured, will use Emerging Threats Open")
-        urls.append(resolve_etopen_url(suricata_version))
+        urls.append(sources.get_etopen_url(internal_params))
 
     # Converting the URLs to a set removed dupes.
     urls = set(urls)
 
     # Now download each URL.
     for url in urls:
-        Fetch(config).run(url, files)
+        Fetch().run(url, files)
 
-    # Now load local rules specified in the configuration file.
-    for local in config.config["local"]:
-        load_local(local, files)
-
-    # And the local rules specified on the command line.
-    for local in config.args.local:
+    # Now load local rules.
+    for local in config.get("local"):
         load_local(local, files)
 
     return files
@@ -1027,33 +924,34 @@ def _main():
 
     suricata_path = suricata.update.engine.get_path()
 
-    # If no command given, default to the "update" command.
-    if len(sys.argv) == 1 or sys.argv[1].startswith("-"):
-        sys.argv.insert(1, "update")
-
-    # Support the Python argparse style of configuration file.
-    parser = argparse.ArgumentParser()
-
-    # Arguments that are common to all sub-commands.
-    common_parser = argparse.ArgumentParser(add_help=False)
-    common_parser.add_argument(
-        "-c", "--config", metavar="<filename>", help="Configuration file")
-    common_parser.add_argument(
+    global_parser = argparse.ArgumentParser(add_help=False)
+    global_parser.add_argument(
         "-v", "--verbose", action="store_true", default=False,
         help="Be more verbose")
-    common_parser.add_argument(
+    global_parser.add_argument(
         "-q", "--quiet", action="store_true", default=False,
         help="Be quiet, warning and error messages only")
-    common_parser.add_argument(
-        "-o", "--output", metavar="<directory>", dest="output",
-        default="/var/lib/suricata/rules", help="Directory to write rules to")
-    
+    global_parser.add_argument(
+        "-D", "--data-dir", metavar="<directory>", dest="data_dir",
+        help="Data directory (default: /var/lib/suricata)")
+    global_parser.add_argument(
+        "-c", "--config", metavar="<filename>",
+        help="configuration file (default: /etc/suricata/update.yaml)")
+    global_args, rem = global_parser.parse_known_args()
+
+    if not rem or rem[0].startswith("-"):
+        rem.insert(0, "update")
+
+    parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="subcommand", metavar="<command>")
 
     # The "update" (default) sub-command parser.
     update_parser = subparsers.add_parser(
-        "update", add_help=False, parents=[common_parser])
+        "update", add_help=False, parents=[global_parser])
 
+    update_parser.add_argument(
+        "-o", "--output", metavar="<directory>", dest="output",
+        help="Directory to write rules to")
     update_parser.add_argument("--suricata", metavar="<path>",
                                help="Path to Suricata program")
     update_parser.add_argument("--suricata-version", metavar="<version>",
@@ -1133,22 +1031,41 @@ def _main():
     update_parser.add_argument("--drop", default=False, help=argparse.SUPPRESS)
 
     commands.listsources.register(subparsers.add_parser(
-        "list-sources", parents=[common_parser]))
+        "list-sources", parents=[global_parser]))
     commands.listenabledsources.register(subparsers.add_parser(
-        "list-enabled-sources", parents=[common_parser]))
+        "list-enabled-sources", parents=[global_parser]))
     commands.addsource.register(subparsers.add_parser(
-        "add-source", parents=[common_parser]))
+        "add-source", parents=[global_parser]))
     commands.updatesources.register(subparsers.add_parser(
-        "update-sources", parents=[common_parser]))
+        "update-sources", parents=[global_parser]))
     commands.enablesource.register(subparsers.add_parser(
-        "enable-source", parents=[common_parser]))
+        "enable-source", parents=[global_parser]))
     commands.disablesource.register(subparsers.add_parser(
-        "disable-source", parents=[common_parser]))
+        "disable-source", parents=[global_parser]))
     commands.removesource.register(subparsers.add_parser(
-        "remove-source", parents=[common_parser]))
+        "remove-source", parents=[global_parser]))
 
-    args = parser.parse_args()
+    args = parser.parse_args(rem)
 
+    # Merge global args into args.
+    for arg in vars(global_args):
+        if not hasattr(args, arg):
+            setattr(args, arg, getattr(global_args, arg))
+        elif hasattr(args, arg) and getattr(args, arg) is None:
+            setattr(args, arg, getattr(global_args, arg))
+
+    # Go verbose or quiet sooner than later.
+    if args.verbose:
+        logger.setLevel(logging.DEBUG)
+    if args.quiet:
+        logger.setLevel(logging.WARNING)
+
+    try:
+        config.init(args)
+    except Exception as err:
+        logger.error("Failed to load configuration: %s", err)
+        return 1
+    
     # Error out if any reserved/unimplemented arguments were set.
     unimplemented_args = [
         "disable",
@@ -1161,24 +1078,12 @@ def _main():
             logger.error("--%s not implemented", arg)
             return 1
 
-    if args.verbose:
-        logger.setLevel(logging.DEBUG)
-    if args.quiet:
-        logger.setLevel(logging.WARNING)
-
     logger.debug("This is suricata-update version %s (rev: %s); Python: %s" % (
         version, revision, sys.version.replace("\n", "- ")))
 
-    config = Config(args)
-    try:
-        config.load()
-    except Exception as err:
-        logger.error("Failed to load configuration: %s" % (err))
-        return 1
-
     if args.subcommand:
         if hasattr(args, "func"):
-            return args.func(config)
+            return args.func()
         elif args.subcommand != "update":
             logger.error("Unknown command: %s", args.subcommand)
             return 1
@@ -1203,12 +1108,10 @@ def _main():
 """)
         return 0
 
-    # If --no-ignore was provided, make sure args.ignore is
-    # empty. Otherwise if no ignores are provided, set a sane default.
+    # If --no-ignore was provided, clear any ignores provided in the
+    # config.
     if args.no_ignore:
-        config.set("ignore", [])
-    elif not config.get("ignore"):
-        config.set("ignore", ["*deleted.rules"])
+        config.set(config.IGNORE_KEY, [])
 
     # Check for Suricata binary...
     if args.suricata:
@@ -1301,7 +1204,7 @@ def _main():
                 "/var/tmp will be used instead.")
             config.set_cache_dir("/var/tmp")
 
-    files = load_sources(config, suricata_version)
+    files = load_sources(suricata_version)
 
     load_dist_rules(files)
 
@@ -1367,43 +1270,40 @@ def _main():
     # Fixup flowbits.
     resolve_flowbits(rulemap, disabled_rules)
 
-    # Don't allow an empty output directory.
-    if not args.output:
-        logger.error("No output directory provided.")
-        return 1
-
     # Check that output directory exists.
-    if not os.path.exists(args.output):
+    if not os.path.exists(config.get_output_dir()):
         try:
-            os.makedirs(args.output, mode=0o770)
+            os.makedirs(config.get_output_dir(), mode=0o770)
         except Exception as err:
             logger.error(
                 "Output directory does not exist and could not be created: %s",
-                args.output)
+                config.get_output_dir())
             return 1
 
     # Check that output directory is writable.
-    if not os.access(args.output, os.W_OK):
-        logger.error("Output directory is not writable: %s", args.output)
+    if not os.access(config.get_output_dir(), os.W_OK):
+        logger.error(
+            "Output directory is not writable: %s", config.get_output_dir())
         return 1
 
     # Backup the output directory.
     logger.info("Backing up current rules.")
     backup_directory = util.mktempdir()
-    shutil.copytree(args.output, os.path.join(
+    shutil.copytree(config.get_output_dir(), os.path.join(
         backup_directory, "backup"), ignore=copytree_ignore_backup)
 
     if not args.no_merge:
         # The default, write out a merged file.
         output_filename = os.path.join(
-            args.output, DEFAULT_OUTPUT_RULE_FILENAME)
+            config.get_output_dir(), DEFAULT_OUTPUT_RULE_FILENAME)
         file_tracker.add(output_filename)
         write_merged(os.path.join(output_filename), rulemap)
     else:
         for filename in files:
             file_tracker.add(
-                os.path.join(args.output, os.path.basename(filename)))
-        write_to_directory(args.output, files, rulemap)
+                os.path.join(
+                    config.get_output_dir(), os.path.basename(filename)))
+        write_to_directory(config.get_output_dir(), files, rulemap)
 
     if args.yaml_fragment:
         file_tracker.add(args.yaml_fragment)
@@ -1424,13 +1324,14 @@ def _main():
         logger.info("No changes detected, exiting.")
         return 0
 
-    if not test_suricata(config, suricata_path):
+    if not test_suricata(suricata_path):
         logger.error("Suricata test failed, aborting.")
         logger.error("Restoring previous rules.")
-        copytree(os.path.join(backup_directory, "backup"), args.output)
+        copytree(
+            os.path.join(backup_directory, "backup"), config.get_output_dir())
         return 1
 
-    if not args.no_reload and config.get("reload-command"):
+    if not config.args().no_reload and config.get("reload-command"):
         logger.info("Running %s." % (config.get("reload-command")))
         rc = subprocess.Popen(config.get("reload-command"), shell=True).wait()
         if rc != 0:

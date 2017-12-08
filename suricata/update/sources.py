@@ -23,6 +23,7 @@ import argparse
 
 import yaml
 
+from suricata.update import config
 from suricata.update import net
 from suricata.update import util
 from suricata.update import loghandler
@@ -31,16 +32,14 @@ logger = logging.getLogger()
 
 DEFAULT_SOURCE_INDEX_URL = "https://www.openinfosecfoundation.org/rules/index.yaml"
 SOURCE_INDEX_FILENAME = "index.yaml"
-DEFAULT_SOURCE_DIRECTORY = "/var/lib/suricata/update/sources"
+
+DEFAULT_ETOPEN_URL = "https://rules.emergingthreats.net/open/suricata-%(__version__)s/emerging.rules.tar.gz"
 
 def get_source_directory():
     """Return the directory where source configuration files are kept."""
-    if os.getenv("SOURCE_DIRECTORY"):
-        return os.getenv("SOURCE_DIRECTORY")
-    else:
-        return DEFAULT_SOURCE_DIRECTORY
+    return os.path.join(config.get_state_dir(), config.SOURCE_DIRECTORY)
 
-def get_index_filename(config):
+def get_index_filename():
     return os.path.join(config.get_cache_dir(), SOURCE_INDEX_FILENAME)
 
 def get_enabled_source_filename(name):
@@ -60,15 +59,15 @@ def source_name_exists(name):
 
 def source_index_exists(config):
     """Return True if the source index file exists."""
-    return os.path.exists(get_index_filename(config))
+    return os.path.exists(get_index_filename())
 
-def get_source_index_url(config):
+def get_source_index_url():
     if os.getenv("SOURCE_INDEX_URL"):
         return os.getenv("SOURCE_INDEX_URL")
     return DEFAULT_SOURCE_INDEX_URL
 
 def save_source_config(source_config):
-    with open(get_enabled_source_filename(source_config.name), "wb") as fileobj:
+    with open(get_enabled_source_filename(source_config.name), "w") as fileobj:
         fileobj.write(yaml.safe_dump(
             source_config.dict(), default_flow_style=False))
 
@@ -118,7 +117,7 @@ class Index:
         return None
 
 def load_source_index(config):
-    return Index(get_index_filename(config))
+    return Index(get_index_filename())
 
 def get_enabled_sources():
     """Return a map of enabled sources, keyed by name."""
@@ -165,3 +164,7 @@ def safe_filename(name):
     name = name.replace("/", "-")
     return name
 
+def get_etopen_url(params):
+    if os.getenv("ETOPEN_URL"):
+        return os.getenv("ETOPEN_URL") % params
+    return DEFAULT_ETOPEN_URL % params

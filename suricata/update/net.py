@@ -18,6 +18,7 @@
 """ Module for network related operations. """
 
 import platform
+import logging
 
 try:
     # Python 3.3...
@@ -29,6 +30,8 @@ except ImportError:
     from urllib2 import HTTPError
 
 from suricata.update.version import version
+
+logger = logging.getLogger()
 
 # Number of bytes to read at a time in a GET request.
 GET_BLOCK_SIZE = 8192
@@ -45,7 +48,7 @@ def build_user_agent():
     uname_system = platform.uname()[0]
 
     params.append("OS: %s" % (uname_system))
-    params.append("CPU: %s" % (platform.processor()))
+    params.append("CPU: %s" % (platform.machine()))
     params.append("Python: %s" % (platform.python_version()))
 
     if uname_system == "Linux":
@@ -74,6 +77,7 @@ def get(url, fileobj, progress_hook=None):
     """
 
     user_agent = build_user_agent()
+    logger.debug("Setting HTTP user-agent to %s", user_agent)
 
     opener = build_opener()
     opener.addheaders = [

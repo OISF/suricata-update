@@ -24,3 +24,8 @@ For example::
 
 This will prevent the prompt for the et/pro secret code using the
 value provided on the command line instead.
+
+Options
+=======
+
+.. include:: ./common-options.rst
