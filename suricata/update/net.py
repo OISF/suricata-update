@@ -37,6 +37,11 @@ logger = logging.getLogger()
 GET_BLOCK_SIZE = 8192
 
 user_agent_suricata_verison = "Unknown"
+custom_user_agent = None
+
+def set_custom_user_agent(ua):
+    global custom_user_agent
+    custom_user_agent = ua
 
 def set_user_agent_suricata_version(version):
     global user_agent_suricata_verison
@@ -44,6 +49,9 @@ def set_user_agent_suricata_version(version):
 
 def build_user_agent():
     params = []
+
+    if custom_user_agent is not None:
+        return custom_user_agent
 
     uname_system = platform.uname()[0]
 

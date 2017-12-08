@@ -1011,6 +1011,8 @@ def _main():
     
     update_parser.add_argument("--no-merge", action="store_true", default=False,
                                help="Do not merge the rules into a single file")
+    update_parser.add_argument("--user-agent", metavar="<user-agent>",
+                               help="Set custom user-agent string")
 
     update_parser.add_argument("-h", "--help", action="store_true")
     
@@ -1180,6 +1182,12 @@ def _main():
     if drop_conf_filename and os.path.exists(drop_conf_filename):
         logger.info("Loading %s.", drop_conf_filename)
         drop_filters += load_drop_filters(drop_conf_filename)
+
+    # Load custom user-agent-string
+    user_agent = config.get("user-agent")
+    if user_agent:
+        logger.info("Using user-agent: %s.",user_agent)
+        suricata.update.net.set_custom_user_agent(user_agent)
 
     if os.path.exists("/etc/suricata/suricata.yaml") and \
        suricata_path and os.path.exists(suricata_path):
