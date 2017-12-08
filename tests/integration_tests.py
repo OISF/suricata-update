@@ -30,7 +30,7 @@ if os.path.exists(DATA_DIR):
 common_args = [
     "./bin/suricata-update",
     "-D", DATA_DIR,
-    "-c" "./tests/empty",
+    "-c", "./tests/empty",
 ]
 
 common_update_args = [
