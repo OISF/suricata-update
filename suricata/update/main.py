@@ -926,7 +926,7 @@ def _main():
 
     global_parser = argparse.ArgumentParser(add_help=False)
     global_parser.add_argument(
-        "-v", "--verbose", action="store_true", default=False,
+        "-v", "--verbose", action="store_true", default=None,
         help="Be more verbose")
     global_parser.add_argument(
         "-q", "--quiet", action="store_true", default=False,
