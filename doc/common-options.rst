@@ -21,3 +21,7 @@
 .. option:: -v, --verbose
 
    Provide more verbose output.
+
+.. option:: --user-agent <string>
+
+   Set a custom user agent string for HTTP requests.
