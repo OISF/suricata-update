@@ -16,15 +16,7 @@ management tool for Suricata.
 Options
 =======
 
-.. option:: -h, --help
-
-   Show help.
-
-.. option:: -c <filename>, --config <filename>
-   
-   Path to the suricata-update config file.
-
-   Default: */etc/suricata/update.yaml*
+.. include:: ./common-options.rst
 
 .. option:: -o, --output
 
@@ -190,8 +182,6 @@ Options
 .. option:: -V, --version
 
    Display the version of **suricata-update**.
-
-.. include:: ./common-options.rst
 
 Rule Matching
 =============
