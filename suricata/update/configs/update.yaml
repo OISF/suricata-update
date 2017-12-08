@@ -22,6 +22,9 @@ modify-conf: /etc/suricata/modify.conf
 ignore:
   - "*deleted.rules"
 
+# Override the user-agent string 
+#user-agent: "Suricata-Update"
+
 # Provide an alternate command to the default test command.
 #
 # The following environment variables can be used.
