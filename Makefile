@@ -20,6 +20,15 @@ test: tox
 integration-test: tox
 	@tox -c tox-integration.ini
 
+docker-test:
+	@if ! which docker 2>&1 > /dev/null; then \
+		echo "error: docker is required to run docker tests"; \
+		exit 1; \
+	fi
+	@for test in $(wildcard tests/docker*); do \
+		(cd $$test && $(MAKE)); \
+	done
+
 clean:
 	find . -name \*.pyc -print0 | xargs -0 rm -f
 	find . -name \*~ -print0 | xargs -0 rm -f
