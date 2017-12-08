@@ -938,6 +938,12 @@ def _main():
         "-c", "--config", metavar="<filename>",
         help="configuration file (default: /etc/suricata/update.yaml)")
     global_parser.add_argument(
+        "--suricata", metavar="<path>",
+        help="Path to Suricata program")
+    global_parser.add_argument(
+        "--suricata-version", metavar="<version>",
+        help="Override Suricata version")
+    global_parser.add_argument(
         "--user-agent", metavar="<user-agent>",
         help="Set custom user-agent string")
 
@@ -956,10 +962,6 @@ def _main():
     update_parser.add_argument(
         "-o", "--output", metavar="<directory>", dest="output",
         help="Directory to write rules to")
-    update_parser.add_argument("--suricata", metavar="<path>",
-                               help="Path to Suricata program")
-    update_parser.add_argument("--suricata-version", metavar="<version>",
-                               help="Override Suricata version")
     update_parser.add_argument("-f", "--force", action="store_true",
                                default=False,
                                help="Force operations that might otherwise be skipped")
@@ -1085,6 +1087,47 @@ def _main():
     logger.debug("This is suricata-update version %s (rev: %s); Python: %s" % (
         version, revision, sys.version.replace("\n", "- ")))
 
+    # Check for Suricata binary...
+    if args.suricata:
+        if not os.path.exists(args.suricata):
+            logger.error("Specified path to suricata does not exist: %s",
+                     args.suricata)
+            return 1
+        suricata_path = args.suricata
+    else:
+        suricata_path = suricata.update.engine.get_path()
+        if not suricata_path:
+            logger.warning("No suricata application binary found on path.")
+
+    # Now parse the Suricata version. If provided on the command line,
+    # use that, otherwise attempt to get it from Suricata.
+    if args.suricata_version:
+        # The Suricata version was passed on the command line, parse it.
+        suricata_version = suricata.update.engine.parse_version(
+            args.suricata_version)
+        if not suricata_version:
+            logger.error("Failed to parse provided Suricata version: %s" % (
+                args.suricata_version))
+            return 1
+        logger.info("Forcing Suricata version to %s." % (suricata_version.full))
+    elif suricata_path:
+        suricata_version = suricata.update.engine.get_version(args.suricata)
+        if suricata_version:
+            logger.info("Found Suricata version %s at %s." % (
+                str(suricata_version.full), suricata_path))
+        else:
+            logger.error("Failed to get Suricata version.")
+            return 1
+    else:
+        logger.info(
+            "Using default Suricata version of %s", DEFAULT_SURICATA_VERSION)
+        suricata_version = suricata.update.engine.parse_version(
+            DEFAULT_SURICATA_VERSION)
+
+    # Provide the Suricata version to the net module to add to the
+    # User-Agent.
+    suricata.update.net.set_user_agent_suricata_version(suricata_version.full)
+
     # Load custom user-agent-string.
     user_agent = config.get("user-agent")
     if user_agent:
@@ -1122,43 +1165,6 @@ def _main():
     # config.
     if args.no_ignore:
         config.set(config.IGNORE_KEY, [])
-
-    # Check for Suricata binary...
-    if args.suricata:
-        if not os.path.exists(args.suricata):
-            logger.error("Specified path to suricata does not exist: %s",
-                     args.suricata)
-            return 1
-        suricata_path = args.suricata
-    else:
-        suricata_path = suricata.update.engine.get_path()
-        if not suricata_path:
-            logger.warning("No suricata application binary found on path.")
-
-    if args.suricata_version:
-        # The Suricata version was passed on the command line, parse it.
-        suricata_version = suricata.update.engine.parse_version(
-            args.suricata_version)
-        if not suricata_version:
-            logger.error("Failed to parse provided Suricata version: %s" % (
-                args.suricata_version))
-            return 1
-        logger.info("Forcing Suricata version to %s." % (suricata_version.full))
-    elif suricata_path:
-        suricata_version = suricata.update.engine.get_version(args.suricata)
-        if suricata_version:
-            logger.info("Found Suricata version %s at %s." % (
-                str(suricata_version.full), suricata_path))
-        else:
-            logger.error("Failed to get Suricata version.")
-            return 1
-    else:
-        logger.info(
-            "Using default Suricata version of %s", DEFAULT_SURICATA_VERSION)
-        suricata_version = suricata.update.engine.parse_version(
-            DEFAULT_SURICATA_VERSION)
-
-    suricata.update.net.set_user_agent_suricata_version(suricata_version.full)
 
     file_tracker = FileTracker()
 

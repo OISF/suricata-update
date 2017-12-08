@@ -24,17 +24,6 @@ Options
 
    Default: */var/lib/suricata/rules*
 
-.. option:: --suricata=<path>
-
-   The path to the Suricata program used to determine which version of
-   the ET pro rules to download if not explicitly set in a ``--url``
-   argument.
-
-.. option:: --suricata-version <version>
-
-   Set the Suricata version to a specific version instead of checking
-   the version of Suricata on the path.
-
 .. option:: --force
 
    Force remote rule files to be downloaded if they otherwise wouldn't

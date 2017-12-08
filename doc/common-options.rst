@@ -22,6 +22,19 @@
 
    Provide more verbose output.
 
+.. option:: --suricata <path>
+
+   The path to the Suricata program. If not provided
+   ``suricata-update`` will attempt to find Suricata on your path.
+
+   The Suricata program is used to determine the version of Suricata
+   as well as providing information about the Suricata configuration.
+
+.. option:: --suricata-version <version>
+
+   Set the Suricata version to a specific version instead of checking
+   the version of Suricata on the path.
+
 .. option:: --user-agent <string>
 
    Set a custom user agent string for HTTP requests.
