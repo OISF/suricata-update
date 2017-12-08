@@ -1,9 +1,12 @@
+import os.path
 import subprocess
 from setuptools import setup
 
 from suricata.update.version import version
 
-def write_revision():
+def write_git_revision():
+    if not os.path.exists(".git"):
+        return
     try:
         revision = subprocess.check_output(
             ["git", "rev-parse", "--short", "HEAD"])
@@ -12,7 +15,7 @@ def write_revision():
     except Exception as err:
         print("Failed to get current git revision: %s" % (err))
 
-write_revision()
+write_git_revision()
 
 setup(
     name="suricata-update",
