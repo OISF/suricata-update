@@ -22,6 +22,12 @@
 
    Provide more verbose output.
 
+.. option:: --suricata-conf <path>
+
+   Path to the suricata config file.
+
+   Default: */etc/suricata/suricata.yaml*
+
 .. option:: --suricata <path>
 
    The path to the Suricata program. If not provided
