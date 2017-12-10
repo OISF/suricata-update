@@ -938,6 +938,9 @@ def _main():
         "-c", "--config", metavar="<filename>",
         help="configuration file (default: /etc/suricata/update.yaml)")
     global_parser.add_argument(
+        "--suricata-conf", metavar="<filename>",
+        help="configuration file (default: /etc/suricata/suricata.yaml)")
+    global_parser.add_argument(
         "--suricata", metavar="<path>",
         help="Path to Suricata program")
     global_parser.add_argument(
@@ -1197,11 +1200,11 @@ def _main():
         logger.info("Loading %s.", drop_conf_filename)
         drop_filters += load_drop_filters(drop_conf_filename)
 
-    if os.path.exists("/etc/suricata/suricata.yaml") and \
+    if os.path.exists(config.get("suricata-conf")) and \
        suricata_path and os.path.exists(suricata_path):
-        logger.info("Loading /etc/suricata/suricata.yaml")
+        logger.info("Loading %s",config.get("suricata-conf"))
         suriconf = suricata.update.engine.Configuration.load(
-            "/etc/suricata/suricata.yaml", suricata_path=suricata_path)
+            config.get("suricata-conf"), suricata_path=suricata_path)
         for key in suriconf.keys():
             if key.startswith("app-layer.protocols") and \
                key.endswith(".enabled"):

@@ -43,11 +43,18 @@ OUTPUT_KEY = "output"
 
 DEFAULT_UPDATE_YAML_PATH = "/etc/suricata/update.yaml"
 
+DEFAULT_SURICATA_YAML_PATH = [ 
+    "/etc/suricata/suricata.yaml",
+    "/usr/local/etc/suricata/suricata.yaml",
+    "/etc/suricata/suricata-debian.yaml"
+]
+
 DEFAULT_CONFIG = {
     "disable-conf": "/etc/suricata/disable.conf",
     "enable-conf": "/etc/suricata/enable.conf",
     "drop-conf": "/etc/suricata/drop.conf",
     "modify-conf": "/etc/suricata/modify.conf",
+    "suricata-conf": "/etc/suricata/suricata.conf",
     "sources": [],
     LOCAL_CONF_KEY: [],
 
@@ -117,6 +124,11 @@ def init(args):
 
     _args = args
     _config.update(DEFAULT_CONFIG)
+
+    for suriyaml in DEFAULT_SURICATA_YAML_PATH:
+        if os.path.exists(suriyaml):
+            _config["suricata-conf"] = suriyaml
+            break
 
     if args.config:
         logger.info("Loading %s", args.config)
