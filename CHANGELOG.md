@@ -12,6 +12,12 @@
   https://redmine.openinfosecfoundation.org/issues/2336.
 - New testing framework, integration tests and a docket test with the
   focus of testing on more versions of Python.
+- Allow a custom HTTP User-Agent to be set
+  (https://redmine.openinfosecfoundation.org/issues/2344).
+- Command line option and configuration parameter to set the
+  suricata.yaml configuration file used
+  (https://redmine.openinfosecfoundation.org/issues/2350).
+- Allow the Suricata application to be set in the configuration file.
 
 ## 1.0.0a - 2017-12-05
 - Initial alpha release of Suricata-Update. A Suricata rule update tool
