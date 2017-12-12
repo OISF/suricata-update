@@ -121,13 +121,15 @@ def get_version(path=None):
         return parse_version(output)
     return None
 
-def test_configuration(path, rule_filename=None):
+def test_configuration(suricata_path, suricata_conf=None, rule_filename=None):
     """Test the Suricata configuration with -T."""
     test_command = [
-        path,
+        suricata_path,
         "-T",
         "-l", "/tmp",
     ]
+    if suricata_conf:
+        test_command += ["-c", suricata_conf]
     if rule_filename:
         test_command += ["-S", rule_filename]
 
@@ -139,6 +141,7 @@ def test_configuration(path, rule_filename=None):
         "ASAN_OPTIONS": "detect_leaks=0",
     }
 
+    logger.debug("Running %s; env=%s", " ".join(test_command), str(env))
     rc = subprocess.Popen(test_command, env=env).wait()
     if rc == 0:
         return True

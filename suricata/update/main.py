@@ -804,14 +804,16 @@ def test_suricata(suricata_path):
             return False
     else:
         logger.info("Testing with suricata -T.")
+        suricata_conf = config.get("suricata-conf")
         if not config.get("no-merge"):
             if not suricata.update.engine.test_configuration(
-                    suricata_path, os.path.join(
+                    suricata_path, suricata_conf,
+                    os.path.join(
                         config.get_output_dir(), DEFAULT_OUTPUT_RULE_FILENAME)):
                 return False
         else:
             if not suricata.update.engine.test_configuration(
-                    suricata_path):
+                    suricata_path, suricata_conf):
                 return False
 
     return True
