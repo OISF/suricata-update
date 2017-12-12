@@ -84,9 +84,9 @@ def get_path(program="suricata"):
         if not path:
             continue
         suricata_path = os.path.join(path, program)
-        logger.debug("Testing path: %s" % (path))
+        logger.debug("Looking for %s in %s" % (program, path))
         if os.path.exists(suricata_path):
-            logger.debug("Found %s." % (path))
+            logger.debug("Found %s." % (suricata_path))
             return suricata_path
     return None
 
@@ -106,14 +106,12 @@ def parse_version(buf):
             raw=buf)
     return None
 
-def get_version(path=None):
+def get_version(path):
     """Get a SuricataVersion named tuple describing the version.
 
     If no path argument is found, the envionment PATH will be
     searched.
     """
-    if not path:
-        path = get_path("suricata")
     if not path:
         return None
     output = subprocess.check_output([path, "-V"])

@@ -924,8 +924,6 @@ def copytree_ignore_backup(src, names):
 def _main():
     global args
 
-    suricata_path = suricata.update.engine.get_path()
-
     global_parser = argparse.ArgumentParser(add_help=False)
     global_parser.add_argument(
         "-v", "--verbose", action="store_true", default=None,
@@ -1093,12 +1091,12 @@ def _main():
         version, revision, sys.version.replace("\n", "- ")))
 
     # Check for Suricata binary...
-    if args.suricata:
-        if not os.path.exists(args.suricata):
+    if config.get("suricata"):
+        if not os.path.exists(config.get("suricata")):
             logger.error("Specified path to suricata does not exist: %s",
-                     args.suricata)
+                         config.get("suricata"))
             return 1
-        suricata_path = args.suricata
+        suricata_path = config.get("suricata")
     else:
         suricata_path = suricata.update.engine.get_path()
         if not suricata_path:
@@ -1116,7 +1114,7 @@ def _main():
             return 1
         logger.info("Forcing Suricata version to %s." % (suricata_version.full))
     elif suricata_path:
-        suricata_version = suricata.update.engine.get_version(args.suricata)
+        suricata_version = suricata.update.engine.get_version(suricata_path)
         if suricata_version:
             logger.info("Found Suricata version %s at %s." % (
                 str(suricata_version.full), suricata_path))
