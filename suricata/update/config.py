@@ -133,13 +133,13 @@ def init(args):
     if args.config:
         logger.info("Loading %s", args.config)
         with open(args.config, "rb") as fileobj:
-            config = yaml.load(fileobj)
+            config = yaml.safe_load(fileobj)
             if config:
                 _config.update(config)
     elif os.path.exists(DEFAULT_UPDATE_YAML_PATH):
         logger.info("Loading %s", DEFAULT_UPDATE_YAML_PATH)
         with open(DEFAULT_UPDATE_YAML_PATH, "rb") as fileobj:
-            config = yaml.load(fileobj)
+            config = yaml.safe_load(fileobj)
             if config:
                 _config.update(config)
 

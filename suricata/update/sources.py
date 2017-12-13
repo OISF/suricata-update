@@ -96,7 +96,7 @@ class Index:
         self.reload()
 
     def reload(self):
-        index = yaml.load(open(self.filename, "rb"))
+        index = yaml.safe_load(open(self.filename, "rb"))
         self.index = index
 
     def resolve_url(self, name, params={}):
@@ -128,7 +128,7 @@ def get_enabled_sources():
         for filename in filenames:
             if filename.endswith(".yaml"):
                 path = os.path.join(dirpath, filename)
-                source = yaml.load(open(path, "rb"))
+                source = yaml.safe_load(open(path, "rb"))
                 sources[source["source"]] = source
 
                 if "params" in source:
