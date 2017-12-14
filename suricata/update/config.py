@@ -154,4 +154,7 @@ def init(args):
             logger.debug("Setting data directory to %s", args.data_dir)
             _config[DATA_DIRECTORY_KEY] = args.data_dir
         elif getattr(args, arg):
-            _config[arg.replace("_", "-")] = getattr(args, arg)
+            key = arg.replace("_", "-")
+            val = getattr(args, arg)
+            logger.debug("Setting configuration value %s -> %s", key, val)
+            _config[key] = val
