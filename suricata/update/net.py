@@ -19,17 +19,21 @@
 
 import platform
 import logging
+import ssl
 
 try:
     # Python 3.3...
     from urllib.request import urlopen, build_opener
     from urllib.error import HTTPError
+    from urllib.request import HTTPSHandler
 except ImportError:
     # Python 2.6, 2.7.
     from urllib2 import urlopen, build_opener
     from urllib2 import HTTPError
+    from urllib2 import HTTPSHandler
 
 from suricata.update.version import version
+from suricata.update import config
 
 logger = logging.getLogger()
 
@@ -87,7 +91,15 @@ def get(url, fileobj, progress_hook=None):
     user_agent = build_user_agent()
     logger.debug("Setting HTTP user-agent to %s", user_agent)
 
-    opener = build_opener()
+    ssl_context = ssl.create_default_context()
+
+    if config.get("no-check-certificate"):
+        logger.debug("Disabling SSL/TLS certificate verification.")
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+
+    opener = build_opener(HTTPSHandler(context=ssl_context))
+
     opener.addheaders = [
         ("User-Agent", build_user_agent()),
     ]

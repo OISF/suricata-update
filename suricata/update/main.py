@@ -34,7 +34,7 @@ import io
 
 try:
     # Python 3.
-    from urllib.error import HTTPError
+    from urllib.error import URLError
 except ImportError:
     # Python 2.7.
     from urllib2 import URLError
@@ -944,6 +944,9 @@ def _main():
     global_parser.add_argument(
         "--user-agent", metavar="<user-agent>",
         help="Set custom user-agent string")
+    global_parser.add_argument(
+        "--no-check-certificate", action="store_true", default=None,
+        help="Disable server SSL/TLS certificate verification")
 
     global_args, rem = global_parser.parse_known_args()
 
