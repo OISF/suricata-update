@@ -31,6 +31,7 @@ import types
 import shutil
 import glob
 import io
+import tempfile
 
 try:
     # Python 3.
@@ -351,14 +352,22 @@ class Fetch:
             os.makedirs(config.get_cache_dir(), mode=0o770)
         logger.info("Fetching %s." % (url))
         try:
+            tmp_fileobj = tempfile.NamedTemporaryFile()
             suricata.update.net.get(
                 url,
-                open(tmp_filename, "wb"),
+                tmp_fileobj,
                 progress_hook=self.progress_hook)
-        except:
+            shutil.copyfile(tmp_fileobj.name, tmp_filename)
+            tmp_fileobj.close()
+        except URLError as err:
             if os.path.exists(tmp_filename):
-                os.unlink(tmp_filename)
-            raise
+                logger.warning(
+                    "Failed to fetch %s, "
+                    "will use latest cached version: %s", url, err)
+                return self.extract_files(tmp_filename)
+            raise err
+        except Exception as err:
+            raise err
         if not config.args().quiet:
             self.progress_hook_finish()
         logger.info("Done.")
