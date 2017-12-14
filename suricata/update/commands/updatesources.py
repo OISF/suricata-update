@@ -23,6 +23,7 @@ import io
 from suricata.update import config
 from suricata.update import sources
 from suricata.update import net
+from suricata.update import exceptions
 
 logger = logging.getLogger()
 
@@ -32,12 +33,13 @@ def register(parser):
 def update_sources():
     local_index_filename = sources.get_index_filename()
     with io.BytesIO() as fileobj:
+        url = sources.get_source_index_url()
+        logger.info("Downloading %s", url)
         try:
-            url = sources.get_source_index_url()
-            logger.info("Downloading %s", url)
             net.get(url, fileobj)
         except Exception as err:
-            raise Exception("Failed to download index: %s: %s" % (url, err))
+            raise exceptions.ApplicationError(
+                "Failed to download index: %s: %s" % (url, err))
         if not os.path.exists(config.get_cache_dir()):
             try:
                 os.makedirs(config.get_cache_dir())

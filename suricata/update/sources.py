@@ -67,6 +67,9 @@ def get_source_index_url():
     return DEFAULT_SOURCE_INDEX_URL
 
 def save_source_config(source_config):
+    if not os.path.exists(get_source_directory()):
+        logger.info("Creating directory %s", get_source_directory())
+        os.makedirs(get_source_directory())
     with open(get_enabled_source_filename(source_config.name), "w") as fileobj:
         fileobj.write(yaml.safe_dump(
             source_config.dict(), default_flow_style=False))

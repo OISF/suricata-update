@@ -59,6 +59,7 @@ from suricata.update import extract
 from suricata.update import util
 from suricata.update import sources
 from suricata.update import commands
+from suricata.update import exceptions
 
 from suricata.update.version import version
 try:
@@ -83,12 +84,6 @@ DEFAULT_SURICATA_VERSION = "4.0.0"
 # The default filename to use for the output rule file. This is a
 # single file concatenating all input rule files together.
 DEFAULT_OUTPUT_RULE_FILENAME = "suricata.rules"
-
-class ApplicationError(Exception):
-    pass
-
-class InvalidConfigurationError(ApplicationError):
-    pass
 
 class AllRuleMatcher(object):
     """Matcher object to match all rules. """
@@ -881,7 +876,7 @@ def load_sources(suricata_version):
                 url = source["url"] % params
             else:
                 if not index:
-                    raise ApplicationError(
+                    raise exceptions.ApplicationError(
                         "Source index is required for source %s; "
                         "run suricata-update update-sources" % (source["source"]))
                 url = index.resolve_url(name, params)
@@ -891,7 +886,7 @@ def load_sources(suricata_version):
     if config.get("sources"):
         for url in config.get("sources"):
             if type(url) not in [type("")]:
-                raise InvalidConfigurationError(
+                raise exceptions.InvalidConfigurationError(
                     "Invalid datatype for source URL: %s" % (str(url)))
             url = url % internal_params
             logger.debug("Adding source %s.", url)
@@ -1363,7 +1358,7 @@ def _main():
 def main():
     try:
         sys.exit(_main())
-    except ApplicationError as err:
+    except exceptions.ApplicationError as err:
         logger.error(err)
     sys.exit(1)
 
