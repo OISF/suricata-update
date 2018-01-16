@@ -53,3 +53,7 @@ def list_sources():
             print("  %s: %s" % (
                 util.bright_cyan("Parameters"),
                 util.bright_magenta(", ".join(source["parameters"]))))
+        if "subscribe-url" in source:
+            print("  %s: %s" % (
+                util.bright_cyan("Subscription"),
+                util.bright_magenta(source["subscribe-url"])))
