@@ -10,7 +10,7 @@
 - list-sources: If no index is found, automatically run
   update-sources. Fixes issue
   https://redmine.openinfosecfoundation.org/issues/2336.
-- New testing framework, integration tests and a docket test with the
+- New testing framework, integration tests and a docker test with the
   focus of testing on more versions of Python.
 - Allow a custom HTTP User-Agent to be set
   (https://redmine.openinfosecfoundation.org/issues/2344).
