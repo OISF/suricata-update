@@ -1,6 +1,6 @@
 # Change Log
 
-## unreleased
+## 1.0.0b1 - 2018-01-19
 - Various fixes for Python 3.
 - Allow the default state directory of /var/lib/suricata to be changed
   with the command line parameter -D (--data-dir). Fixes issue
@@ -18,8 +18,12 @@
   suricata.yaml configuration file used
   (https://redmine.openinfosecfoundation.org/issues/2350).
 - Allow the Suricata application to be set in the configuration file.
+- Allow disabling of TLS certificate validation
+  (--no-check-certificate).
+- Safe loading of YAML files
+  (https://redmine.openinfosecfoundation.org/issues/2359)
 
-## 1.0.0a - 2017-12-05
+## 1.0.0a1 - 2017-12-05
 - Initial alpha release of Suricata-Update. A Suricata rule update tool
   based on idstools-rulecat, relicensed under the GPLv2 with copyright
   assigned to the OISF.
