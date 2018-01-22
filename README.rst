@@ -118,10 +118,10 @@ Files and Directories
   This is a single file that contains all the rules from all input
   files and should be used by Suricata.
 
-``/var/lib/suricata/rules/.cache``
+``/var/lib/suricata/update/cache``
   Directory where downloaded rule files are cached here.
 
-``/var/lib/suricata/rules/.cache/index.yaml``
+``/var/lib/suricata/rules/cache/index.yaml``
   Cached copy of the rule source index.
 
 ``/var/lib/suricata/update/sources``
