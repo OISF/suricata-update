@@ -19,6 +19,13 @@
 import sys
 import os
 
+exec_dir = os.path.dirname(__file__)
+version_info = sys.version_info
+pyver = "%d.%d" % (version_info.major, version_info.minor)
+site_path = "%s/../lib/python%s/site-packages" % (exec_dir, pyver)
+
+if os.path.exists("%s/suricata/update" % (site_path)):
+    sys.path.insert(0, site_path)
 sys.path.insert(
     0, os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 
