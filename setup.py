@@ -1,6 +1,6 @@
 import os.path
 import subprocess
-from setuptools import setup
+from distutils.core import setup
 
 from suricata.update.version import version
 
