@@ -20,6 +20,7 @@
 
 from __future__ import print_function
 
+import sys
 import os
 import os.path
 import subprocess
@@ -80,6 +81,13 @@ class Configuration:
 
 def get_path(program="suricata"):
     """Find Suricata in the shell path."""
+    # First look for Suricata relative to suricata-update.
+    relative_path = os.path.join(os.path.dirname(sys.argv[0]), "suricata")
+    if os.path.exists(relative_path):
+        logger.debug("Found suricata at %s" % (relative_path))
+        return relative_path
+
+    # Otherwise look for it in the path.
     for path in os.environ["PATH"].split(os.pathsep):
         if not path:
             continue
