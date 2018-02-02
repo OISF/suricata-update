@@ -510,7 +510,10 @@ def load_dist_rules(files):
         "tls-events.rules",
     ]
 
-    dist_rule_path = "/etc/suricata/rules"
+    dist_rule_path = config.get(config.DIST_RULE_DIRECTORY_KEY)
+    if not dist_rule_path:
+        logger.warning("No distribution rule directory found.")
+        return
 
     if not os.path.exists(dist_rule_path):
         logger.warning("Distribution rule directory not found: %s",
