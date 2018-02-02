@@ -43,6 +43,7 @@ MODIFY_CONF_KEY = "modify-conf"
 DROP_CONF_KEY = "drop-conf"
 LOCAL_CONF_KEY = "local"
 OUTPUT_KEY = "output"
+DIST_RULE_DIRECTORY_KEY = "dist-rule-directory"
 
 DEFAULT_UPDATE_YAML_PATH = "/etc/suricata/update.yaml"
 
@@ -50,6 +51,10 @@ DEFAULT_SURICATA_YAML_PATH = [
     "/etc/suricata/suricata.yaml",
     "/usr/local/etc/suricata/suricata.yaml",
     "/etc/suricata/suricata-debian.yaml"
+]
+
+DEFAULT_DIST_RULE_PATH = [
+    "/etc/suricata/rules",
 ]
 
 DEFAULT_CONFIG = {
@@ -179,6 +184,10 @@ def init(args):
                 0, os.path.join(
                     build_info["sysconfdir"], "suricata/suricata.yaml"))
 
+        if "sysconfdir" in build_info:
+            DEFAULT_DIST_RULE_PATH.insert(
+                0, os.path.join(build_info["sysconfdir"], "suricata/rules"))
+
         # Set the data-directory prefix to that of the --localstatedir
         # found in the build-info.
         if not DATA_DIRECTORY_KEY in _config and "localstatedir" in build_info:
@@ -194,4 +203,11 @@ def init(args):
             if os.path.exists(conf):
                 logger.info("Using Suricata configuration %s" % (conf))
                 _config["suricata-conf"] = conf
+                break
+
+    if not DIST_RULE_DIRECTORY_KEY in _config:
+        for path in DEFAULT_DIST_RULE_PATH:
+            if os.path.exists(path):
+                logger.info("Using %s for Suricata provided rules.", path)
+                _config[DIST_RULE_DIRECTORY_KEY] = path
                 break
