@@ -510,7 +510,10 @@ def load_dist_rules(files):
         "tls-events.rules",
     ]
 
-    dist_rule_path = "/etc/suricata/rules"
+    dist_rule_path = config.get(config.DIST_RULE_DIRECTORY_KEY)
+    if not dist_rule_path:
+        logger.warning("No distribution rule directory found.")
+        return
 
     if not os.path.exists(dist_rule_path):
         logger.warning("Distribution rule directory not found: %s",
@@ -1076,11 +1079,7 @@ def _main():
     if args.quiet:
         logger.setLevel(logging.WARNING)
 
-    try:
-        config.init(args)
-    except Exception as err:
-        logger.error("Failed to load configuration: %s", err)
-        return 1
+    config.init(args)
     
     # Error out if any reserved/unimplemented arguments were set.
     unimplemented_args = [
@@ -1097,17 +1096,7 @@ def _main():
     logger.debug("This is suricata-update version %s (rev: %s); Python: %s" % (
         version, revision, sys.version.replace("\n", "- ")))
 
-    # Check for Suricata binary...
-    if config.get("suricata"):
-        if not os.path.exists(config.get("suricata")):
-            logger.error("Specified path to suricata does not exist: %s",
-                         config.get("suricata"))
-            return 1
-        suricata_path = config.get("suricata")
-    else:
-        suricata_path = suricata.update.engine.get_path()
-        if not suricata_path:
-            logger.warning("No suricata application binary found on path.")
+    suricata_path = config.get("suricata")
 
     # Now parse the Suricata version. If provided on the command line,
     # use that, otherwise attempt to get it from Suricata.
