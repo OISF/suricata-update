@@ -34,6 +34,27 @@ logger = logging.getLogger()
 SuricataVersion = namedtuple(
     "SuricataVersion", ["major", "minor", "patch", "full", "short", "raw"])
 
+def get_build_info(suricata):
+    build_info = {}
+    build_info_output = subprocess.check_output([suricata, "--build-info"])
+    for line in build_info_output.split("\n"):
+        line = line.strip()
+        if line.startswith("--prefix"):
+            build_info["prefix"] = line.split()[-1].strip()
+        elif line.startswith("--sysconfdir"):
+            build_info["sysconfdir"] = line.split()[-1].strip()
+        elif line.startswith("--localstatedir"):
+            build_info["localstatedir"] = line.split()[-1].strip()
+
+    if not "prefix" in build_info:
+        logger.warning("--prefix not found in build-info.")
+    if not "sysconfdir" in build_info:
+        logger.warning("--sysconfdir not found in build-info.")
+    if not "localstatedir" in build_info:
+        logger.warning("--localstatedir not found in build-info.")
+
+    return build_info
+
 class Configuration:
     """An abstraction over the Suricata configuration file."""
 
