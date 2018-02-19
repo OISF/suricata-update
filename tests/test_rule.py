@@ -193,3 +193,20 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
         self.assertRaises(
             suricata.update.rule.NoEndOfOptionError,
             suricata.update.rule.parse, rule_buf)
+
+    def test_parse_addr_list(self):
+        """Test parsing rules where the addresses and parts are lists with
+        spaces."""
+    
+        rule = suricata.update.rule.parse("""alert any [$HOME_NET, $OTHER_NET] any -> any any (msg:"TEST"; sid:1; rev:1;)""")
+        self.assertIsNotNone(rule)
+        
+        rule = suricata.update.rule.parse("""alert any [$HOME_NET, $OTHER_NET] [1,2,3] -> any any (msg:"TEST"; sid:1; rev:1;)""")
+        self.assertIsNotNone(rule)
+
+        rule = suricata.update.rule.parse("""alert any [$HOME_NET, $OTHER_NET] [1,2,3] -> [!$XNET, $YNET] any (msg:"TEST"; sid:1; rev:1;)""")
+        self.assertIsNotNone(rule)
+
+        rule = suricata.update.rule.parse("""alert any [$HOME_NET, $OTHER_NET] [1,2,3] -> [!$XNET, $YNET] [!2200] (msg:"TEST"; sid:1; rev:1;)""")
+        self.assertIsNotNone(rule)
+        
