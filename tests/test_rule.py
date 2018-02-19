@@ -200,13 +200,17 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
     
         rule = suricata.update.rule.parse("""alert any [$HOME_NET, $OTHER_NET] any -> any any (msg:"TEST"; sid:1; rev:1;)""")
         self.assertIsNotNone(rule)
-        
-        rule = suricata.update.rule.parse("""alert any [$HOME_NET, $OTHER_NET] [1,2,3] -> any any (msg:"TEST"; sid:1; rev:1;)""")
+        self.assertEqual(rule["source_addr"], "[$HOME_NET, $OTHER_NET]")
+
+        rule = suricata.update.rule.parse("""alert any [$HOME_NET, $OTHER_NET] [1, 2, 3] -> any any (msg:"TEST"; sid:1; rev:1;)""")
         self.assertIsNotNone(rule)
+        self.assertEqual(rule["source_port"], "[1, 2, 3]")
 
         rule = suricata.update.rule.parse("""alert any [$HOME_NET, $OTHER_NET] [1,2,3] -> [!$XNET, $YNET] any (msg:"TEST"; sid:1; rev:1;)""")
         self.assertIsNotNone(rule)
+        self.assertEqual(rule["dest_addr"], "[!$XNET, $YNET]")
 
-        rule = suricata.update.rule.parse("""alert any [$HOME_NET, $OTHER_NET] [1,2,3] -> [!$XNET, $YNET] [!2200] (msg:"TEST"; sid:1; rev:1;)""")
+        rule = suricata.update.rule.parse("""alert any [$HOME_NET, $OTHER_NET] [1,2,3] -> [!$XNET, $YNET] [!2200, 5500] (msg:"TEST"; sid:1; rev:1;)""")
         self.assertIsNotNone(rule)
+        self.assertEqual(rule["dest_port"], "[!2200, 5500]")
         

@@ -212,6 +212,8 @@ def parse(buf, group=None):
 
     header = m.group("header").strip()
 
+    rule = Rule(enabled=enabled, group=group)
+
     # If a decoder rule, the header will be one word.
     if len(header.split(" ")) == 1:
         action = header
@@ -250,24 +252,24 @@ def parse(buf, group=None):
             if states[state] == "action":
                 action = token
             elif states[state] == "proto":
-                proto = token
+                rule["proto"] = token
             elif states[state] == "source_addr":
-                source_addr = token
+                rule["source_addr"] = token
             elif states[state] == "source_port":
-                source_port = token
+                rule["source_port"] = token
             elif states[state] == "direction":
                 direction = token
             elif states[state] == "dest_addr":
-                dest_addr = token
+                rule["dest_addr"] = token
             elif states[state] == "dest_port":
-                dest_port = token
+                rule["dest_port"] = token
 
             state += 1
 
     if action not in actions:
         return None
 
-    rule = Rule(enabled=enabled, action=action, group=group)
+    rule["action"] = action
     rule["direction"] = direction
     rule["header"] = header
 
