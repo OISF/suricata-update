@@ -88,7 +88,11 @@ class Rule(dict):
         self["enabled"] = enabled
         self["action"] = action
         self["proto"] = None
+        self["source_addr"] = None
+        self["source_port"] = None
         self["direction"] = None
+        self["dest_addr"] = None
+        self["dest_port"] = None
         self["group"] = group
         self["gid"] = 1
         self["sid"] = None
@@ -448,3 +452,9 @@ def format_sidmsgmap_v2(rule):
         logger.error("Failed to format rule as sid-msg-v2.map: %s" % (
             str(rule)))
         return None
+
+def parse_var_names(var):
+    """ Parse out the variable names from a string. """
+    if var is None:
+        return []
+    return re.findall("\$([\w_]+)", var)

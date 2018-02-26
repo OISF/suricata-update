@@ -786,6 +786,48 @@ def ignore_file(ignore_files, filename):
             return True
     return False
 
+def check_vars(suriconf, rulemap):
+    """Check that all vars referenced by a rule exist. If a var is not
+    found, disable the rule.
+    """
+    if suriconf is None:
+        # Can't continue without a valid Suricata configuration
+        # object.
+        return
+    for rule in rulemap.itervalues():
+        disable = False
+        for var in suricata.update.rule.parse_var_names(
+                rule["source_addr"]):
+            if not suriconf.has_key("vars.address-groups.%s" % (var)):
+                logger.warning(
+                    "Rule has unknown source address var and will be disabled: %s: %s" % (
+                        var, rule.brief()))
+                disable = True
+        for var in suricata.update.rule.parse_var_names(
+                rule["dest_addr"]):
+            if not suriconf.has_key("vars.address-groups.%s" % (var)):
+                logger.warning(
+                    "Rule has unknown dest address var and will be disabled: %s: %s" % (
+                        var, rule.brief()))
+                disable = True
+        for var in suricata.update.rule.parse_var_names(
+                rule["source_port"]):
+            if not suriconf.has_key("vars.port-groups.%s" % (var)):
+                logger.warning(
+                    "Rule has unknown source port var and will be disabled: %s: %s" % (
+                        var, rule.brief()))
+                disable = True
+        for var in suricata.update.rule.parse_var_names(
+                rule["dest_port"]):
+            if not suriconf.has_key("vars.port-groups.%s" % (var)):
+                logger.warning(
+                    "Rule has unknown dest port var and will be disabled: %s: %s" % (
+                        var, rule.brief()))
+                disable = True
+
+        if disable:
+            rule.enabled = False
+
 def test_suricata(suricata_path):
     if not suricata_path:
         logger.info("No suricata application binary found, skipping test.")
@@ -1196,11 +1238,16 @@ def _main():
         logger.info("Loading %s.", drop_conf_filename)
         drop_filters += load_drop_filters(drop_conf_filename)
 
+    # Load the Suricata configuration if we can.
+    suriconf = None
     if os.path.exists(config.get("suricata-conf")) and \
        suricata_path and os.path.exists(suricata_path):
         logger.info("Loading %s",config.get("suricata-conf"))
         suriconf = suricata.update.engine.Configuration.load(
             config.get("suricata-conf"), suricata_path=suricata_path)
+
+    # Disable rule that are for app-layers that are not enabled.
+    if suriconf:
         for key in suriconf.keys():
             if key.startswith("app-layer.protocols") and \
                key.endswith(".enabled"):
@@ -1276,6 +1323,9 @@ def _main():
                 if new_rule and new_rule.format() != rule.format():
                     rulemap[rule.id] = new_rule
                     modify_count += 1
+
+    # Check rule vars, disabling rules that use unknown vars.
+    check_vars(suriconf, rulemap)
 
     logger.info("Disabled %d rules." % (len(disabled_rules)))
     logger.info("Enabled %d rules." % (enable_count))

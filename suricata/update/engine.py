@@ -64,6 +64,9 @@ class Configuration:
     def keys(self):
         return self.conf.keys()
 
+    def has_key(self, key):
+        return key in self.conf
+
     def is_true(self, key, truthy=[]):
         if not key in self.conf:
             logger.warning(
