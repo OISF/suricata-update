@@ -978,7 +978,7 @@ def _main():
         "-v", "--verbose", action="store_true", default=None,
         help="Be more verbose")
     global_parser.add_argument(
-        "-q", "--quiet", action="store_true", default=False,
+        "-q", "--quiet", action="store_true", default=None,
         help="Be quiet, warning and error messages only")
     global_parser.add_argument(
         "-D", "--data-dir", metavar="<directory>", dest="data_dir",
