@@ -61,6 +61,7 @@ from suricata.update import util
 from suricata.update import sources
 from suricata.update import commands
 from suricata.update import exceptions
+from suricata.update import notes
 
 from suricata.update.version import version
 try:
@@ -802,6 +803,7 @@ def check_vars(suriconf, rulemap):
                 logger.warning(
                     "Rule has unknown source address var and will be disabled: %s: %s" % (
                         var, rule.brief()))
+                notes.address_group_vars.add(var)
                 disable = True
         for var in suricata.update.rule.parse_var_names(
                 rule["dest_addr"]):
@@ -809,6 +811,7 @@ def check_vars(suriconf, rulemap):
                 logger.warning(
                     "Rule has unknown dest address var and will be disabled: %s: %s" % (
                         var, rule.brief()))
+                notes.address_group_vars.add(var)
                 disable = True
         for var in suricata.update.rule.parse_var_names(
                 rule["source_port"]):
@@ -816,6 +819,7 @@ def check_vars(suriconf, rulemap):
                 logger.warning(
                     "Rule has unknown source port var and will be disabled: %s: %s" % (
                         var, rule.brief()))
+                notes.port_group_vars.add(var)
                 disable = True
         for var in suricata.update.rule.parse_var_names(
                 rule["dest_port"]):
@@ -823,6 +827,7 @@ def check_vars(suriconf, rulemap):
                 logger.warning(
                     "Rule has unknown dest port var and will be disabled: %s: %s" % (
                         var, rule.brief()))
+                notes.port_group_vars.add(var)
                 disable = True
 
         if disable:
@@ -1387,6 +1392,7 @@ def _main():
 
     if not args.force and not file_tracker.any_modified():
         logger.info("No changes detected, exiting.")
+        notes.dump_notes()
         return 0
 
     if not test_suricata(suricata_path):
@@ -1403,6 +1409,8 @@ def _main():
             logger.error("Reload command exited with error: %d", rc)
 
     logger.info("Done.")
+
+    notes.dump_notes()
 
     return 0
 
