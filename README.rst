@@ -51,7 +51,7 @@ command line options.
 Suricata Configuration
 ----------------------
 
-The default Suricata configuration needs to updated to find the rules
+The default Suricata configuration needs to be updated to find the rules
 in the new location.
 
 Example suricata.yaml
