@@ -37,7 +37,7 @@ SuricataVersion = namedtuple(
 def get_build_info(suricata):
     build_info = {}
     build_info_output = subprocess.check_output([suricata, "--build-info"])
-    for line in build_info_output.split("\n"):
+    for line in build_info_output.decode("utf-8").split("\n"):
         line = line.strip()
         if line.startswith("--prefix"):
             build_info["prefix"] = line.split()[-1].strip()
