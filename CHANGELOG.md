@@ -1,5 +1,9 @@
 # Change Log
 
+## unreleased
+
+- Python 3 fixes.
+
 ## 1.0.0b1 - 2018-01-19
 - Various fixes for Python 3.
 - Allow the default state directory of /var/lib/suricata to be changed

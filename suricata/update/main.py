@@ -795,7 +795,8 @@ def check_vars(suriconf, rulemap):
         # Can't continue without a valid Suricata configuration
         # object.
         return
-    for rule in rulemap.itervalues():
+    for rule_id in rulemap:
+        rule = rulemap[rule_id]
         disable = False
         for var in suricata.update.rule.parse_var_names(
                 rule["source_addr"]):
