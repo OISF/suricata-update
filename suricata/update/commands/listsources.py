@@ -22,6 +22,7 @@ from suricata.update import config
 from suricata.update import sources
 from suricata.update import util
 from suricata.update.commands.updatesources import update_sources
+from suricata.update import exceptions
 
 logger = logging.getLogger()
 
@@ -31,7 +32,10 @@ def register(parser):
 def list_sources():
     if not sources.source_index_exists(config):
         logger.info("No source index found, running update-sources")
-        update_sources()
+        try:
+            update_sources()
+        except exceptions.ApplicationError as err:
+            logger.warning("%s: will use bundled index.", err)
     index = sources.load_source_index(config)
     for name, source in index.get_sources().items():
         print("%s: %s" % (util.bright_cyan("Name"), util.bright_magenta(name)))

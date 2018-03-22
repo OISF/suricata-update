@@ -30,6 +30,7 @@ setup(
         "suricata.update.configs",
         "suricata.update.compat",
         "suricata.update.compat.argparse",
+        "suricata.update.data",
     ],
     url="https://github.com/OISF/suricata-update",
     license="GPLv2",

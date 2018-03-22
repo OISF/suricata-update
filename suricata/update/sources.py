@@ -27,6 +27,7 @@ from suricata.update import config
 from suricata.update import net
 from suricata.update import util
 from suricata.update import loghandler
+from suricata.update.data.index import index as bundled_index
 
 logger = logging.getLogger()
 
@@ -96,11 +97,14 @@ class Index:
     def __init__(self, filename):
         self.filename = filename
         self.index = {}
-        self.reload()
+        self.load()
 
-    def reload(self):
-        index = yaml.safe_load(open(self.filename, "rb"))
-        self.index = index
+    def load(self):
+        if os.path.exists(self.filename):
+            index = yaml.safe_load(open(self.filename, "rb"))
+            self.index = index
+        else:
+            self.index = bundled_index
 
     def resolve_url(self, name, params={}):
         if not name in self.index["sources"]:

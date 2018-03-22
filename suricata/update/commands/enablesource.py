@@ -51,10 +51,8 @@ def enable_source():
         return 0
 
     if not os.path.exists(sources.get_index_filename()):
-        logger.warning(
-            "Source index does not exist, "
-            "try running suricata-update update-sources.")
-        return 1
+        logger.warning("Source index does not exist, will use bundled one.")
+        logger.warning("Please run suricata-update update-sources.")
 
     source_index = sources.load_source_index(config)
 

@@ -921,12 +921,11 @@ def load_sources(suricata_version):
 
     # If we have new sources, we also need to load the index.
     if enabled_sources:
-        index_filename = os.path.join(
-            config.get_cache_dir(), sources.SOURCE_INDEX_FILENAME)
-        if os.path.exists(index_filename):
-            index = sources.Index(index_filename)
-        else:
-            index = None
+        index_filename = sources.get_index_filename()
+        if not os.path.exists(index_filename):
+            logger.warning("No index exists, will use bundled index.")
+            logger.warning("Please run suricata-update update-sources.")
+        index = sources.Index(index_filename)
 
         for (name, source) in enabled_sources.items():
             params = source["params"] if "params" in source else {}

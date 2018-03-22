@@ -45,3 +45,6 @@ sdist:
 
 sdist-upload:
 	python setup.py sdist upload
+
+update-index:
+	python -m suricata.update.data.update
