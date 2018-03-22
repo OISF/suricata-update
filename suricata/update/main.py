@@ -506,6 +506,7 @@ def load_dist_rules(files):
         "modbus-events.rules",
         "nfs-events.rules",
         "ntp-events.rules",
+        "smb-events.rules",
         "smtp-events.rules",
         "stream-events.rules",
         "tls-events.rules",
