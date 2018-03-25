@@ -1246,7 +1246,8 @@ def _main():
 
     # Load the Suricata configuration if we can.
     suriconf = None
-    if os.path.exists(config.get("suricata-conf")) and \
+    if config.get("suricata-conf") and \
+       os.path.exists(config.get("suricata-conf")) and \
        suricata_path and os.path.exists(suricata_path):
         logger.info("Loading %s",config.get("suricata-conf"))
         suriconf = suricata.update.engine.Configuration.load(
