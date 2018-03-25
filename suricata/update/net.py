@@ -91,14 +91,17 @@ def get(url, fileobj, progress_hook=None):
     user_agent = build_user_agent()
     logger.debug("Setting HTTP user-agent to %s", user_agent)
 
-    ssl_context = ssl.create_default_context()
-
-    if config.get("no-check-certificate"):
-        logger.debug("Disabling SSL/TLS certificate verification.")
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
-
-    opener = build_opener(HTTPSHandler(context=ssl_context))
+    try:
+        # Wrap in a try as Python versions prior to 2.7.9 don't have
+        # create_default_context, but some distros have backported it.
+        ssl_context = ssl.create_default_context()
+        if config.get("no-check-certificate"):
+            logger.debug("Disabling SSL/TLS certificate verification.")
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+        opener = build_opener(HTTPSHandler(context=ssl_context))
+    except:
+        opener = build_opener()
 
     opener.addheaders = [
         ("User-Agent", build_user_agent()),

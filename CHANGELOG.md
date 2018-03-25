@@ -6,6 +6,8 @@
 - Bundle a copy of the index which can be used if download source for
   the index is not available, and no index was previously
   downloaded. Warnings will be issued.
+- Fix for Python versions prior to 2.7.9 that don't have
+  ssl.create_default_context. For example, Ubuntu Trusty.
 
 ## 1.0.0b1 - 2018-01-19
 - Various fixes for Python 3.
