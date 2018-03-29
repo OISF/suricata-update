@@ -967,8 +967,9 @@ def load_sources(suricata_version):
         Fetch().run(url, files)
 
     # Now load local rules.
-    for local in config.get("local"):
-        load_local(local, files)
+    if config.get("local") is not None:
+        for local in config.get("local"):
+            load_local(local, files)
 
     return files
 
