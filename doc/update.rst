@@ -266,7 +266,7 @@ Example Configuration to Enable Rules (--enable-conf)
 
 .. _example-disable-conf:
 
-Example Configuration to Enable Disable (--disable-conf)
+Example Configuration to Disable Rules (--disable-conf)
 --------------------------------------------------------
 
 .. literalinclude:: ../suricata/update/configs/disable.conf
