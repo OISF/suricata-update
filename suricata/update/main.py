@@ -1130,6 +1130,29 @@ def _main():
     if args.quiet:
         logger.setLevel(logging.WARNING)
 
+    logger.debug("This is suricata-update version %s (rev: %s); Python: %s" % (
+        version, revision, sys.version.replace("\n", "- ")))
+
+    if args.dump_sample_configs:
+        return dump_sample_configs()
+
+    if args.version:
+        print("suricata-update version %s (rev: %s)" % (version, revision))
+        return 0
+
+    if args.help:
+        print(update_parser.format_help())
+        print("""other commands:
+    update-sources             Update the source index
+    list-sources               List available sources
+    enable-source              Enable a source from the index
+    disable-source             Disable an enabled source
+    remove-source              Remove an enabled or disabled source
+    list-enabled-sources       List all enabled sources
+    add-source                 Add a new source by URL
+""")
+        return 0
+
     config.init(args)
     
     # Error out if any reserved/unimplemented arguments were set.
@@ -1143,9 +1166,6 @@ def _main():
         if hasattr(args, arg) and getattr(args, arg):
             logger.error("--%s not implemented", arg)
             return 1
-
-    logger.debug("This is suricata-update version %s (rev: %s); Python: %s" % (
-        version, revision, sys.version.replace("\n", "- ")))
 
     suricata_path = config.get("suricata")
 
@@ -1190,26 +1210,6 @@ def _main():
         elif args.subcommand != "update":
             logger.error("Unknown command: %s", args.subcommand)
             return 1
-
-    if args.dump_sample_configs:
-        return dump_sample_configs()
-
-    if args.version:
-        print("suricata-update version %s (rev: %s)" % (version, revision))
-        return 0
-
-    if args.help:
-        print(update_parser.format_help())
-        print("""other commands:
-    update-sources             Update the source index
-    list-sources               List available sources
-    enable-source              Enable a source from the index
-    disable-source             Disable an enabled source
-    remove-source              Remove an enabled or disabled source
-    list-enabled-sources       List all enabled sources
-    add-source                 Add a new source by URL
-""")
-        return 0
 
     # If --no-ignore was provided, clear any ignores provided in the
     # config.
