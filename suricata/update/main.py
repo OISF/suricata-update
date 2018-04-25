@@ -980,6 +980,8 @@ def copytree_ignore_backup(src, names):
 def _main():
     global args
 
+    default_update_yaml = config.DEFAULT_UPDATE_YAML_PATH
+
     global_parser = argparse.ArgumentParser(add_help=False)
     global_parser.add_argument(
         "-v", "--verbose", action="store_true", default=None,
@@ -992,7 +994,7 @@ def _main():
         help="Data directory (default: /var/lib/suricata)")
     global_parser.add_argument(
         "-c", "--config", metavar="<filename>",
-        help="configuration file (default: /etc/suricata/update.yaml)")
+        help="configuration file (default: %s)" %(default_update_yaml))
     global_parser.add_argument(
         "--suricata-conf", metavar="<filename>",
         help="configuration file (default: /etc/suricata/suricata.yaml)")

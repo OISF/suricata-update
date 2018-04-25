@@ -23,6 +23,12 @@ import yaml
 import suricata.update.engine
 from suricata.update.exceptions import ApplicationError
 
+try:
+    from suricata.config import defaults
+    has_defaults = True
+except:
+    has_defaults = False
+
 logger = logging.getLogger()
 
 DEFAULT_DATA_DIRECTORY = "/var/lib/suricata"
@@ -45,7 +51,10 @@ LOCAL_CONF_KEY = "local"
 OUTPUT_KEY = "output"
 DIST_RULE_DIRECTORY_KEY = "dist-rule-directory"
 
-DEFAULT_UPDATE_YAML_PATH = "/etc/suricata/update.yaml"
+if has_defaults:
+    DEFAULT_UPDATE_YAML_PATH = os.path.join(defaults.sysconfdir, "update.yaml")
+else:
+    DEFAULT_UPDATE_YAML_PATH = "/etc/suricata/update.yaml"
 
 DEFAULT_SURICATA_YAML_PATH = [
     "/etc/suricata/suricata.yaml",
@@ -53,9 +62,15 @@ DEFAULT_SURICATA_YAML_PATH = [
     "/etc/suricata/suricata-debian.yaml"
 ]
 
-DEFAULT_DIST_RULE_PATH = [
-    "/etc/suricata/rules",
-]
+if has_defaults:
+    DEFAULT_DIST_RULE_PATH = [
+        defaults.datarulesdir,
+        "/etc/suricata/rules",
+    ]
+else:
+    DEFAULT_DIST_RULE_PATH = [
+        "/etc/suricata/rules",
+    ]
 
 DEFAULT_CONFIG = {
     "disable-conf": "/etc/suricata/disable.conf",
