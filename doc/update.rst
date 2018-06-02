@@ -228,6 +228,14 @@ are allowed::
   filename:rules/*deleted*
   filename:*/emerging-dos.rules
 
+Multi Matching
+--------------
+
+The above matching methods can also be combined::
+
+  multi:filename:*/emerging-scan.rule;re:nmap;
+  multi:group:emerging-web_specific_apps;re:wordpress;re:cve[-,]201[6-9];
+
 Modifying Rules
 ---------------
 

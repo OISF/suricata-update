@@ -224,6 +224,35 @@ class ReRuleMatcher(object):
                 pass
         return None
 
+class MultiRuleMatcher(object):
+    """Matcher that build a container around other matchers. All childmatchers have to match for a true match.
+    Config syntax is "multi:<chlild1>;<child2>;<clildN>"."""
+
+    def __init__(self, childmatchers):
+        self.childmatchers = childmatchers
+
+    def match(self, rule):
+        for matcher in self.childmatchers:
+            if not matcher.match(rule):
+                return False
+        return True
+
+    @classmethod
+    def parse(cls, buf):
+        if buf.startswith("multi:"):
+            try:
+                logger.debug("Parsing multi matcher: %s" % (buf))
+                childmatcherstrs = filter(None,buf.split(":", 1)[1].strip().split(";"))
+                childmatchers = []
+                for childstr in childmatcherstrs:
+                    matcher = parse_rule_match(childstr.strip())
+                    if matcher:
+                        childmatchers.append(matcher)
+                return cls(childmatchers)
+            except:
+                pass
+        return None
+
 class ModifyRuleFilter(object):
     """Filter to modify an idstools rule object.
 
@@ -417,6 +446,10 @@ def parse_rule_match(match):
         return matcher
 
     matcher = GroupMatcher.parse(match)
+    if matcher:
+        return matcher
+
+    matcher = MultiRuleMatcher.parse(match)
     if matcher:
         return matcher
 
