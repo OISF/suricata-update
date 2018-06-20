@@ -1010,8 +1010,15 @@ def _main():
     global_parser.add_argument(
         "--no-check-certificate", action="store_true", default=None,
         help="Disable server SSL/TLS certificate verification")
+    global_parser.add_argument(
+        "-V", "--version", action="store_true", default=False,
+        help="Display version")
 
     global_args, rem = global_parser.parse_known_args()
+
+    if global_args.version:
+        print("suricata-update version %s (rev: %s)" % (version, revision))
+        return 0
 
     if not rem or rem[0].startswith("-"):
         rem.insert(0, "update")
@@ -1021,7 +1028,8 @@ def _main():
 
     # The "update" (default) sub-command parser.
     update_parser = subparsers.add_parser(
-        "update", add_help=False, parents=[global_parser])
+        "update", add_help=True, parents=[global_parser],
+        formatter_class=argparse.RawDescriptionHelpFormatter)
 
     update_parser.add_argument(
         "-o", "--output", metavar="<directory>", dest="output",
@@ -1076,18 +1084,24 @@ def _main():
                                help="Command to test Suricata configuration")
     update_parser.add_argument("--no-test", action="store_true", default=False,
                                help="Disable testing rules with Suricata")
-    update_parser.add_argument("-V", "--version", action="store_true", default=False,
-                               help="Display version")
     
     update_parser.add_argument("--no-merge", action="store_true", default=False,
                                help="Do not merge the rules into a single file")
 
-    update_parser.add_argument("-h", "--help", action="store_true")
-    
     # Hidden argument, --now to bypass the timebased bypass of
     # updating a ruleset.
     update_parser.add_argument(
         "--now", default=False, action="store_true", help=argparse.SUPPRESS)
+
+    update_parser.epilog = r"""other commands:
+    update-sources             Update the source index
+    list-sources               List available sources
+    enable-source              Enable a source from the index
+    disable-source             Disable an enabled source
+    remove-source              Remove an enabled or disabled source
+    list-enabled-sources       List all enabled sources
+    add-source                 Add a new source by URL
+"""
 
     # The Python 2.7 argparse module does prefix matching which can be
     # undesirable. Reserve some names here that would match existing
@@ -1132,26 +1146,6 @@ def _main():
 
     logger.debug("This is suricata-update version %s (rev: %s); Python: %s" % (
         version, revision, sys.version.replace("\n", "- ")))
-
-    if args.dump_sample_configs:
-        return dump_sample_configs()
-
-    if args.version:
-        print("suricata-update version %s (rev: %s)" % (version, revision))
-        return 0
-
-    if args.help:
-        print(update_parser.format_help())
-        print("""other commands:
-    update-sources             Update the source index
-    list-sources               List available sources
-    enable-source              Enable a source from the index
-    disable-source             Disable an enabled source
-    remove-source              Remove an enabled or disabled source
-    list-enabled-sources       List all enabled sources
-    add-source                 Add a new source by URL
-""")
-        return 0
 
     config.init(args)
     
@@ -1210,6 +1204,9 @@ def _main():
         elif args.subcommand != "update":
             logger.error("Unknown command: %s", args.subcommand)
             return 1
+
+    if args.dump_sample_configs:
+        return dump_sample_configs()
 
     # If --no-ignore was provided, clear any ignores provided in the
     # config.
