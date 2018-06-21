@@ -112,29 +112,42 @@ class IdRuleMatcher(object):
     """Matcher object to match an idstools rule object by its signature
     ID."""
 
-    def __init__(self, generatorId, signatureId):
-        self.generatorId = generatorId
-        self.signatureId = signatureId
+    def __init__(self, generatorId=None, signatureId=None):
+        self.signatureIds = []
+        if generatorId and signatureId:
+            self.signatureIds.append((generatorId, signatureId))
 
     def match(self, rule):
-        return self.generatorId == rule.gid and self.signatureId == rule.sid
+        for (generatorId, signatureId) in self.signatureIds:
+            if generatorId == rule.gid and signatureId == rule.sid:
+                return True
+        return False
 
     @classmethod
     def parse(cls, buf):
-        logger.debug("Parsing ID matcher: %s" % (buf))
-        try:
-            signatureId = int(buf)
-            return cls(1, signatureId)
-        except:
-            pass
-        try:
-            generatorString, signatureString = buf.split(":")
-            generatorId = int(generatorString)
-            signatureId = int(signatureString)
-            return cls(generatorId, signatureId)
-        except:
-            pass
-        return None
+        matcher = cls()
+
+        for entry in buf.split(","):
+            entry = entry.strip()
+
+            parts = entry.split(":", 1)
+            if not parts:
+                return None
+            if len(parts) == 1:
+                try:
+                    signatureId = int(parts[0])
+                    matcher.signatureIds.append((1, signatureId))
+                except:
+                    return None
+            else:
+                try:
+                    generatorId = int(parts[0])
+                    signatureId = int(parts[1])
+                    matcher.signatureIds.append((generatorId, signatureId))
+                except:
+                    return None
+
+        return matcher
 
 class FilenameMatcher(object):
     """Matcher object to match a rule by its filename. This is similar to

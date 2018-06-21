@@ -66,3 +66,43 @@ re:.# This is a comment*
             matchers[1].__class__, suricata.update.main.ReRuleMatcher)
         self.assertEquals(
             matchers[2].__class__, suricata.update.main.IdRuleMatcher)
+
+class IdRuleMatcherTestCase(unittest.TestCase):
+
+    def test_parse_single_sid(self):
+        matcher = main.IdRuleMatcher.parse("123")
+        self.assertIsNotNone(matcher)
+        self.assertEquals(1, len(matcher.signatureIds))
+
+    def test_parse_single_gidsid(self):
+        matcher = main.IdRuleMatcher.parse("1:123")
+        self.assertIsNotNone(matcher)
+        self.assertEquals(1, len(matcher.signatureIds))
+
+    def test_parse_multi_sid(self):
+        matcher = main.IdRuleMatcher.parse("1,2,3")
+        self.assertIsNotNone(matcher)
+        self.assertEquals(3, len(matcher.signatureIds))
+
+    def test_parse_multi_gidsid(self):
+        matcher = main.IdRuleMatcher.parse("1:1000,2:2000,    3:3000, 4:4000")
+        self.assertIsNotNone(matcher)
+        self.assertEquals(4, len(matcher.signatureIds))
+
+    def test_parse_multi_mixed(self):
+        matcher = main.IdRuleMatcher.parse("1:1000, 2000, 3:3000, 4000")
+        self.assertIsNotNone(matcher)
+        self.assertEquals(4, len(matcher.signatureIds))
+
+    def test_parse_invalid(self):
+        matcher = main.IdRuleMatcher.parse("a")
+        self.assertIsNone(matcher)
+
+        matcher = main.IdRuleMatcher.parse("1, a")
+        self.assertIsNone(matcher)
+
+        matcher = main.IdRuleMatcher.parse("1a")
+        self.assertIsNone(matcher)
+
+        matcher = main.IdRuleMatcher.parse("1:a")
+        self.assertIsNone(matcher)
