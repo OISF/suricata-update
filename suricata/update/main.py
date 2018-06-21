@@ -431,6 +431,9 @@ def load_filters(filename):
             line = line.strip()
             if not line or line.startswith("#"):
                 continue
+            line = line.rsplit(" #")[0]
+
+            line = re.sub(r'\\\$', '$', line)  # needed to escape $ in pp
             filter = ModifyRuleFilter.parse(line)
             if filter:
                 filters.append(filter)
@@ -449,24 +452,28 @@ def load_drop_filters(filename):
 
     return filters
 
-def load_matchers(filename):
-
+def parse_matchers(fileobj):
     matchers = []
 
-    with open(filename) as fileobj:
-        for line in fileobj:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            matcher = parse_rule_match(line)
-            if not matcher:
-                logger.warn("Failed to parse: \"%s\"" % (line))
-            else:
-                matchers.append(matcher)
+    for line in fileobj:
+        line = line.decode().strip()
+        if not line or line.startswith("#"):
+            continue
+        line = line.rsplit(" #")[0]
+        matcher = parse_rule_match(line)
+        if not matcher:
+            logger.warn("Failed to parse: \"%s\"" % (line))
+        else:
+            matchers.append(matcher)
 
     return matchers
 
+def load_matchers(filename):
+    with open(filename) as fileobj:
+        return parse_matchers(fileobj)
+
 def load_local(local, files):
+
     """Load local files into the files dict."""
     if os.path.isdir(local):
         for dirpath, dirnames, filenames in os.walk(local):

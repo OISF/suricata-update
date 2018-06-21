@@ -18,6 +18,7 @@
 from __future__ import print_function
 
 import os
+import io
 import unittest
 
 import suricata.update.rule
@@ -215,6 +216,21 @@ class FilenameMatcherTestCase(unittest.TestCase):
         self.assertEquals(
             matcher.__class__, suricata.update.main.FilenameMatcher)
         self.assertTrue(matcher.match(rule))
+
+class LoadMatchersTestCase(unittest.TestCase):
+
+    def test_trailing_comment(self):
+        """Test loading matchers with a trailing comment."""
+        matchers = main.parse_matchers(io.BytesIO("""filename: */trojan.rules
+re:.# This is a comment*
+1:100 # Trailing comment.
+""".encode()))
+        self.assertEquals(
+            matchers[0].__class__, suricata.update.main.FilenameMatcher)
+        self.assertEquals(
+            matchers[1].__class__, suricata.update.main.ReRuleMatcher)
+        self.assertEquals(
+            matchers[2].__class__, suricata.update.main.IdRuleMatcher)
 
 class DropRuleFilterTestCase(unittest.TestCase):
 
