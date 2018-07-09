@@ -89,6 +89,9 @@ DEFAULT_CONFIG = {
 _args = None
 _config = {}
 
+# The filename the config was read from, if any.
+filename = None
+
 def set(key, value):
     """Set a configuration value."""
     _config[key] = value
@@ -143,6 +146,7 @@ def get_arg(key):
 
 def init(args):
     global _args
+    global filename
 
     _args = args
     _config.update(DEFAULT_CONFIG)
@@ -153,12 +157,14 @@ def init(args):
             config = yaml.safe_load(fileobj)
             if config:
                 _config.update(config)
+                filename = args.config
     elif os.path.exists(DEFAULT_UPDATE_YAML_PATH):
         logger.info("Loading %s", DEFAULT_UPDATE_YAML_PATH)
         with open(DEFAULT_UPDATE_YAML_PATH, "rb") as fileobj:
             config = yaml.safe_load(fileobj)
             if config:
                 _config.update(config)
+                filename = DEFAULT_UPDATE_YAML_PATH
 
     # Apply command line arguments to the config.
 
