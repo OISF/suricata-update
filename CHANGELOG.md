@@ -1,6 +1,6 @@
 # Change Log
 
-## unreleased
+## 1.0.0rc1 - 2018-07-17
 
 - Python 3 fixes.
 - Bundle a copy of the index which can be used if download source for
