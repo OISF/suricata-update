@@ -469,7 +469,7 @@ def parse_matchers(fileobj):
     matchers = []
 
     for line in fileobj:
-        line = line.decode().strip()
+        line = line.strip()
         if not line or line.startswith("#"):
             continue
         line = line.rsplit(" #")[0]

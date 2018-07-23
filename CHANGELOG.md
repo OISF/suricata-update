@@ -5,6 +5,8 @@
   https://redmine.openinfosecfoundation.org/issues/2549
 - Fix interactive input for add-source command.
   https://redmine.openinfosecfoundation.org/issues/2550
+- Python fix for loading disable.conf (and other files).
+  https://redmine.openinfosecfoundation.org/issues/2551
 
 ## 1.0.0rc1 - 2018-07-17
 - Python 3 fixes.

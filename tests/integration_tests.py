@@ -36,7 +36,8 @@ common_args = [
 common_update_args = [
     "--no-test",
     "--no-reload",
-    "--disable-conf", "./tests/empty",
+    "--suricata-conf", "./tests/suricata.yaml",
+    "--disable-conf", "./tests/disable.conf",
     "--enable-conf", "./tests/empty",
     "--drop-conf", "./tests/empty",
     "--modify-conf", "./tests/empty",

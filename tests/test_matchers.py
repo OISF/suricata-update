@@ -56,10 +56,10 @@ class LoadMatchersTestCase(unittest.TestCase):
 
     def test_trailing_comment(self):
         """Test loading matchers with a trailing comment."""
-        matchers = main.parse_matchers(io.BytesIO("""filename: */trojan.rules
+        matchers = main.parse_matchers(io.StringIO(u"""filename: */trojan.rules
 re:.# This is a comment*
 1:100 # Trailing comment.
-""".encode()))
+"""))
         self.assertEquals(
             matchers[0].__class__, suricata.update.main.FilenameMatcher)
         self.assertEquals(
