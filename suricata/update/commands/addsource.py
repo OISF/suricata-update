@@ -21,11 +21,17 @@ import logging
 from suricata.update import config
 from suricata.update import sources
 
+try:
+    input = raw_input
+except:
+    pass
+
 logger = logging.getLogger()
 
 def register(parser):
-    parser.add_argument("name", metavar="<name>", help="Name of source")
-    parser.add_argument("url", metavar="<url>", help="Source URL")
+    parser.add_argument("name", metavar="<name>", nargs="?",
+                        help="Name of source")
+    parser.add_argument("url", metavar="<url>", nargs="?", help="Source URL")
     parser.set_defaults(func=add_source)
 
 def add_source():
@@ -35,7 +41,7 @@ def add_source():
         name = args.name
     else:
         while True:
-            name = raw_input("Name of source: ").strip()
+            name = input("Name of source: ").strip()
             if name:
                 break
 
@@ -47,7 +53,7 @@ def add_source():
         url = args.url
     else:
         while True:
-            url = raw_input("URL: ").strip()
+            url = input("URL: ").strip()
             if url:
                 break
 
