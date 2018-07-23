@@ -1,7 +1,10 @@
 # Change Log
 
-## 1.0.0rc1 - 2018-07-17
+## unreleased
+- Python 3 fix for  enable-source.
+  https://redmine.openinfosecfoundation.org/issues/2549
 
+## 1.0.0rc1 - 2018-07-17
 - Python 3 fixes.
 - Bundle a copy of the index which can be used if download source for
   the index is not available, and no index was previously

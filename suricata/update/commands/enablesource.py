@@ -24,6 +24,11 @@ import yaml
 from suricata.update import config
 from suricata.update import sources
 
+try:
+    input = raw_input
+except:
+    pass
+
 logger = logging.getLogger()
 
 default_source = "et/open"
@@ -80,7 +85,7 @@ def enable_source():
             else:
                 prompt = source["parameters"][param]["prompt"]
                 while True:
-                    r = raw_input("%s (%s): " % (prompt, param))
+                    r = input("%s (%s): " % (prompt, param))
                     r = r.strip()
                     if r:
                         break
