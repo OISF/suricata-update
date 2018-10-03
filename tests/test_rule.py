@@ -40,35 +40,35 @@ class RuleTestCase(unittest.TestCase):
         self.assertEqual(rule.metadata[0], "stage")
         self.assertEqual(rule.metadata[1], "hostile_download")
         self.assertEqual(len(rule.flowbits), 2)
-        self.assertEquals(rule.flowbits[0], "isset,somebit")
-        self.assertEquals(rule.flowbits[1], "unset,otherbit")
-        self.assertEquals(rule.classtype, "trojan-activity")
+        self.assertEqual(rule.flowbits[0], "isset,somebit")
+        self.assertEqual(rule.flowbits[1], "unset,otherbit")
+        self.assertEqual(rule.classtype, "trojan-activity")
 
     def test_disable_rule(self):
         rule_buf = """# alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)"""
         rule = suricata.update.rule.parse(rule_buf)
         self.assertFalse(rule.enabled)
-        self.assertEquals(rule.raw, """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)""")
-        self.assertEquals(str(rule), rule_buf)
+        self.assertEqual(rule.raw, """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)""")
+        self.assertEqual(str(rule), rule_buf)
 
     def test_parse_rule_double_commented(self):
         rule_buf = """## alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)"""
         rule = suricata.update.rule.parse(rule_buf)
         self.assertFalse(rule.enabled)
-        self.assertEquals(rule.raw, """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)""")
+        self.assertEqual(rule.raw, """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)""")
 
     def test_parse_rule_comments_and_spaces(self):
         rule_buf = """## #alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)"""
         rule = suricata.update.rule.parse(rule_buf)
         self.assertFalse(rule.enabled)
-        self.assertEquals(rule.raw, """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)""")
+        self.assertEqual(rule.raw, """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)""")
 
     def test_toggle_rule(self):
         rule_buf = """# alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)"""
         rule = suricata.update.rule.parse(rule_buf)
         self.assertFalse(rule.enabled)
         rule.enabled = True
-        self.assertEquals(str(rule), """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)""")
+        self.assertEqual(str(rule), """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)""")
 
     def test_parse_fileobj(self):
         rule_buf = ("""# alert tcp $HOME_NET any -> $EXTERNAL_NET any """
@@ -78,7 +78,7 @@ class RuleTestCase(unittest.TestCase):
             fileobj.write(u"%s\n" % rule_buf)
         fileobj.seek(0)
         rules = suricata.update.rule.parse_fileobj(fileobj)
-        self.assertEquals(2, len(rules))
+        self.assertEqual(2, len(rules))
 
     def test_parse_file(self):
         rule_buf = ("""# alert tcp $HOME_NET any -> $EXTERNAL_NET any """
@@ -88,7 +88,7 @@ class RuleTestCase(unittest.TestCase):
             tmp.write(("%s\n" % rule_buf).encode())
         tmp.flush()
         rules = suricata.update.rule.parse_file(tmp.name)
-        self.assertEquals(2, len(rules))
+        self.assertEqual(2, len(rules))
 
     def test_parse_file_with_unicode(self):
         rules = suricata.update.rule.parse_file("./tests/rule-with-unicode.rules")
@@ -96,7 +96,7 @@ class RuleTestCase(unittest.TestCase):
     def test_parse_decoder_rule(self):
         rule_string = """alert ( msg:"DECODE_NOT_IPV4_DGRAM"; sid:1; gid:116; rev:1; metadata:rule-type decode; classtype:protocol-command-decode;)"""
         rule = suricata.update.rule.parse(rule_string)
-        self.assertEquals(rule["direction"], None)
+        self.assertEqual(rule["direction"], None)
 
     def test_multiline_rule(self):
         rule_string = u"""
@@ -104,30 +104,30 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
       app-layer-event:dnp3.flooded; sid:2200104; rev:1;)
 """
         rules = suricata.update.rule.parse_fileobj(io.StringIO(rule_string))
-        self.assertEquals(len(rules), 1)
+        self.assertEqual(len(rules), 1)
 
     def test_parse_nomsg(self):
         rule_string = u"""alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:10000000; rev:1;)"""
         rule = suricata.update.rule.parse(rule_string)
-        self.assertEquals("", rule["msg"])
+        self.assertEqual("", rule["msg"])
 
     def test_add_option(self):
         rule_string = u"""alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:10000000; rev:1;)"""
         rule = suricata.update.rule.parse(rule_string, "local.rules")
         rule = suricata.update.rule.add_option(
             rule, "msg", "\"This is a test description.\"", 0)
-        self.assertEquals("This is a test description.", rule["msg"])
-        self.assertEquals("local.rules", rule["group"])
+        self.assertEqual("This is a test description.", rule["msg"])
+        self.assertEqual("local.rules", rule["group"])
 
     def test_remove_option(self):
         rule_string = u"""alert ip any any -> any any (msg:"TEST MESSAGE"; content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:10000000; rev:1;)"""
         rule = suricata.update.rule.parse(rule_string, "local.rules")
 
         rule = suricata.update.rule.remove_option(rule, "msg")
-        self.assertEquals("", rule["msg"])
+        self.assertEqual("", rule["msg"])
 
         rule = suricata.update.rule.remove_option(rule, "classtype")
-        self.assertEquals(None, rule["classtype"])
+        self.assertEqual(None, rule["classtype"])
 
     def test_remove_tag_option(self):
         rule_string = u"""alert ip any any -> any any (msg:"TEST RULE"; content:"uid=0|28|root|29|"; tag:session,5,packets; classtype:bad-unknown; sid:10000000; rev:1;)"""
@@ -138,7 +138,7 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
     def test_scratch(self):
         rule_string = """alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"ET CURRENT_EVENTS Request to .in FakeAV Campaign June 19 2012 exe or zip"; flow:established,to_server; content:"setup."; fast_pattern:only; http_uri; content:".in|0d 0a|"; flowbits:isset,somebit; flowbits:unset,otherbit; http_header; pcre:"/\/[a-f0-9]{16}\/([a-z0-9]{1,3}\/)?setup\.(exe|zip)$/U"; pcre:"/^Host\x3a\s.+\.in\r?$/Hmi"; metadata:stage,hostile_download; reference:url,isc.sans.edu/diary/+Vulnerabilityqueerprocessbrittleness/13501; classtype:trojan-activity; sid:2014929; rev:1;)"""
         rule = suricata.update.rule.parse(rule_string)
-        self.assertEquals(rule_string, str(rule))
+        self.assertEqual(rule_string, str(rule))
 
         options = []
         for option in rule["options"]:
@@ -153,13 +153,13 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
         print("%s" % rule_string)
         print("%s" % reassembled)
 
-        self.assertEquals(rule_string, reassembled)
+        self.assertEqual(rule_string, reassembled)
         
     def test_parse_message_with_semicolon(self):
         rule_string = u"""alert ip any any -> any any (msg:"TEST RULE\; and some"; content:"uid=0|28|root|29|"; tag:session,5,packets; classtype:bad-unknown; sid:10000000; rev:1;)"""
         rule = suricata.update.rule.parse(rule_string)
         self.assertIsNotNone(rule)
-        self.assertEquals(rule.msg, "TEST RULE\; and some")
+        self.assertEqual(rule.msg, "TEST RULE\; and some")
 
         # Look for the expected content.
         found=False
@@ -173,7 +173,7 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
         rule_string = u"""alert tcp 93.174.88.0/21 any -> $HOME_NET any (msg:"SN: Inbound TCP traffic from suspect network (AS29073 - NL)"; flags:S; reference:url,https://suspect-networks.io/networks/cidr/13/; threshold: type limit, track by_dst, seconds 30, count 1; classtype:misc-attack; sid:71918985; rev:1;)"""
         rule = suricata.update.rule.parse(rule_string)
         self.assertIsNotNone(rule)
-        self.assertEquals(
+        self.assertEqual(
             rule.msg,
             "SN: Inbound TCP traffic from suspect network (AS29073 - NL)")
 
