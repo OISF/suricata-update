@@ -31,13 +31,13 @@ class GroupMatcherTestCase(unittest.TestCase):
     def test_match(self):
         rule = suricata.update.rule.parse(self.rule_string, "rules/malware.rules")
         matcher = main.parse_rule_match("group: malware.rules")
-        self.assertEquals(
+        self.assertEqual(
             matcher.__class__, suricata.update.main.GroupMatcher)
         self.assertTrue(matcher.match(rule))
 
         # Test match of just the group basename.
         matcher = main.parse_rule_match("group: malware")
-        self.assertEquals(
+        self.assertEqual(
             matcher.__class__, suricata.update.main.GroupMatcher)
         self.assertTrue(matcher.match(rule))
 
@@ -48,7 +48,7 @@ class FilenameMatcherTestCase(unittest.TestCase):
     def test_match(self):
         rule = suricata.update.rule.parse(self.rule_string, "rules/trojan.rules")
         matcher = main.parse_rule_match("filename: */trojan.rules")
-        self.assertEquals(
+        self.assertEqual(
             matcher.__class__, suricata.update.main.FilenameMatcher)
         self.assertTrue(matcher.match(rule))
 
@@ -60,11 +60,11 @@ class LoadMatchersTestCase(unittest.TestCase):
 re:.# This is a comment*
 1:100 # Trailing comment.
 """))
-        self.assertEquals(
+        self.assertEqual(
             matchers[0].__class__, suricata.update.main.FilenameMatcher)
-        self.assertEquals(
+        self.assertEqual(
             matchers[1].__class__, suricata.update.main.ReRuleMatcher)
-        self.assertEquals(
+        self.assertEqual(
             matchers[2].__class__, suricata.update.main.IdRuleMatcher)
 
 class IdRuleMatcherTestCase(unittest.TestCase):
@@ -72,27 +72,27 @@ class IdRuleMatcherTestCase(unittest.TestCase):
     def test_parse_single_sid(self):
         matcher = main.IdRuleMatcher.parse("123")
         self.assertIsNotNone(matcher)
-        self.assertEquals(1, len(matcher.signatureIds))
+        self.assertEqual(1, len(matcher.signatureIds))
 
     def test_parse_single_gidsid(self):
         matcher = main.IdRuleMatcher.parse("1:123")
         self.assertIsNotNone(matcher)
-        self.assertEquals(1, len(matcher.signatureIds))
+        self.assertEqual(1, len(matcher.signatureIds))
 
     def test_parse_multi_sid(self):
         matcher = main.IdRuleMatcher.parse("1,2,3")
         self.assertIsNotNone(matcher)
-        self.assertEquals(3, len(matcher.signatureIds))
+        self.assertEqual(3, len(matcher.signatureIds))
 
     def test_parse_multi_gidsid(self):
         matcher = main.IdRuleMatcher.parse("1:1000,2:2000,    3:3000, 4:4000")
         self.assertIsNotNone(matcher)
-        self.assertEquals(4, len(matcher.signatureIds))
+        self.assertEqual(4, len(matcher.signatureIds))
 
     def test_parse_multi_mixed(self):
         matcher = main.IdRuleMatcher.parse("1:1000, 2000, 3:3000, 4000")
         self.assertIsNotNone(matcher)
-        self.assertEquals(4, len(matcher.signatureIds))
+        self.assertEqual(4, len(matcher.signatureIds))
 
     def test_parse_invalid(self):
         matcher = main.IdRuleMatcher.parse("a")

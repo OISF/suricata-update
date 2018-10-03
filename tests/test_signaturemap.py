@@ -27,15 +27,15 @@ class SignatureMapTestCase(unittest.TestCase):
 
         sig = sigmap.get(1, 1)
         self.assertTrue(sig is not None)
-        self.assertEquals(1, sig["gid"])
-        self.assertEquals(1, sig["sid"])
-        self.assertEquals("snort general alert", sig["msg"])
+        self.assertEqual(1, sig["gid"])
+        self.assertEqual(1, sig["sid"])
+        self.assertEqual("snort general alert", sig["msg"])
 
         sig = sigmap.get(139, 1)
         self.assertTrue(sig is not None)
-        self.assertEquals(139, sig["gid"])
-        self.assertEquals(1, sig["sid"])
-        self.assertEquals(
+        self.assertEqual(139, sig["gid"])
+        self.assertEqual(1, sig["sid"])
+        self.assertEqual(
             "sensitive_data: sensitive data global threshold exceeded",
             sig["msg"])
 
@@ -47,21 +47,21 @@ class SignatureMapTestCase(unittest.TestCase):
         # Get a basic signature.
         sig = sigmap.get(1, 2000356)
         self.assertTrue(sig is not None)
-        self.assertEquals(1, sig["gid"])
-        self.assertEquals(2000356, sig["sid"])
-        self.assertEquals("ET POLICY IRC connection", sig["msg"])
-        self.assertEquals(len(sig["ref"]), 1)
-        self.assertEquals("url,doc.emergingthreats.net/2000356", sig["ref"][0])
+        self.assertEqual(1, sig["gid"])
+        self.assertEqual(2000356, sig["sid"])
+        self.assertEqual("ET POLICY IRC connection", sig["msg"])
+        self.assertEqual(len(sig["ref"]), 1)
+        self.assertEqual("url,doc.emergingthreats.net/2000356", sig["ref"][0])
 
         # Try again but with a gid of 3.
-        self.assertEquals(sig, sigmap.get(3, 2000356))
+        self.assertEqual(sig, sigmap.get(3, 2000356))
 
         # This signature has multiple refs.
         sig = sigmap.get(1, 2000373)
-        self.assertEquals(3, len(sig["ref"]))
+        self.assertEqual(3, len(sig["ref"]))
 
         sig = sigmap.get(1, 71918985)
-        self.assertEquals(
+        self.assertEqual(
             "SN: Inbound TCP traffic from suspect network (AS29073 - NL)",
             sig["msg"])
 
@@ -71,11 +71,11 @@ class SignatureMapTestCase(unittest.TestCase):
         sigmap.load_signature_map(open("tests/sid-msg-v2.map"))
 
         sig = sigmap.get(1, 2495)
-        self.assertEquals(1, sig["gid"])
-        self.assertEquals(2495, sig["sid"])
-        self.assertEquals("misc-attack", sig["classification"])
-        self.assertEquals(0, sig["priority"])
-        self.assertEquals(
+        self.assertEqual(1, sig["gid"])
+        self.assertEqual(2495, sig["sid"])
+        self.assertEqual("misc-attack", sig["classification"])
+        self.assertEqual(0, sig["priority"])
+        self.assertEqual(
             "GPL NETBIOS SMB DCEPRC ORPCThis request flood attempt",
             sig["msg"])
-        self.assertEquals(4, len(sig["ref"]))
+        self.assertEqual(4, len(sig["ref"]))
