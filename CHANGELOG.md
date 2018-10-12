@@ -1,6 +1,6 @@
 # Change Log
 
-## unreleased
+## 1.0.0rc2 - 2018-10-12
 - Python 3 fix for enable-source.
   https://redmine.openinfosecfoundation.org/issues/2549
 - Fix interactive input for add-source command.
