@@ -55,6 +55,8 @@ def build_user_agent():
     params = []
 
     if custom_user_agent is not None:
+        if len(custom_user_agent.strip()) == 0:
+            return None
         return custom_user_agent
 
     uname_system = platform.uname()[0]
@@ -103,10 +105,11 @@ def get(url, fileobj, progress_hook=None):
     except:
         opener = build_opener()
 
-    opener.addheaders = [
-        ("User-Agent", build_user_agent()),
-    ]
-
+    if user_agent:
+        opener.addheaders = [("User-Agent", user_agent),]
+    else:
+        opener.addheaders = [(header, value) for header,
+                             value in opener.addheaders if header.lower() != "user-agent"]
     remote = opener.open(url)
     info = remote.info()
     try:
