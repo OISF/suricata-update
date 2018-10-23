@@ -35,7 +35,7 @@ class ClassificationMapTestCase(unittest.TestCase):
 
         c = m.get(34)
         self.assertEqual("default-login-attempt", c["name"])
-        self.assertEqual("Attempt to Login By a Default Username and Password",
+        self.assertEqual("Attempt to login by a default username and password",
                           c["description"])
         self.assertEqual(2, c["priority"])
 
