@@ -592,7 +592,7 @@ def build_report(prev_rulemap, rulemap):
     return report
 
 def write_merged(filename, rulemap):
-
+    tmp_file = tempfile.NamedTemporaryFile(prefix="suricata-update_")
     if not args.quiet:
         prev_rulemap = {}
         if os.path.exists(filename):
@@ -608,10 +608,13 @@ def write_merged(filename, rulemap):
                         len(report["added"]),
                         len(report["removed"]),
                         len(report["modified"])))
-    
-    with io.open(filename, encoding="utf-8", mode="w") as fileobj:
+
+    with io.open(tmp_file.name, encoding="utf-8", mode="w") as fileobj:
         for rule in rulemap:
             print(rulemap[rule].format(), file=fileobj)
+    # Copying the rule file from /tmp to the actual destination
+    shutil.copy(tmp_file.name, filename)
+    tmp_file.close()
 
 def write_to_directory(directory, files, rulemap):
     if not args.quiet:
@@ -634,6 +637,7 @@ def write_to_directory(directory, files, rulemap):
                         len(report["modified"])))
 
     for filename in sorted(files):
+        tmp_file = tempfile.NamedTemporaryFile(prefix="suricata-update_")
         outpath = os.path.join(
             directory, os.path.basename(filename))
         logger.debug("Writing %s." % outpath)
@@ -647,8 +651,10 @@ def write_to_directory(directory, files, rulemap):
                     content.append(line.strip())
                 else:
                     content.append(rulemap[rule.id].format())
-            io.open(outpath, encoding="utf-8", mode="w").write(
+            io.open(tmp_file.name, encoding="utf-8", mode="w").write(
                 u"\n".join(content))
+            shutil.copy(tmp_file.name, outpath)
+            tmp_file.close()
 
 def write_yaml_fragment(filename, files):
     logger.info(
