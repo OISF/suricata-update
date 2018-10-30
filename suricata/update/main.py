@@ -997,6 +997,17 @@ def copytree_ignore_backup(src, names):
     """ Returns files to ignore when doing a backup of the rules. """
     return [".cache"]
 
+def check_output_directory(output_dir):
+    """ Check that the output directory exists, creating it if it doesn't. """
+    if not os.path.exists(output_dir):
+        logger.info("Creating directory %s." % (output_dir))
+        try:
+            os.makedirs(output_dir, mode=0o770)
+        except Exception as err:
+            raise exceptions.ApplicationError(
+                "Failed to create directory %s: %s" % (
+                    output_dir, err))
+
 def _main():
     global args
 
@@ -1362,15 +1373,8 @@ def _main():
     # Fixup flowbits.
     resolve_flowbits(rulemap, disabled_rules)
 
-    # Check that output directory exists.
-    if not os.path.exists(config.get_output_dir()):
-        try:
-            os.makedirs(config.get_output_dir(), mode=0o770)
-        except Exception as err:
-            logger.error(
-                "Output directory does not exist and could not be created: %s",
-                config.get_output_dir())
-            return 1
+    # Check that output directory exists, creating it if needed.
+    check_output_directory(config.get_output_dir())
 
     # Check that output directory is writable.
     if not os.access(config.get_output_dir(), os.W_OK):
