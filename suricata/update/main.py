@@ -785,7 +785,11 @@ class FileTracker:
 
     def add(self, filename):
         checksum = self.md5(filename)
-        logger.debug("Recording file %s with hash '%s'.", filename, checksum)
+        if not checksum:
+            logger.debug("Recording new file %s" % (filename))
+        else:
+            logger.debug("Recording existing file %s with hash '%s'.",
+                filename, checksum)
         self.hashes[filename] = checksum
 
     def md5(self, filename):
