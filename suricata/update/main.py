@@ -870,11 +870,11 @@ def test_suricata(suricata_path):
             test_command))
         env = {
             "SURICATA_PATH": suricata_path,
-            "OUTPUT_DIR": config.get("output"),
+            "OUTPUT_DIR": config.get_output_dir(),
         }
         if not config.get("no-merge"):
             env["OUTPUT_FILENAME"] = os.path.join(
-                config.get("output"), DEFAULT_OUTPUT_RULE_FILENAME)
+                config.get_output_dir(), DEFAULT_OUTPUT_RULE_FILENAME)
         rc = subprocess.Popen(test_command, shell=True, env=env).wait()
         if rc != 0:
             return False
