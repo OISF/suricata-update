@@ -27,9 +27,12 @@ from suricata.update import exceptions
 logger = logging.getLogger()
 
 def register(parser):
+    parser.add_argument("--free", action="store_true",
+                        default=False, help="List all freely available sources")
     parser.set_defaults(func=list_sources)
 
 def list_sources():
+    free_only = config.args().free
     if not sources.source_index_exists(config):
         logger.info("No source index found, running update-sources")
         try:
@@ -38,6 +41,9 @@ def list_sources():
             logger.warning("%s: will use bundled index.", err)
     index = sources.load_source_index(config)
     for name, source in index.get_sources().items():
+        is_not_free = source.get("subscribe-url")
+        if free_only and is_not_free:
+            continue
         print("%s: %s" % (util.bright_cyan("Name"), util.bright_magenta(name)))
         print("  %s: %s" % (
             util.bright_cyan("Vendor"), util.bright_magenta(source["vendor"])))
