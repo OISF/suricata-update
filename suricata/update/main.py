@@ -999,6 +999,7 @@ def copytree_ignore_backup(src, names):
 
 def _main():
     global args
+    global DEFAULT_OUTPUT_RULE_FILENAME
 
     default_update_yaml = config.DEFAULT_UPDATE_YAML_PATH
 
@@ -1027,6 +1028,9 @@ def _main():
     global_parser.add_argument(
         "--user-agent", metavar="<user-agent>",
         help="Set custom user-agent string")
+    global_parser.add_argument(
+        "-r", "--output-rule-filename", metavar="<filename>",
+        help="Filename of output rules file (default: suricata.rules)")
     global_parser.add_argument(
         "--no-check-certificate", action="store_true", default=None,
         help="Disable server SSL/TLS certificate verification")
@@ -1263,6 +1267,12 @@ def _main():
     if drop_conf_filename and os.path.exists(drop_conf_filename):
         logger.info("Loading %s.", drop_conf_filename)
         drop_filters += load_drop_filters(drop_conf_filename)
+
+    # Load user provided output rules filename
+    rule_filename = config.get("output-rule-filename")
+    if rule_filename:
+        logger.info("Setting output rule filename to %s", rule_filename)
+        DEFAULT_OUTPUT_RULE_FILENAME = rule_filename
 
     # Load the Suricata configuration if we can.
     suriconf = None
