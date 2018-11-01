@@ -24,6 +24,12 @@ Options
 
    Default: */var/lib/suricata/rules*
 
+.. option:: -r, --output-rule-filename
+
+   Name of the output rules file.
+
+   Default: *suricata.rules*
+
 .. option:: --force
 
    Force remote rule files to be downloaded if they otherwise wouldn't
