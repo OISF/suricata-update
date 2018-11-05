@@ -19,6 +19,7 @@ from __future__ import print_function
 import os
 import logging
 import io
+import yaml
 
 from suricata.update import config
 from suricata.update import sources
@@ -27,11 +28,36 @@ from suricata.update import exceptions
 
 logger = logging.getLogger()
 
+
 def register(parser):
     parser.set_defaults(func=update_sources)
 
+
+def compare_sources(initial_content, final_content):
+    if initial_content == final_content:
+        logger.info("No change in sources")
+        return
+    initial_sources = initial_content.get("sources")
+    final_sources = final_content.get("sources")
+    added_sources = {source: final_sources[source]
+                     for source in final_sources if source not in initial_sources}
+    removed_sources = {source: initial_sources[source]
+                       for source in initial_sources if source not in final_sources}
+    if added_sources:
+        for source in added_sources:
+            logger.info("Source %s was added", source)
+    if removed_sources:
+        for source in removed_sources:
+            logger.info("Source %s was removed", source)
+    for source in set(initial_sources) & set(final_sources):
+        if initial_sources[source] != final_sources[source]:
+            logger.info("Source %s was changed", source)
+
+
 def update_sources():
     local_index_filename = sources.get_index_filename()
+    with open(local_index_filename) as stream:
+        initial_content = yaml.safe_load(stream)
     with io.BytesIO() as fileobj:
         url = sources.get_source_index_url()
         logger.info("Downloading %s", url)
@@ -49,4 +75,7 @@ def update_sources():
                 return 1
         with open(local_index_filename, "wb") as outobj:
             outobj.write(fileobj.getvalue())
+        with open(local_index_filename) as stream:
+            final_content = yaml.safe_load(stream)
+        compare_sources(initial_content, final_content)
         logger.info("Saved %s", local_index_filename)
