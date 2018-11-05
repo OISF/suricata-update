@@ -6,7 +6,7 @@ The tool for updating your Suricata rules.
 Installation
 ------------
 
-    pip install --pre --upgrade suricata-update
+    pip install --upgrade suricata-update
 
 Documentation
 -------------
@@ -78,15 +78,9 @@ the Suricata distribution.
 Files and Directories
 ---------------------
 
-``/etc/suricata/rules``
-   Used as a source of rules provided by the Suricata distribution.
-
-   Currently only filenames that are known to come with the Suricata
-   source distribution are pulled to handle the case where user
-   provided rule files may exist in this directory.
-
-   In the future a directory like ``/usr/share/suricata/rules`` may be
-   used.
+``/usr/share/suricata/rules``
+   Used as a source of rules provided by the Suricata engine. If this
+   directory does not exist, ``etc/suricata/rules`` will be used.
 
 ``/etc/suricata/update.yaml``
   The default location for the ``suricata-update`` configuration file.
