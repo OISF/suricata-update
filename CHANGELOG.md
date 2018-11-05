@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.0 - 2018-11-05
+- Fix failure to run custom test
+  command. https://redmine.openinfosecfoundation.org/issues/2652
+
 ## 1.0.0rc2 - 2018-10-12
 - Python 3 fix for enable-source.
   https://redmine.openinfosecfoundation.org/issues/2549
