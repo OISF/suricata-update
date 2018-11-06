@@ -608,10 +608,11 @@ def write_merged(filename, rulemap):
                         len(report["added"]),
                         len(report["removed"]),
                         len(report["modified"])))
-    
-    with io.open(filename, encoding="utf-8", mode="w") as fileobj:
+    tmp_filename = ".".join([filename, "tmp"])
+    with io.open(tmp_filename, encoding="utf-8", mode="w") as fileobj:
         for rule in rulemap:
             print(rulemap[rule].format(), file=fileobj)
+    os.rename(tmp_filename, filename)
 
 def write_to_directory(directory, files, rulemap):
     if not args.quiet:
@@ -647,8 +648,10 @@ def write_to_directory(directory, files, rulemap):
                     content.append(line.strip())
                 else:
                     content.append(rulemap[rule.id].format())
-            io.open(outpath, encoding="utf-8", mode="w").write(
+            tmp_filename = ".".join([outpath, "tmp"])
+            io.open(tmp_filename, encoding="utf-8", mode="w").write(
                 u"\n".join(content))
+            os.rename(tmp_filename, outpath)
 
 def write_yaml_fragment(filename, files):
     logger.info(
