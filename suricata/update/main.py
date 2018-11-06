@@ -483,7 +483,8 @@ def write_merged(filename, rulemap, dep_files):
                         len(added),
                         len(removed),
                         len(modified)))
-    with io.open(filename, encoding="utf-8", mode="w") as fileobj:
+    tmp_filename = ".".join([filename, "tmp"])
+    with io.open(tmp_filename, encoding="utf-8", mode="w") as fileobj:
         for sid in rulemap:
             rule = rulemap[sid]
             for kw in file_kw:
@@ -492,8 +493,8 @@ def write_merged(filename, rulemap, dep_files):
                         handle_dataset_files(rule, dep_files)
                     else:
                         handle_filehash_files(rule, dep_files, kw)
-
             print(rule.format(), file=fileobj)
+    os.rename(tmp_filename, filename)
 
 def write_to_directory(directory, files, rulemap, dep_files):
     # List of rule IDs that have been added.
@@ -550,8 +551,10 @@ def write_to_directory(directory, files, rulemap, dep_files):
                             else:
                                 handle_filehash_files(rule, dep_files, kw)
                     content.append(rulemap[rule.id].format())
-            io.open(outpath, encoding="utf-8", mode="w").write(
+            tmp_filename = ".".join([outpath, "tmp"])
+            io.open(tmp_filename, encoding="utf-8", mode="w").write(
                 u"\n".join(content))
+            os.rename(tmp_filename, outpath)
 
 def write_yaml_fragment(filename, files):
     logger.info(
