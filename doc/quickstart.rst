@@ -4,6 +4,11 @@ Quick Start
 Install Suricata Update
 =======================
 
+.. note:: If you have already installed Suricata 4.1 you likely
+          already have Suricata-Update installed. Please check if the
+          ``suricata-update`` command is available to you before
+          installing.
+
 Suricata-Update is a tool written in Python and best installed with
 the ``pip`` tool for installing Python packages.
 
@@ -16,11 +21,11 @@ directory for use by your user.
 
 To install ``suricata-update`` globally::
 
-    pip install --pre --upgrade suricata-update
+    pip install --upgrade suricata-update
 
 or to install it to your own directory::
 
-    pip install --user --pre --upgrade suricata-update
+    pip install --user --upgrade suricata-update
 
 .. note:: When installing to your home directory the
           ``suricata-update`` program will be installed to
