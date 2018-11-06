@@ -60,7 +60,6 @@ def build_user_agent():
             logger.debug("Suppressing HTTP User-Agent header")
             return None
         return user_agent
-
     uname_system = platform.uname()[0]
 
     params.append("OS: %s" % (uname_system))
@@ -93,7 +92,6 @@ def get(url, fileobj, progress_hook=None):
     """
 
     user_agent = build_user_agent()
-    logger.debug("Setting HTTP user-agent to %s", user_agent)
 
     try:
         # Wrap in a try as Python versions prior to 2.7.9 don't have
@@ -107,10 +105,12 @@ def get(url, fileobj, progress_hook=None):
     except:
         opener = build_opener()
 
-    opener.addheaders = [
-        ("User-Agent", build_user_agent()),
-    ]
-
+    if user_agent:
+        logger.debug("Setting HTTP User-Agent to %s", user_agent)
+        opener.addheaders = [("User-Agent", user_agent),]
+    else:
+        opener.addheaders = [(header, value) for header,
+                             value in opener.addheaders if header.lower() != "user-agent"]
     remote = opener.open(url)
     info = remote.info()
     try:
