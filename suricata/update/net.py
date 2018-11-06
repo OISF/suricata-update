@@ -53,9 +53,13 @@ def set_user_agent_suricata_version(version):
 
 def build_user_agent():
     params = []
-
-    if custom_user_agent is not None:
-        return custom_user_agent
+    has_custom_user_agent = config.has("user-agent")
+    if has_custom_user_agent:
+        user_agent = config.get("user-agent")
+        if user_agent is None or len(user_agent.strip()) == 0:
+            logger.debug("Suppressing HTTP User-Agent header")
+            return None
+        return user_agent
 
     uname_system = platform.uname()[0]
 

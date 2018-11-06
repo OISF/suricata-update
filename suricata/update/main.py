@@ -1227,12 +1227,6 @@ def _main():
     # User-Agent.
     suricata.update.net.set_user_agent_suricata_version(suricata_version.full)
 
-    # Load custom user-agent-string.
-    user_agent = config.get("user-agent")
-    if user_agent:
-        logger.info("Using user-agent: %s.", user_agent)
-        suricata.update.net.set_custom_user_agent(user_agent)
-
     if args.subcommand:
         if hasattr(args, "func"):
             return args.func()

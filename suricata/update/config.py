@@ -92,6 +92,10 @@ _config = {}
 # The filename the config was read from, if any.
 filename = None
 
+def has(key):
+    """Return true if a configuration key exists."""
+    return key in _config
+
 def set(key, value):
     """Set a configuration value."""
     _config[key] = value
@@ -167,7 +171,6 @@ def init(args):
                 filename = DEFAULT_UPDATE_YAML_PATH
 
     # Apply command line arguments to the config.
-
     for arg in vars(args):
         if arg == "local":
             for local in args.local:
@@ -176,7 +179,7 @@ def init(args):
         elif arg == "data_dir" and args.data_dir:
             logger.debug("Setting data directory to %s", args.data_dir)
             _config[DATA_DIRECTORY_KEY] = args.data_dir
-        elif getattr(args, arg):
+        elif getattr(args, arg) is not None:
             key = arg.replace("_", "-")
             val = getattr(args, arg)
             logger.debug("Setting configuration value %s -> %s", key, val)
