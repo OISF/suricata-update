@@ -4,6 +4,10 @@
 - Add --free argument to list-sources to command to show only those
   that are freely
   available. https://redmine.openinfosecfoundation.org/issues/2641
+- If user-agent is configured to be empty, don't send the header at
+  all. This also fixes an issue where trying to set the user agent to
+  an empty string reset it back to the
+  default. https://redmine.openinfosecfoundation.org/issues/2665
 
 ## 1.0.0 - 2018-11-05
 - Fix failure to run custom test
