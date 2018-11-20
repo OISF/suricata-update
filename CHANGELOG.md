@@ -1,5 +1,10 @@
 # Change Log
 
+## unreleased
+- Add --free argument to list-sources to command to show only those
+  that are freely
+  available. https://redmine.openinfosecfoundation.org/issues/2641
+
 ## 1.0.0 - 2018-11-05
 - Fix failure to run custom test
   command. https://redmine.openinfosecfoundation.org/issues/2652
