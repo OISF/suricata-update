@@ -32,6 +32,7 @@ setup(
         "suricata.update.compat.argparse",
         "suricata.update.data",
     ],
+    package_data={"suricata.update.configs": ["*.conf", "*.yaml", "*.in"]},
     url="https://github.com/OISF/suricata-update",
     license="GPLv2",
     classifiers=[
