@@ -1,8 +1,15 @@
 import os.path
 import subprocess
-from distutils.core import setup
 
 from suricata.update.version import version
+
+try:
+    from setuptools import setup
+    USE_SETUPTOOLS = True
+except ImportError:
+    from distutils.core import setup
+    USE_SETUPTOOLS = False
+
 
 def write_git_revision():
     if not os.path.exists(".git"):
@@ -17,13 +24,13 @@ def write_git_revision():
 
 write_git_revision()
 
-setup(
-    name="suricata-update",
-    version=version,
-    description="Suricata Update Tool",
-    author="Jason Ish",
-    author_email="ish@unx.ca",
-    packages=[
+args = {
+    "name": "suricata-update",
+    "version": version,
+    "description": "Suricata Update Tool",
+    "author": "Jason Ish",
+    "author_email": "ish@unx.ca",
+    "packages": [
         "suricata",
         "suricata.update",
         "suricata.update.commands",
@@ -32,12 +39,17 @@ setup(
         "suricata.update.compat.argparse",
         "suricata.update.data",
     ],
-    url="https://github.com/OISF/suricata-update",
-    license="GPLv2",
-    classifiers=[
+    "url": "https://github.com/OISF/suricata-update",
+    "license": "GPLv2",
+    "classifiers": [
         'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
     ],
-    scripts = [
+    "scripts": [
         "bin/suricata-update",
     ],
-)
+}
+
+if USE_SETUPTOOLS:
+    args["install_requires"] = ["pyyaml", ]
+
+setup(**args)
