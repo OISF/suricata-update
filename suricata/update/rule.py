@@ -310,7 +310,7 @@ def parse(buf, group=None):
         elif name == "reference":
             rule.references.append(val)
         elif name == "msg":
-            if val.startswith('"') and val.endswith('"'):
+            if val and val.startswith('"') and val.endswith('"'):
                 val = val[1:-1]
             rule[name] = val
         else:
