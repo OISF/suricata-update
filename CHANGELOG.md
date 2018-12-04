@@ -8,6 +8,12 @@
   all. This also fixes an issue where trying to set the user agent to
   an empty string reset it back to the
   default. https://redmine.openinfosecfoundation.org/issues/2665
+- Fix --dump-sample-configs. The data files were being
+  installed. https://redmine.openinfosecfoundation.org/issues/2683
+- When installing with pip, make pyyaml and a required dependency so
+  it will be installed automatically if needed. This does not apply
+  when installed bundled with
+  Suricata. https://redmine.openinfosecfoundation.org/issues/2667
 
 ## 1.0.0 - 2018-11-05
 - Fix failure to run custom test
