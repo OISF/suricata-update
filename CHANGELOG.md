@@ -14,6 +14,8 @@
   it will be installed automatically if needed. This does not apply
   when installed bundled with
   Suricata. https://redmine.openinfosecfoundation.org/issues/2667
+- Fix missing check for None, from
+  Coverity. https://redmine.openinfosecfoundation.org/issues/2676
 
 ## 1.0.0 - 2018-11-05
 - Fix failure to run custom test
