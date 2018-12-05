@@ -44,8 +44,8 @@ def enable_source():
     # Check if source is already enabled.
     enabled_source_filename = sources.get_enabled_source_filename(name)
     if os.path.exists(enabled_source_filename):
-        logger.error("The source %s is already enabled.", name)
-        return 1
+        logger.warning("The source %s is already enabled, keeping it enabled.", name)
+        return 0
 
     # First check if this source was previous disabled and then just
     # re-enable it.

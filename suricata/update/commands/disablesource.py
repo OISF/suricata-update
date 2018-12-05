@@ -34,7 +34,7 @@ def disable_source():
     if not os.path.exists(filename):
         logger.debug("Filename %s does not exist.", filename)
         logger.warning("Source %s is not enabled.", name)
-        return 1
+        return 0
     logger.debug("Renaming %s to %s.disabled.", filename, filename)
     os.rename(filename, "%s.disabled" % (filename))
     logger.info("Source %s has been disabled", name)
