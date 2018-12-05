@@ -77,10 +77,11 @@ def save_source_config(source_config):
 
 class SourceConfiguration:
 
-    def __init__(self, name, url=None, params={}):
+    def __init__(self, name, header, url=None, params={}):
         self.name = name
         self.url = url
         self.params = params
+        self.header = header
 
     def dict(self):
         d = {
@@ -90,6 +91,8 @@ class SourceConfiguration:
             d["url"] = self.url
         if self.params:
             d["params"] = self.params
+        if self.header:
+            d["header"] = self.header
         return d
 
 class Index:
