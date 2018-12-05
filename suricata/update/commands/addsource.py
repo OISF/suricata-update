@@ -32,12 +32,12 @@ def register(parser):
     parser.add_argument("name", metavar="<name>", nargs="?",
                         help="Name of source")
     parser.add_argument("url", metavar="<url>", nargs="?", help="Source URL")
-    parser.add_argument("--header", metavar="<header>", help="HTTP Header")
+    parser.add_argument("--http-header", metavar="<http-header>",
+                        help="Additional HTTP header to add to requests")
     parser.set_defaults(func=add_source)
 
 def add_source():
     args = config.args()
-    header = None
 
     if args.name:
         name = args.name
@@ -59,8 +59,7 @@ def add_source():
             if url:
                 break
 
-    if args.header:
-        header = args.header
+    header = args.header if args.header else None
 
     source_config = sources.SourceConfiguration(name, header=header, url=url)
     sources.save_source_config(source_config)
