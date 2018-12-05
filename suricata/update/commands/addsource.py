@@ -37,7 +37,6 @@ def register(parser):
 
 def add_source():
     args = config.args()
-    header = None
 
     if args.name:
         name = args.name
@@ -59,8 +58,7 @@ def add_source():
             if url:
                 break
 
-    if args.header:
-        header = args.header
+    header = args.header if args.header else None
 
     source_config = sources.SourceConfiguration(name, header=header, url=url)
     sources.save_source_config(source_config)
