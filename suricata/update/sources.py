@@ -92,7 +92,7 @@ class SourceConfiguration:
         if self.params:
             d["params"] = self.params
         if self.header:
-            d["header"] = self.header
+            d["http-header"] = self.header
         return d
 
 class Index:

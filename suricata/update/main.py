@@ -356,6 +356,8 @@ class Fetch:
             "%s-%s" % (url_hash, self.url_basename(url)))
 
     def fetch(self, url):
+        net_arg = url
+        url = url[0] if isinstance(url, tuple) else url
         tmp_filename = self.get_tmp_filename(url)
         if not config.args().force and os.path.exists(tmp_filename):
             if not config.args().now and \
@@ -373,7 +375,7 @@ class Fetch:
         try:
             tmp_fileobj = tempfile.NamedTemporaryFile()
             suricata.update.net.get(
-                url,
+                net_arg,
                 tmp_fileobj,
                 progress_hook=self.progress_hook)
             shutil.copyfile(tmp_fileobj.name, tmp_filename)
@@ -399,6 +401,7 @@ class Fetch:
                 fetched = self.fetch(url)
                 files.update(fetched)
             except URLError as err:
+                url = url[0] if isinstance(url, tuple) else url
                 logger.error("Failed to fetch %s: %s", url, err)
         else:
             for url in self.args.url:
@@ -963,14 +966,15 @@ def load_sources(suricata_version):
             params.update(internal_params)
             if "url" in source:
                 # No need to go off to the index.
-                url = source["url"] % params
+                url = (source["url"] % params, source.get("http-header"))
+                logger.debug("Resolved source %s to URL %s.", name, url[0])
             else:
                 if not index:
                     raise exceptions.ApplicationError(
                         "Source index is required for source %s; "
                         "run suricata-update update-sources" % (source["source"]))
                 url = index.resolve_url(name, params)
-            logger.debug("Resolved source %s to URL %s.", name, url)
+                logger.debug("Resolved source %s to URL %s.", name, url)
             urls.append(url)
 
     if config.get("sources"):
