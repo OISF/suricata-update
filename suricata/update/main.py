@@ -523,6 +523,8 @@ def load_dist_rules(files):
         "dns-events.rules",
         "files.rules",
         "http-events.rules",
+        "ipsec-events.rules",
+        "kerberos-events.rules",
         "modbus-events.rules",
         "nfs-events.rules",
         "ntp-events.rules",
