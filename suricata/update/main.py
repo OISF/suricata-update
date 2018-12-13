@@ -67,7 +67,7 @@ from suricata.update.version import version
 try:
     from suricata.update.revision import revision
 except:
-    revision = "unknown"
+    revision = None
 
 # Initialize logging, use colour if on a tty.
 if len(logging.root.handlers) == 0 and os.isatty(sys.stderr.fileno()):
@@ -1052,7 +1052,8 @@ def _main():
     global_args, rem = global_parser.parse_known_args()
 
     if global_args.version:
-        print("suricata-update version %s (rev: %s)" % (version, revision))
+        revision_string = " (rev: %s)" % (revision) if revision else ""
+        print("suricata-update version {}{}".format(version, revision_string))
         return 0
 
     if not rem or rem[0].startswith("-"):
