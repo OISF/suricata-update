@@ -304,6 +304,9 @@ class DropRuleFilter(object):
 
 class Fetch:
 
+    def __init__(self):
+        self.istty = os.isatty(sys.stdout.fileno())
+
     def check_checksum(self, tmp_filename, url):
         try:
             checksum_url = url + ".md5"
@@ -323,7 +326,7 @@ class Fetch:
         return False
 
     def progress_hook(self, content_length, bytes_read):
-        if config.args().quiet:
+        if config.args().quiet or not self.istty:
             return
         if not content_length or content_length == 0:
             percent = 0
@@ -336,6 +339,8 @@ class Fetch:
         sys.stdout.write("\b" * 38)
 
     def progress_hook_finish(self):
+        if config.args().quiet or not self.istty:
+            return
         sys.stdout.write("\n")
         sys.stdout.flush()
 
@@ -382,8 +387,7 @@ class Fetch:
             raise err
         except Exception as err:
             raise err
-        if not config.args().quiet:
-            self.progress_hook_finish()
+        self.progress_hook_finish()
         logger.info("Done.")
         return self.extract_files(tmp_filename)
 
