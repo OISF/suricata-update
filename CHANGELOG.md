@@ -1,7 +1,7 @@
 # Change Log
 
 ## unreleased
-- Add --free argument to list-sources to command to show only those
+- Add --free argument to list-sources command to show only those
   that are freely
   available. https://redmine.openinfosecfoundation.org/issues/2641
 - If user-agent is configured to be empty, don't send the header at
@@ -20,7 +20,7 @@
   tty. https://redmine.openinfosecfoundation.org/issues/2743
 - Hide git revision if not available in --version.
 - Update list of engine provided rules to include.
-- All a custom HTTP header to be set on a source when added with
+- Allow a custom HTTP header to be set on a source when added with
   add-source. https://redmine.openinfosecfoundation.org/issues/2577
 
 ## 1.0.0 - 2018-11-05
