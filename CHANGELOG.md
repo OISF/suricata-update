@@ -16,6 +16,12 @@
   Suricata. https://redmine.openinfosecfoundation.org/issues/2667
 - Fix missing check for None, from
   Coverity. https://redmine.openinfosecfoundation.org/issues/2676
+- Suppress download progress meter when not on a
+  tty. https://redmine.openinfosecfoundation.org/issues/2743
+- Hide git revision if not available in --version.
+- Update list of engine provided rules to include.
+- All a custom HTTP header to be set on a source when added with
+  add-source. https://redmine.openinfosecfoundation.org/issues/2577
 
 ## 1.0.0 - 2018-11-05
 - Fix failure to run custom test
