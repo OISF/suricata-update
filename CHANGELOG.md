@@ -1,6 +1,6 @@
 # Change Log
 
-## unreleased
+## 1.0.1 - 2018-12-16
 - Add --free argument to list-sources command to show only those
   that are freely
   available. https://redmine.openinfosecfoundation.org/issues/2641
