@@ -2,6 +2,7 @@ import os.path
 import subprocess
 import distutils
 from distutils.core import setup
+from distutils.core import sys
 
 from suricata.update.version import version
 
@@ -45,7 +46,7 @@ args = {
     ],
 }
 
-if any("pip" in arg for arg in distutils.sys.argv):
+if any("pip" in arg for arg in sys.argv):
     args["install_requires"] = ["pyyaml", ]
 
 setup(**args)
