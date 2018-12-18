@@ -1,3 +1,4 @@
+import sys
 import os.path
 import subprocess
 import distutils
@@ -6,6 +7,13 @@ from distutils.core import sys
 
 from suricata.update.version import version
 
+
+version_major = sys.version_info[0]
+version_minor = sys.version_info[1]
+
+if version_major < 3 and version_minor < 7:
+    print("Suricata-Update requires Python 2.7 or newer.")
+    sys.exit(0)
 
 def write_git_revision():
     if not os.path.exists(".git"):
