@@ -302,6 +302,12 @@ class DropRuleFilter(object):
         drop_rule.enabled = rule.enabled
         return drop_rule
 
+
+class Helper(object):
+    """Helper class to allow clean dynamic variable creation and use"""
+    pass
+
+
 class Fetch:
 
     def __init__(self):
@@ -691,7 +697,6 @@ def build_rule_map(rules):
     number will be used.
     """
     rulemap = {}
-
     for rule in rules:
         if rule.id not in rulemap:
             rulemap[rule.id] = rule
@@ -1022,6 +1027,7 @@ def check_output_directory(output_dir):
                 "Failed to create directory %s: %s" % (
                     output_dir, err))
 
+
 def _main():
     global args
 
@@ -1116,7 +1122,6 @@ def _main():
                                help="Filename of rule thresholding configuration")
     update_parser.add_argument("--threshold-out", metavar="<filename>",
                                help="Output of processed threshold configuration")
-    
     update_parser.add_argument("--dump-sample-configs", action="store_true",
                                default=False,
                                help="Dump sample config files to current directory")
@@ -1130,9 +1135,10 @@ def _main():
                                help="Command to test Suricata configuration")
     update_parser.add_argument("--no-test", action="store_true", default=False,
                                help="Disable testing rules with Suricata")
-    
     update_parser.add_argument("--no-merge", action="store_true", default=False,
                                help="Do not merge the rules into a single file")
+    update_parser.add_argument("--report", metavar="<filename>",
+                               help="Filename of the report for rules")
 
     # Hidden argument, --now to bypass the timebased bypass of
     # updating a ruleset.
@@ -1334,14 +1340,10 @@ def _main():
     rulemap = build_rule_map(rules)
     logger.info("Loaded %d rules." % (len(rules)))
 
-    # Counts of user enabled and modified rules.
-    enable_count = 0
-    modify_count = 0
-    drop_count = 0
-
-    # List of rules disabled by user. Used for counting, and to log
-    # rules that are re-enabled to meet flowbit requirements.
-    disabled_rules = []
+    h = Helper()
+    rule_states = ["enabled", "disabled", "dropped", "modified"]
+    for state in rule_states:
+        setattr(h, "{}_rules".format(state), list())
 
     for key, rule in rulemap.items():
 
@@ -1349,18 +1351,20 @@ def _main():
             if rule.enabled and matcher.match(rule):
                 logger.debug("Disabling: %s" % (rule.brief()))
                 rule.enabled = False
-                disabled_rules.append(rule)
+                # List of rules disabled by user. Used for counting, and to log
+                # rules that are re-enabled to meet flowbit requirements.
+                h.disabled_rules.append(rule)
 
         for matcher in enable_matchers:
             if not rule.enabled and matcher.match(rule):
                 logger.debug("Enabling: %s" % (rule.brief()))
                 rule.enabled = True
-                enable_count += 1
+                h.enabled_rules.append(rule)
 
         for filter in drop_filters:
             if filter.match(rule):
                 rulemap[rule.id] = filter.filter(rule)
-                drop_count += 1
+                h.dropped_rules.append(rule)
 
     # Apply modify filters.
     for fltr in modify_filters:
@@ -1369,18 +1373,26 @@ def _main():
                 new_rule = fltr.filter(rule)
                 if new_rule and new_rule.format() != rule.format():
                     rulemap[rule.id] = new_rule
-                    modify_count += 1
+                    h.modified_rules.append((rule, new_rule))
 
     # Check rule vars, disabling rules that use unknown vars.
     check_vars(suriconf, rulemap)
 
-    logger.info("Disabled %d rules." % (len(disabled_rules)))
-    logger.info("Enabled %d rules." % (enable_count))
-    logger.info("Modified %d rules." % (modify_count))
-    logger.info("Dropped %d rules." % (drop_count))
+    report_file = config.get("report")
+    if report_file:
+        with open(report_file, "w") as f:
+            for state in rule_states:
+                f.write("\n{}\n".format(state.title()))
+                f.write("{}\n\n".format("*" * 60))
+                rules = getattr(h, "{}_rules".format(state))
+                f.write("\n".join(str(rule) for rule in rules))
+
+    for state in rule_states:
+        rule_length = len(getattr(h, "{}_rules".format(state)))
+        logger.info("{} {} rules.".format(state.title(), rule_length))
 
     # Fixup flowbits.
-    resolve_flowbits(rulemap, disabled_rules)
+    resolve_flowbits(rulemap, h.disabled_rules)
 
     # Check that output directory exists, creating it if needed.
     check_output_directory(config.get_output_dir())
