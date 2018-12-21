@@ -13,4 +13,6 @@ matrix:
       dist: xenial
       sudo: true
 
-script: PYTHONPATH=. pytest
+script:
+ - PYTHONPATH=. pytest
+ - PYTHONPATH=. python ./tests/integration_tests.py
