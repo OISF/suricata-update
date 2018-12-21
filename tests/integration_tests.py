@@ -15,6 +15,7 @@ def delete(path):
         os.unlink(path)
 
 print("Python executable: %s" % sys.executable)
+print("Python version: %s" % str(sys.version))
 print("Current directory: %s" % os.getcwd())
 
 # Override the default source index URL to avoid hitting the network.
