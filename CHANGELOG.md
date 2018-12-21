@@ -1,5 +1,9 @@
 # Change Log
 
+## unreleased
+- Enable integration tests on
+  Travis-CI. https://redmine.openinfosecfoundation.org/issues/2760
+
 ## 1.0.3 - 2018-12-21
 - Fix enable-source command.
   https://redmine.openinfosecfoundation.org/issues/2753
