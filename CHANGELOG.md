@@ -1,8 +1,13 @@
 # Change Log
 
+## 1.0.3 - 2018-12-21
+- Fix enable-source command.
+  https://redmine.openinfosecfoundation.org/issues/2753
+
 ## 1.0.2 - 2018-12-18
 - Fix installs on older versions of Python 2.7.
   https://redmine.openinfosecfoundation.org/issues/2747
+
 ## 1.0.1 - 2018-12-16
 - Add --free argument to list-sources command to show only those
   that are freely
