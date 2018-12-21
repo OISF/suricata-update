@@ -77,7 +77,7 @@ def save_source_config(source_config):
 
 class SourceConfiguration:
 
-    def __init__(self, name, header, url=None, params={}):
+    def __init__(self, name, header=None, url=None, params={}):
         self.name = name
         self.url = url
         self.params = params
