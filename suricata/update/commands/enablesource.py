@@ -40,20 +40,21 @@ def register(parser):
 
 def enable_source():
     name = config.args().name
+    updating = False
 
     # Check if source is already enabled.
     enabled_source_filename = sources.get_enabled_source_filename(name)
     if os.path.exists(enabled_source_filename):
-        logger.warning("The source %s is already enabled, keeping it enabled.", name)
-        return 0
+        logger.warning("The source %s is already enabled.", name)
+        updating = True
 
     # First check if this source was previous disabled and then just
     # re-enable it.
     disabled_source_filename = sources.get_disabled_source_filename(name)
     if os.path.exists(disabled_source_filename):
-        logger.info("Re-enabling previous disabled source for %s.", name)
+        logger.info("Re-enabling previously disabled source for %s.", name)
         os.rename(disabled_source_filename, enabled_source_filename)
-        return 0
+        updating = True
 
     if not os.path.exists(sources.get_index_filename()):
         logger.warning("Source index does not exist, will use bundled one.")
@@ -71,25 +72,35 @@ def enable_source():
         key, val = param.split("=", 1)
         opts[key] = val
 
-    source = source_index.get_sources()[name]
-
-    if "subscribe-url" in source:
-        print("The source %s requires a subscription. Subscribe here:" % (name))
-        print("  %s" % source["subscribe-url"])
-
     params = {}
-    if "parameters" in source:
-        for param in source["parameters"]:
-            if param in opts:
-                params[param] = opts[param]
-            else:
-                prompt = source["parameters"][param]["prompt"]
-                while True:
-                    r = input("%s (%s): " % (prompt, param))
-                    r = r.strip()
-                    if r:
-                        break
-                params[param] = r.strip()
+    if updating:
+        source = yaml.safe_load(open(sources.get_enabled_source_filename(name), "rb"))
+        if "params" in source:
+            params = source["params"]
+            for old_param in source["params"]:
+                if old_param in opts and source["params"][old_param] != opts[old_param]:
+                    logger.info("Updating source parameter '%s': '%s' -> '%s'." % (
+                        old_param, source["params"][old_param], opts[old_param]))
+                    params[old_param] = opts[old_param]
+    else:
+        source = source_index.get_sources()[name]
+
+        if "subscribe-url" in source:
+            print("The source %s requires a subscription. Subscribe here:" % (name))
+            print("  %s" % source["subscribe-url"])
+
+        if "parameters" in source:
+            for param in source["parameters"]:
+                if param in opts:
+                    params[param] = opts[param]
+                else:
+                    prompt = source["parameters"][param]["prompt"]
+                    while True:
+                        r = input("%s (%s): " % (prompt, param))
+                        r = r.strip()
+                        if r:
+                            break
+                    params[param] = r.strip()
     new_source = sources.SourceConfiguration(name, params=params)
 
     # If the source directory does not exist, create it. Also create
