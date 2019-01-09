@@ -17,23 +17,31 @@
 
 from __future__ import print_function
 
-import sys
-import re
-import os.path
-import logging
 import argparse
-import shlex
-import time
-import hashlib
 import fnmatch
-import subprocess
-import types
-import shutil
 import glob
+import hashlib
 import io
-import tempfile
 import json
+import logging
+import os.path
+import re
+import shlex
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+import types
 from datetime import datetime as dt
+
+import suricata.update.engine
+import suricata.update.loghandler
+import suricata.update.net
+import suricata.update.rule
+from suricata.update import (commands, config, configs, exceptions, extract,
+                             notes, sources, util)
+from suricata.update.version import version
 
 try:
     # Python 3.
@@ -52,20 +60,7 @@ if sys.argv[0] == __file__:
     sys.path.insert(
         0, os.path.abspath(os.path.join(__file__, "..", "..", "..")))
 
-import suricata.update.rule
-import suricata.update.engine
-import suricata.update.net
-import suricata.update.loghandler
-from suricata.update import config
-from suricata.update import configs
-from suricata.update import extract
-from suricata.update import util
-from suricata.update import sources
-from suricata.update import commands
-from suricata.update import exceptions
-from suricata.update import notes
 
-from suricata.update.version import version
 try:
     from suricata.update.revision import revision
 except:
