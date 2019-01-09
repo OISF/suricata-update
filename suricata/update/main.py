@@ -32,6 +32,8 @@ import shutil
 import glob
 import io
 import tempfile
+import json
+from datetime import datetime as dt
 
 try:
     # Python 3.
@@ -68,7 +70,6 @@ try:
     from suricata.update.revision import revision
 except:
     revision = None
-
 # Initialize logging, use colour if on a tty.
 if len(logging.root.handlers) == 0 and os.isatty(sys.stderr.fileno()):
     logger = logging.getLogger()
@@ -572,6 +573,26 @@ def load_dist_rules(files):
                 logger.error("Failed to open %s: %s" % (path, err))
                 sys.exit(1)
 
+
+def log_report(report):
+    fpath = config.get("report")
+    if not fpath:
+        return
+    with open(fpath, "w") as f:
+        f.write("Generated on {}\n\n".format(
+            dt.now().strftime("%A, %d %b %Y, %H:%M:%S %Z")))
+        for key in report.keys():
+            if not len(report[key]) > 0:
+                continue
+            f.write("{} Rules\n{}\n".format(key.title(), "=" * (len(key) + 6)))
+            for rule in report[key]:
+                rule_group = rule.get("group")
+                rule_fname = rule_group.split("/")[-1] if rule_group else None
+                f.write("{}\n".format(rule.brief()))
+                if rule_group:
+                    f.write("({})\n".format(rule_fname))
+
+
 def build_report(prev_rulemap, rulemap):
     """Build a report of changes between 2 rulemaps.
 
@@ -586,7 +607,6 @@ def build_report(prev_rulemap, rulemap):
         "removed": [],
         "modified": []
     }
-
     for key in rulemap:
         rule = rulemap[key]
         if not rule.id in prev_rulemap:
@@ -617,10 +637,11 @@ def write_merged(filename, rulemap):
                         len(report["added"]),
                         len(report["removed"]),
                         len(report["modified"])))
-    
+
     with io.open(filename, encoding="utf-8", mode="w") as fileobj:
         for rule in rulemap:
             print(rulemap[rule].format(), file=fileobj)
+    log_report(report=report)
 
 def write_to_directory(directory, files, rulemap):
     if not args.quiet:
@@ -658,6 +679,7 @@ def write_to_directory(directory, files, rulemap):
                     content.append(rulemap[rule.id].format())
             io.open(outpath, encoding="utf-8", mode="w").write(
                 u"\n".join(content))
+    log_report(report=report)
 
 def write_yaml_fragment(filename, files):
     logger.info(
@@ -1095,7 +1117,6 @@ def _main():
                                help="Generate a sid-msg.map file")
     update_parser.add_argument("--sid-msg-map-2", metavar="<filename>",
                                help="Generate a v2 sid-msg.map file")
-    
     update_parser.add_argument("--disable-conf", metavar="<filename>",
                                help="Filename of rule disable filters")
     update_parser.add_argument("--enable-conf", metavar="<filename>",
@@ -1104,19 +1125,18 @@ def _main():
                                help="Filename of rule modification filters")
     update_parser.add_argument("--drop-conf", metavar="<filename>",
                                help="Filename of drop rules filters")
-    
+    update_parser.add_argument("--report", metavar="<filename>",
+                               help="Filename of the report for rules")
     update_parser.add_argument("--ignore", metavar="<pattern>", action="append",
                                default=[],
                                help="Filenames to ignore (can be specified multiple times; default: *deleted.rules)")
     update_parser.add_argument("--no-ignore", action="store_true",
                                default=False,
                                help="Disables the ignore option.")
-    
     update_parser.add_argument("--threshold-in", metavar="<filename>",
                                help="Filename of rule thresholding configuration")
     update_parser.add_argument("--threshold-out", metavar="<filename>",
                                help="Output of processed threshold configuration")
-    
     update_parser.add_argument("--dump-sample-configs", action="store_true",
                                default=False,
                                help="Dump sample config files to current directory")
@@ -1130,7 +1150,6 @@ def _main():
                                help="Command to test Suricata configuration")
     update_parser.add_argument("--no-test", action="store_true", default=False,
                                help="Disable testing rules with Suricata")
-    
     update_parser.add_argument("--no-merge", action="store_true", default=False,
                                help="Do not merge the rules into a single file")
 
