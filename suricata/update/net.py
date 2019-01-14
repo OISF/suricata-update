@@ -67,7 +67,7 @@ def build_user_agent():
     params.append("CPU: %s" % (platform.machine()))
     params.append("Python: %s" % (platform.python_version()))
 
-    if uname_system == "Linux":
+    if uname_system == "Linux" and hasattr(platform, "linux_distribution"):
         distribution = platform.linux_distribution()
         params.append("Dist: %s/%s" % (
             str(distribution[0]), str(distribution[1])))
