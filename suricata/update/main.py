@@ -569,13 +569,49 @@ def load_dist_rules(files):
                 sys.exit(1)
 
 
-def log_report(report):
+def counter(f):
+    def wrapped(*args, **kwargs):
+        wrapped.calls += 1
+        return f(*args, **kwargs)
+    wrapped.calls = 0
+    return wrapped
+
+
+@counter
+def log_timestamp(fpath):
+    with open(fpath, "w") as f:
+        f.write("Generated on {}\n\n\n".format(
+            dt.now().strftime("%A, %d %b %Y, %H:%M:%S")))
+        f.write("Summary\n{}\n".format("=" * 7))
+
+
+def log_summary(rcount_map, conf=False):
     fpath = config.get("report")
     if not fpath:
         return
-    with open(fpath, "w") as f:
-        f.write("Generated on {}\n\n".format(
-            dt.now().strftime("%A, %d %b %Y, %H:%M:%S")))
+    if log_timestamp.calls == 0:
+        log_timestamp(fpath=fpath)
+    predicate_map = {
+            "disabled": " by disable.conf",
+            "enabled": " by enable.conf",
+            "modified": " by modify.conf",
+            "dropped": "converted to drop",
+            "flowbit": "enabled for flowbit dependencies",
+            }
+    with open(fpath, "a") as f:
+        for rtype, rcount in rcount_map.items():
+            f.write("Rules {}{}: {}\n".format(
+                rtype if rtype != "flowbit" and rtype != "dropped" else "",
+                predicate_map[rtype] if conf else "", rcount))
+
+
+def log_rules(report):
+    fpath = config.get("report")
+    if not fpath:
+        return
+    rcount_map = {key:len(report[key]) for key in report}
+    log_summary(rcount_map=rcount_map)
+    with open(fpath, "a") as f:
         for key in report.keys():
             if not len(report[key]) > 0:
                 continue
@@ -637,7 +673,7 @@ def write_merged(filename, rulemap):
     with io.open(filename, encoding="utf-8", mode="w") as fileobj:
         for rule in rulemap:
             print(rulemap[rule].format(), file=fileobj)
-    log_report(report=report)
+    log_rules(report=report)
 
 def write_to_directory(directory, files, rulemap):
     if not args.quiet:
@@ -675,7 +711,7 @@ def write_to_directory(directory, files, rulemap):
                     content.append(rulemap[rule.id].format())
             io.open(outpath, encoding="utf-8", mode="w").write(
                 u"\n".join(content))
-    log_report(report=report)
+    log_rules(report=report)
 
 def write_yaml_fragment(filename, files):
     logger.info(
@@ -750,6 +786,7 @@ def resolve_flowbits(rulemap, disabled_rules):
             flowbit_enabled.add(rule)
     logger.info("Enabled %d rules for flowbit dependencies." % (
         len(flowbit_enabled)))
+    return len(flowbit_enabled)
 
 class ThresholdProcessor:
 
@@ -1389,13 +1426,21 @@ def _main():
     # Check rule vars, disabling rules that use unknown vars.
     check_vars(suriconf, rulemap)
 
-    logger.info("Disabled %d rules." % (len(disabled_rules)))
-    logger.info("Enabled %d rules." % (enable_count))
-    logger.info("Modified %d rules." % (modify_count))
-    logger.info("Dropped %d rules." % (drop_count))
+    rcount_map = {
+            "disabled": len(disabled_rules),
+            "enabled": enable_count,
+            "modified": modify_count,
+            "dropped": drop_count,
+            }
+
+    for rtype, rcount in rcount_map.items():
+        logger.info("{} {} rules.".format(rtype.title(), rcount))
 
     # Fixup flowbits.
-    resolve_flowbits(rulemap, disabled_rules)
+    flowbit_enable_count = resolve_flowbits(rulemap, disabled_rules)
+
+    rcount_map["flowbit"] = flowbit_enable_count
+    log_summary(rcount_map=rcount_map, conf=True)
 
     # Check that output directory exists, creating it if needed.
     check_output_directory(config.get_output_dir())
