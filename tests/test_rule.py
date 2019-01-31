@@ -120,50 +120,6 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
         rule = suricata.update.rule.parse(rule_string)
         self.assertTrue(rule["noalert"])
 
-    def test_add_option(self):
-        rule_string = u"""alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:10000000; rev:1;)"""
-        rule = suricata.update.rule.parse(rule_string, "local.rules")
-        rule = suricata.update.rule.add_option(
-            rule, "msg", "\"This is a test description.\"", 0)
-        self.assertEqual("This is a test description.", rule["msg"])
-        self.assertEqual("local.rules", rule["group"])
-
-    def test_remove_option(self):
-        rule_string = u"""alert ip any any -> any any (msg:"TEST MESSAGE"; content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:10000000; rev:1;)"""
-        rule = suricata.update.rule.parse(rule_string, "local.rules")
-
-        rule = suricata.update.rule.remove_option(rule, "msg")
-        self.assertEqual("", rule["msg"])
-
-        rule = suricata.update.rule.remove_option(rule, "classtype")
-        self.assertEqual(None, rule["classtype"])
-
-    def test_remove_tag_option(self):
-        rule_string = u"""alert ip any any -> any any (msg:"TEST RULE"; content:"uid=0|28|root|29|"; tag:session,5,packets; classtype:bad-unknown; sid:10000000; rev:1;)"""
-        rule = suricata.update.rule.parse(rule_string)
-        self.assertIsNotNone(rule)
-        print(rule["options"])
-
-    def test_scratch(self):
-        rule_string = """alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"ET CURRENT_EVENTS Request to .in FakeAV Campaign June 19 2012 exe or zip"; flow:established,to_server; content:"setup."; fast_pattern:only; http_uri; content:".in|0d 0a|"; flowbits:isset,somebit; flowbits:unset,otherbit; http_header; pcre:"/\/[a-f0-9]{16}\/([a-z0-9]{1,3}\/)?setup\.(exe|zip)$/U"; pcre:"/^Host\x3a\s.+\.in\r?$/Hmi"; metadata:stage,hostile_download; reference:url,isc.sans.edu/diary/+Vulnerabilityqueerprocessbrittleness/13501; classtype:trojan-activity; sid:2014929; rev:1;)"""
-        rule = suricata.update.rule.parse(rule_string)
-        self.assertEqual(rule_string, str(rule))
-
-        options = []
-        for option in rule["options"]:
-            if option["value"] is None:
-                options.append(option["name"])
-            else:
-                options.append("%s:%s" % (option["name"], option["value"]))
-
-        reassembled = "%s (%s)" % (rule["header"], rule.rebuild_options())
-
-        print("")
-        print("%s" % rule_string)
-        print("%s" % reassembled)
-
-        self.assertEqual(rule_string, reassembled)
-        
     def test_parse_message_with_semicolon(self):
         rule_string = u"""alert ip any any -> any any (msg:"TEST RULE\; and some"; content:"uid=0|28|root|29|"; tag:session,5,packets; classtype:bad-unknown; sid:10000000; rev:1;)"""
         rule = suricata.update.rule.parse(rule_string)
@@ -171,12 +127,7 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
         self.assertEqual(rule.msg, "TEST RULE\; and some")
 
         # Look for the expected content.
-        found=False
-        for o in rule.options:
-            if o["name"] == "content" and o["value"] == '"uid=0|28|root|29|"':
-                found=True
-                break
-        self.assertTrue(found)
+        self.assertEqual("TEST RULE\; and some", rule["msg"])
 
     def test_parse_message_with_colon(self):
         rule_string = u"""alert tcp 93.174.88.0/21 any -> $HOME_NET any (msg:"SN: Inbound TCP traffic from suspect network (AS29073 - NL)"; flags:S; reference:url,https://suspect-networks.io/networks/cidr/13/; threshold: type limit, track by_dst, seconds 30, count 1; classtype:misc-attack; sid:71918985; rev:1;)"""
