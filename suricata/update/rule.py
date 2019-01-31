@@ -75,6 +75,7 @@ class Rule(dict):
     - **references**: References as a list
     - **classtype**: The classification type
     - **priority**: The rule priority, 0 if not provided
+    - **noalert**: Is the rule a noalert rule
     - **raw**: The raw rule as read from the file or buffer
 
     :param enabled: Optional parameter to set the enabled state of the rule
@@ -103,6 +104,7 @@ class Rule(dict):
         self["references"] = []
         self["classtype"] = None
         self["priority"] = 0
+        self["noalert"] = False
 
         self["options"] = []
 
@@ -307,6 +309,8 @@ def parse(buf, group=None):
             rule[name] += [v.strip() for v in val.split(",")]
         elif name == "flowbits":
             rule.flowbits.append(val)
+            if val.find("noalert") > -1:
+                rule["noalert"] = True
         elif name == "reference":
             rule.references.append(val)
         elif name == "msg":
