@@ -286,14 +286,8 @@ class DropRuleFilter(object):
     def __init__(self, matcher):
         self.matcher = matcher
 
-    def is_noalert(self, rule):
-        for option in rule.options:
-            if option["name"] == "flowbits" and option["value"] == "noalert":
-                return True
-        return False
-
     def match(self, rule):
-        if self.is_noalert(rule):
+        if rule["noalert"]:
             return False
         return self.matcher.match(rule)
 

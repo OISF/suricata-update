@@ -111,6 +111,15 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
         rule = suricata.update.rule.parse(rule_string)
         self.assertEqual("", rule["msg"])
 
+    def test_noalert(self):
+        rule_string = u"""alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:10000000; rev:1;)"""
+        rule = suricata.update.rule.parse(rule_string)
+        self.assertFalse(rule["noalert"])
+
+        rule_string = u"""alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; flowbits:noalert; sid:10000000; rev:1;)"""
+        rule = suricata.update.rule.parse(rule_string)
+        self.assertTrue(rule["noalert"])
+
     def test_add_option(self):
         rule_string = u"""alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:10000000; rev:1;)"""
         rule = suricata.update.rule.parse(rule_string, "local.rules")
