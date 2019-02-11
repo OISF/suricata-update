@@ -97,7 +97,7 @@ class Rule(dict):
         self["group"] = group
         self["gid"] = 1
         self["sid"] = None
-        self["rev"] = None
+        self["rev"] = 0
         self["msg"] = None
         self["flowbits"] = []
         self["metadata"] = []
