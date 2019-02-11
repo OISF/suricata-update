@@ -1425,6 +1425,14 @@ def _main():
         notes.dump_notes()
         return 0
 
+    # Set these containers to None to fee the memory before testing Suricata which
+    # may consume a lot of memory by itself. Ideally we should refactor this large
+    # function into multiple methods so these go out of scope and get removed
+    # automatically.
+    rulemap = None
+    rules = None
+    files = None
+
     if not test_suricata(suricata_path):
         logger.error("Suricata test failed, aborting.")
         logger.error("Restoring previous rules.")
