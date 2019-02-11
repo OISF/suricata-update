@@ -174,3 +174,9 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
         self.assertIsNotNone(rule)
         self.assertEqual(rule["dest_port"], "[!2200, 5500]")
         
+    def test_parse_no_rev(self):
+        """Test that a rule with no revision gets assigned the default
+        revision of 0."""
+        rule_string = u"""alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:10000000;)"""
+        rule = suricata.update.rule.parse(rule_string)
+        self.assertEqual(0, rule["rev"])
