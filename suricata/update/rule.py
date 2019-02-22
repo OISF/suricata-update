@@ -268,7 +268,7 @@ def parse(buf, group=None):
             rule[name] += [v.strip() for v in val.split(",")]
         elif name == "flowbits":
             rule.flowbits.append(val)
-            if val.find("noalert") > -1:
+            if val and val.find("noalert") > -1:
                 rule["noalert"] = True
         elif name == "reference":
             rule.references.append(val)
