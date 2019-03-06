@@ -520,6 +520,7 @@ def load_dist_rules(files):
     filenames = [
         "app-layer-events.rules",
         "decoder-events.rules",
+        "dhcp-events.rules",
         "dnp3-events.rules",
         "dns-events.rules",
         "files.rules",
