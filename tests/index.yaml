@@ -49,3 +49,10 @@ sources:
     vendor: Abuse.ch
     license: Non-Commercial
     url: https://sslbl.abuse.ch/blacklist/sslblacklist.rules
+
+  # URLhaus malicious URLs ruleset.
+  urlhaus/urlhaus-abusech:
+    summary: Abuse.ch URLhaus malicious URLs that are being used for malware distribution
+    vendor: Abuse.ch
+    license: Non-Commercial
+    url: https://urlhaus.abuse.ch/downloads/ids/
