@@ -625,7 +625,7 @@ def write_to_directory(directory, files, rulemap):
                         modified.append(rule.id)
         for key in rulemap:
             if not key in oldset:
-                added.append(rule.id)
+                added.append(key)
 
         enabled = len([rule for rule in rulemap.values() if rule.enabled])
         logger.info("Writing rule files to directory %s: total: %d; "
