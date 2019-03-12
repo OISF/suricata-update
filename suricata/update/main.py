@@ -1454,10 +1454,15 @@ def _main():
 
 def main():
     try:
-        sys.exit(_main())
-    except exceptions.ApplicationError as err:
-        logger.error(err)
-    sys.exit(1)
+        try:
+            sys.exit(_main())
+        except exceptions.ApplicationError as err:
+            logger.error(err)
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("Program interrupted by keyboard, aborting.")
+
 
 if __name__ == "__main__":
     main()
+
