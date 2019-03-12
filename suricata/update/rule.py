@@ -118,7 +118,13 @@ class Rule(dict):
         :returns: A tuple (gid, sid) representing the ID of the rule
         :rtype: A tuple of 2 ints
         """
-        return (int(self.gid), int(self.sid))
+        self_gid=self.gid
+        self_sid=self.sid
+        if self.gid is not None:
+            self_gid=int(self_gid)
+        if self.sid is not None:
+            self_sid=int(self_sid)
+        return (self_gid, self_sid)
 
     @property
     def idstr(self):
