@@ -118,13 +118,7 @@ class Rule(dict):
         :returns: A tuple (gid, sid) representing the ID of the rule
         :rtype: A tuple of 2 ints
         """
-        self_gid=self.gid
-        self_sid=self.sid
-        if self.gid is not None:
-            self_gid=int(self_gid)
-        if self.sid is not None:
-            self_sid=int(self_sid)
-        return (self_gid, self_sid)
+        return (int(self.gid), int(self.sid))
 
     @property
     def idstr(self):
@@ -160,6 +154,10 @@ def find_opt_end(options):
 
     while True:
         i = options[offset:].find(";")
+        if(options[offset:i+1].find("classtype")!=-1):
+            j=options[offset+2:].find(" ")
+            if(j!=-1):
+                i=j
         if options[offset + i - 1] == "\\":
             offset += 2
         else:
