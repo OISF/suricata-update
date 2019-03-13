@@ -118,7 +118,11 @@ class Rule(dict):
         :returns: A tuple (gid, sid) representing the ID of the rule
         :rtype: A tuple of 2 ints
         """
-        return (int(self.gid), int(self.sid))
+        try:
+            return (int(self.gid), int(self.sid))
+        except TypeError:
+            print("Error : Sid cannot be null")
+            sys.exit(1)
 
     @property
     def idstr(self):
