@@ -32,6 +32,8 @@ import shutil
 import glob
 import io
 import tempfile
+import signal
+
 
 try:
     # Python 3.
@@ -1452,7 +1454,12 @@ def _main():
 
     return 0
 
+def signal_handler(signal, frame):
+    print('Program interrupted by keyboard, aborting.')
+    sys.exit(0)
+
 def main():
+    signal.signal(signal.SIGINT, signal_handler)
     try:
         sys.exit(_main())
     except exceptions.ApplicationError as err:
