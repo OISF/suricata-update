@@ -286,6 +286,9 @@ def parse(buf, group=None):
 
     return rule
 
+class BadSidError(Exception):
+    """Raises exception when sid is of type null"""
+
 def parse_fileobj(fileobj, group=None):
     """ Parse multiple rules from a file like object.
 
@@ -310,7 +313,12 @@ def parse_fileobj(fileobj, group=None):
         try:
             rule = parse(buf, group)
             if rule:
-                rules.append(rule)
+                try:
+                    if rule["sid"]==None:
+                        raise BadSidError("Sid cannot be of type null")
+                    rules.append(rule)
+                except BadSidError as err:
+                    logger.error("Failed to parse rule: %s: %s", buf.rstrip(), err)
         except Exception as err:
             logger.error("Failed to parse rule: %s: %s", buf.rstrip(), err)
         buf = ""
