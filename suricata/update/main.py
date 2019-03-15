@@ -27,7 +27,6 @@ import time
 import hashlib
 import fnmatch
 import subprocess
-import types
 import shutil
 import glob
 import io
@@ -1018,7 +1017,7 @@ def load_sources(suricata_version):
 
     if config.get("sources"):
         for url in config.get("sources"):
-            if type(url) not in [type("")]:
+            if not isinstance(url, str):
                 raise exceptions.InvalidConfigurationError(
                     "Invalid datatype for source URL: %s" % (str(url)))
             url = (url % internal_params, http_header, checksum)
