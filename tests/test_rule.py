@@ -71,20 +71,22 @@ class RuleTestCase(unittest.TestCase):
         self.assertEqual(str(rule), """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)""")
 
     def test_parse_fileobj(self):
-        rule_buf = ("""# alert tcp $HOME_NET any -> $EXTERNAL_NET any """
+        rule_buf = ("""alert ( msg:"DECODE_NOT_IPV4_DGRAM"; sid:1; gid:116; rev:1; metadata:rule-type decode; classtype:protocol-command-decode;) """
+                    """alert ( msg:"DECODE_NOT_IPV4_DGRAM"; sid:1; gid:116; rev:1; metadata:rule-type decode; classtype:protocol-command-decode;)"""
                     """(msg:"some message";)""")
         fileobj = io.StringIO()
-        for i in range(2):
+        for i in range(3):
             fileobj.write(u"%s\n" % rule_buf)
         fileobj.seek(0)
         rules = suricata.update.rule.parse_fileobj(fileobj)
         self.assertEqual(2, len(rules))
 
     def test_parse_file(self):
-        rule_buf = ("""# alert tcp $HOME_NET any -> $EXTERNAL_NET any """
+        rule_buf = ("""alert ( msg:"DECODE_NOT_IPV4_DGRAM"; sid:1; gid:116; rev:1; metadata:rule-type decode; classtype:protocol-command-decode;) """
+                    """alert ( msg:"DECODE_NOT_IPV4_DGRAM"; sid:1; gid:116; rev:1; metadata:rule-type decode; classtype:protocol-command-decode;)"""
                     """(msg:"some message";)""")
         tmp = tempfile.NamedTemporaryFile()
-        for i in range(2):
+        for i in range(3):
             tmp.write(("%s\n" % rule_buf).encode())
         tmp.flush()
         rules = suricata.update.rule.parse_file(tmp.name)
