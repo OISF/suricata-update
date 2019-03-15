@@ -71,8 +71,8 @@ class RuleTestCase(unittest.TestCase):
         self.assertEqual(str(rule), """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)""")
 
     def test_parse_fileobj(self):
-        rule_buf = ("""# alert tcp $HOME_NET any -> $EXTERNAL_NET any """
-                    """(msg:"some message";)""")
+        rule_buf = ("""alert ( msg:"DECODE_NOT_IPV4_DGRAM"; sid:1; gid:116; rev:1; metadata:rule-type decode; classtype:protocol-command-decode;) """
+                    """alert ( msg:"DECODE_NOT_IPV4_DGRAM"; sid:1; gid:116; rev:1; metadata:rule-type decode; classtype:protocol-command-decode;)""")
         fileobj = io.StringIO()
         for i in range(2):
             fileobj.write(u"%s\n" % rule_buf)
@@ -81,14 +81,24 @@ class RuleTestCase(unittest.TestCase):
         self.assertEqual(2, len(rules))
 
     def test_parse_file(self):
-        rule_buf = ("""# alert tcp $HOME_NET any -> $EXTERNAL_NET any """
-                    """(msg:"some message";)""")
+        rule_buf = ("""alert ( msg:"DECODE_NOT_IPV4_DGRAM"; sid:1; gid:116; rev:1; metadata:rule-type decode; classtype:protocol-command-decode;) """
+                    """alert ( msg:"DECODE_NOT_IPV4_DGRAM"; sid:1; gid:116; rev:1; metadata:rule-type decode; classtype:protocol-command-decode;)""")
         tmp = tempfile.NamedTemporaryFile()
         for i in range(2):
             tmp.write(("%s\n" % rule_buf).encode())
         tmp.flush()
         rules = suricata.update.rule.parse_file(tmp.name)
         self.assertEqual(2, len(rules))
+
+    def test_parse_rule_with_sid_error(self):
+        rule_buf = ("""# alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)"""
+                    """alert ( msg:"DECODE_NOT_IPV4_DGRAM" sid:1; gid:116; rev:1; metadata:rule-type decode; classtype:protocol-command-decode;)""")
+        fileobj = io.StringIO()
+        for i in range(2):
+            fileobj.write(u"%s\n" % rule_buf)
+        fileobj.seek(0)
+        rules = suricata.update.rule.parse_fileobj(fileobj)
+        self.assertEqual(0, len(rules))
 
     def test_parse_file_with_unicode(self):
         rules = suricata.update.rule.parse_file("./tests/rule-with-unicode.rules")
