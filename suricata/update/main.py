@@ -1102,7 +1102,7 @@ def _main():
                                help="Filename of drop rules filters")
     
     update_parser.add_argument("--ignore", metavar="<pattern>", action="append",
-                               default=[],
+                               default=None,
                                help="Filenames to ignore (can be specified multiple times; default: *deleted.rules)")
     update_parser.add_argument("--no-ignore", action="store_true",
                                default=False,
