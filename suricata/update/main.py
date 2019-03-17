@@ -1458,6 +1458,9 @@ def main():
         sys.exit(_main())
     except exceptions.ApplicationError as err:
         logger.error(err)
+    except KeyboardInterrupt:
+        print("\nProgram interrupted by keyboard, aborting.")
+        sys.exit(1)
     sys.exit(1)
 
 if __name__ == "__main__":
