@@ -1017,8 +1017,8 @@ def check_output_directory(output_dir):
             raise exceptions.ApplicationError(
                 "Failed to create directory %s: %s" % (
                     output_dir, err))
-
-def _main():
+           
+def parse_args():
     global args
 
     default_update_yaml = config.DEFAULT_UPDATE_YAML_PATH
@@ -1179,7 +1179,10 @@ def _main():
             setattr(args, arg, getattr(global_args, arg))
         elif hasattr(args, arg) and getattr(args, arg) is None:
             setattr(args, arg, getattr(global_args, arg))
-
+    
+def _main():
+    parse_args()
+    
     # Go verbose or quiet sooner than later.
     if args.verbose:
         logger.setLevel(logging.DEBUG)
