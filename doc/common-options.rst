@@ -44,3 +44,7 @@
 .. option:: --user-agent <string>
 
    Set a custom user agent string for HTTP requests.
+
+.. option:: --flowbit-no-alert
+
+   Previously disabled rules enabled by flowbit dependencies will receive the flowbits:noalert option.

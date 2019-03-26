@@ -724,6 +724,8 @@ def resolve_flowbits(rulemap, disabled_rules):
                     "Enabling previously disabled rule for flowbits: %s" % (
                         rule.brief()))
             rule.enabled = True
+            if config.get("flowbit-no-alert"):
+                rule.noalert = True
             flowbit_enabled.add(rule)
     logger.info("Enabled %d rules for flowbit dependencies." % (
         len(flowbit_enabled)))
@@ -1125,6 +1127,8 @@ def _main():
                                help="Command to test Suricata configuration")
     update_parser.add_argument("--no-test", action="store_true", default=False,
                                help="Disable testing rules with Suricata")
+    update_parser.add_argument("--flowbit-no-alert", action="store_true", default=False,
+                               help="Previously disabled rules enabled by flowbit dependencies will receive the flowbits:noalert option")
     
     update_parser.add_argument("--no-merge", action="store_true", default=False,
                                help="Do not merge the rules into a single file")

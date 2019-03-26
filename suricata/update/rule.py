@@ -34,6 +34,8 @@ import re
 import logging
 import io
 
+from suricata.update import config
+
 logger = logging.getLogger(__name__)
 
 # Compile an re pattern for basic rule matching.
@@ -146,6 +148,8 @@ class Rule(dict):
         return self.format()
 
     def format(self):
+        if config.get("flowbit-no-alert") and self.noalert and not "noalert;" in self.raw:
+            self.raw = re.sub(r'\)$', " flowbits:noalert;)", self.raw)
         return u"%s%s" % (u"" if self.enabled else u"# ", self.raw)
 
 def find_opt_end(options):
