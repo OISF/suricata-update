@@ -46,34 +46,35 @@ class RuleTestCase(unittest.TestCase):
         self.assertEqual(rule.classtype, "trojan-activity")
 
     def test_disable_rule(self):
-        rule_buf = """# alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)"""
+        rule_buf = """# alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message"; sid:1;)"""
         rule = suricata.update.rule.parse(rule_buf)
         self.assertFalse(rule.enabled)
-        self.assertEqual(rule.raw, """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)""")
+        self.assertEqual(rule.raw, """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message"; sid:1;)""")
         self.assertEqual(str(rule), rule_buf)
 
     def test_parse_rule_double_commented(self):
-        rule_buf = """## alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)"""
+        rule_buf = """## alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message"; sid:1;)"""
         rule = suricata.update.rule.parse(rule_buf)
         self.assertFalse(rule.enabled)
-        self.assertEqual(rule.raw, """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)""")
+        self.assertEqual(rule.raw, """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message"; sid:1;)""")
 
     def test_parse_rule_comments_and_spaces(self):
-        rule_buf = """## #alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)"""
+        rule_buf = """## #alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message"; sid:1;)"""
         rule = suricata.update.rule.parse(rule_buf)
         self.assertFalse(rule.enabled)
-        self.assertEqual(rule.raw, """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)""")
+        self.assertEqual(rule.raw, """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message"; sid:1;)""")
 
     def test_toggle_rule(self):
-        rule_buf = """# alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)"""
+        rule_buf = """# alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message"; sid:1;)"""
         rule = suricata.update.rule.parse(rule_buf)
         self.assertFalse(rule.enabled)
         rule.enabled = True
-        self.assertEqual(str(rule), """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";)""")
+        self.assertEqual(str(rule), """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message"; sid:1;)""")
 
     def test_parse_fileobj(self):
-        rule_buf = ("""# alert tcp $HOME_NET any -> $EXTERNAL_NET any """
-                    """(msg:"some message";)""")
+        rule_buf = ("""alert ( msg:"DECODE_NOT_IPV4_DGRAM" sid:3; gid:116; rev:1; metadata:rule-type decode; classtype:protocol-command-decode;) \n"""
+                    """# alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";) \n"""
+                    """alert ( msg:"DECODE_NOT_IPV4_DGRAM"; sid:2; gid:116; rev:1; metadata:rule-type decode; classtype:protocol-command-decode;)""")
         fileobj = io.StringIO()
         for i in range(2):
             fileobj.write(u"%s\n" % rule_buf)
@@ -82,8 +83,9 @@ class RuleTestCase(unittest.TestCase):
         self.assertEqual(2, len(rules))
 
     def test_parse_file(self):
-        rule_buf = ("""# alert tcp $HOME_NET any -> $EXTERNAL_NET any """
-                    """(msg:"some message";)""")
+        rule_buf = ("""# alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message";) \n"""
+                    """alert ( msg:"DECODE_NOT_IPV4_DGRAM"; sid:1; gid:116; rev:1; metadata:rule-type decode; classtype:protocol-command-decode;) \n"""
+                    """alert ( msg:"DECODE_NOT_IPV4_DGRAM" sid:1; gid:116; rev:1; metadata:rule-type decode; classtype:protocol-command-decode;) \n""")
         tmp = tempfile.NamedTemporaryFile()
         for i in range(2):
             tmp.write(("%s\n" % rule_buf).encode())
@@ -233,3 +235,10 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
         rule_string = u"""alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:10000000;)"""
         rule = suricata.update.rule.parse(rule_string)
         self.assertEqual(0, rule["rev"])
+
+    def test_parse_no_sid(self):
+        """Test parsing a rule where the sid is not parsed correctly. """
+        rule_buf = u"""alert icmp any any -> $HOME_NET any (msg:"ICMP test detected"; gid:0; rev:1; classtype: icmp-event;)"""
+        self.assertRaises(
+            suricata.update.rule.BadSidError,
+            suricata.update.rule.parse, rule_buf)

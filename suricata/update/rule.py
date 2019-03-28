@@ -161,6 +161,9 @@ def find_opt_end(options):
         else:
             return offset + i
 
+class BadSidError(Exception):
+    """Raises exception when sid is of type null"""
+
 def parse(buf, group=None):
     """ Parse a single rule for a string buffer.
 
@@ -285,6 +288,9 @@ def parse(buf, group=None):
 
     if rule["msg"] is None:
         rule["msg"] = ""
+
+    if not rule["sid"]:
+        raise BadSidError("Sid cannot be of type null")
 
     rule["raw"] = m.group("raw").strip()
 
