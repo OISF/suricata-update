@@ -687,13 +687,23 @@ def build_rule_map(rules):
     number will be used.
     """
     rulemap = {}
-
+    
     for rule in rules:
         if rule.id not in rulemap:
             rulemap[rule.id] = rule
+            FORMAT = '%(version)s %(message)s'
+            logging.basicConfig(format=FORMAT)
+            d={'version: rule'}
+            logger = logging.getLogger('tcpserver')
+            logger.warning('Found duplicate rule ID %s', 'keeping existing rule')
         else:
             if rule["rev"] > rulemap[rule.id]["rev"]:
                 rulemap[rule.id] = rule
+                FORMAT = '%(version)s %(message)s'
+                logging.basicConfig(format=FORMAT)
+                d={'version: rule'}
+                logger = logging.getLogger('tcpserver')
+                logger.warning('Found duplicate rule ID %s', 'keeping one with higher revision')
 
     return rulemap
 
