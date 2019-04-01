@@ -626,7 +626,7 @@ def write_to_directory(directory, files, rulemap):
                         modified.append(rule.id)
         for key in rulemap:
             if not key in oldset:
-                added.append(rule.id)
+                added.append(key)
 
         enabled = len([rule for rule in rulemap.values() if rule.enabled])
         logger.info("Writing rule files to directory %s: total: %d; "
@@ -1102,7 +1102,7 @@ def _main():
                                help="Filename of drop rules filters")
     
     update_parser.add_argument("--ignore", metavar="<pattern>", action="append",
-                               default=[],
+                               default=None,
                                help="Filenames to ignore (can be specified multiple times; default: *deleted.rules)")
     update_parser.add_argument("--no-ignore", action="store_true",
                                default=False,
