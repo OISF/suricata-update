@@ -32,7 +32,7 @@ import shutil
 import glob
 import io
 import tempfile
-
+import matchers
 try:
     # Python 3.
     from urllib.error import URLError
@@ -87,155 +87,6 @@ DEFAULT_SURICATA_VERSION = "4.0.0"
 # single file concatenating all input rule files together.
 DEFAULT_OUTPUT_RULE_FILENAME = "suricata.rules"
 
-class AllRuleMatcher(object):
-    """Matcher object to match all rules. """
-
-    def match(self, rule):
-        return True
-
-    @classmethod
-    def parse(cls, buf):
-        if buf.strip() == "*":
-            return cls()
-        return None
-
-class ProtoRuleMatcher:
-    """A rule matcher that matches on the protocol of a rule."""
-
-    def __init__(self, proto):
-        self.proto = proto
-
-    def match(self, rule):
-        return rule.proto == self.proto
-
-class IdRuleMatcher(object):
-    """Matcher object to match an idstools rule object by its signature
-    ID."""
-
-    def __init__(self, generatorId=None, signatureId=None):
-        self.signatureIds = []
-        if generatorId and signatureId:
-            self.signatureIds.append((generatorId, signatureId))
-
-    def match(self, rule):
-        for (generatorId, signatureId) in self.signatureIds:
-            if generatorId == rule.gid and signatureId == rule.sid:
-                return True
-        return False
-
-    @classmethod
-    def parse(cls, buf):
-        matcher = cls()
-
-        for entry in buf.split(","):
-            entry = entry.strip()
-
-            parts = entry.split(":", 1)
-            if not parts:
-                return None
-            if len(parts) == 1:
-                try:
-                    signatureId = int(parts[0])
-                    matcher.signatureIds.append((1, signatureId))
-                except:
-                    return None
-            else:
-                try:
-                    generatorId = int(parts[0])
-                    signatureId = int(parts[1])
-                    matcher.signatureIds.append((generatorId, signatureId))
-                except:
-                    return None
-
-        return matcher
-
-class FilenameMatcher(object):
-    """Matcher object to match a rule by its filename. This is similar to
-    a group but has no specifier prefix.
-    """
-
-    def __init__(self, pattern):
-        self.pattern = pattern
-
-    def match(self, rule):
-        if hasattr(rule, "group") and rule.group is not None:
-            return fnmatch.fnmatch(rule.group, self.pattern)
-        return False
-
-    @classmethod
-    def parse(cls, buf):
-        if buf.startswith("filename:"):
-            try:
-                group = buf.split(":", 1)[1]
-                return cls(group.strip())
-            except:
-                pass
-        return None
-
-class GroupMatcher(object):
-    """Matcher object to match an idstools rule object by its group (ie:
-    filename).
-
-    The group is just the basename of the rule file with or without
-    extension.
-
-    Examples:
-    - emerging-shellcode
-    - emerging-trojan.rules
-
-    """
-
-    def __init__(self, pattern):
-        self.pattern = pattern
-
-    def match(self, rule):
-        if hasattr(rule, "group") and rule.group is not None:
-            if fnmatch.fnmatch(os.path.basename(rule.group), self.pattern):
-                return True
-            # Try matching against the rule group without the file
-            # extension.
-            if fnmatch.fnmatch(
-                    os.path.splitext(
-                        os.path.basename(rule.group))[0], self.pattern):
-                return True
-        return False
-
-    @classmethod
-    def parse(cls, buf):
-        if buf.startswith("group:"):
-            try:
-                logger.debug("Parsing group matcher: %s" % (buf))
-                group = buf.split(":", 1)[1]
-                return cls(group.strip())
-            except:
-                pass
-        if buf.endswith(".rules"):
-            return cls(buf.strip())
-        return None
-
-class ReRuleMatcher(object):
-    """Matcher object to match an idstools rule object by regular
-    expression."""
-
-    def __init__(self, pattern):
-        self.pattern = pattern
-
-    def match(self, rule):
-        if self.pattern.search(rule.raw):
-            return True
-        return False
-
-    @classmethod
-    def parse(cls, buf):
-        if buf.startswith("re:"):
-            try:
-                logger.debug("Parsing regex matcher: %s" % (buf))
-                patternstr = buf.split(":", 1)[1].strip()
-                pattern = re.compile(patternstr, re.I)
-                return cls(pattern)
-            except:
-                pass
-        return None
 
 class ModifyRuleFilter(object):
     """Filter to modify an idstools rule object.
@@ -280,21 +131,7 @@ class ModifyRuleFilter(object):
 
         return cls(matcher, pattern, b)
 
-class DropRuleFilter(object):
-    """ Filter to modify an idstools rule object to a drop rule. """
 
-    def __init__(self, matcher):
-        self.matcher = matcher
-
-    def match(self, rule):
-        if rule["noalert"]:
-            return False
-        return self.matcher.match(rule)
-
-    def filter(self, rule):
-        drop_rule = suricata.update.rule.parse(re.sub("^\w+", "drop", rule.raw))
-        drop_rule.enabled = rule.enabled
-        return drop_rule
 
 class Fetch:
 
@@ -413,28 +250,7 @@ class Fetch:
         files[basename] = open(filename, "rb").read()
         return files
 
-def parse_rule_match(match):
-    matcher = AllRuleMatcher.parse(match)
-    if matcher:
-        return matcher
 
-    matcher = IdRuleMatcher.parse(match)
-    if matcher:
-        return matcher
-
-    matcher = ReRuleMatcher.parse(match)
-    if matcher:
-        return matcher
-
-    matcher = FilenameMatcher.parse(match)
-    if matcher:
-        return matcher
-
-    matcher = GroupMatcher.parse(match)
-    if matcher:
-        return matcher
-
-    return None
 
 def load_filters(filename):
 
@@ -448,7 +264,7 @@ def load_filters(filename):
             line = line.rsplit(" #")[0]
 
             line = re.sub(r'\\\$', '$', line)  # needed to escape $ in pp
-            filter = ModifyRuleFilter.parse(line)
+            filter = matchers.ModifyRuleFilter.parse(line)
             if filter:
                 filters.append(filter)
             else:
@@ -456,35 +272,9 @@ def load_filters(filename):
 
     return filters
 
-def load_drop_filters(filename):
-    
-    matchers = load_matchers(filename)
-    filters = []
 
-    for matcher in matchers:
-        filters.append(DropRuleFilter(matcher))
 
-    return filters
 
-def parse_matchers(fileobj):
-    matchers = []
-
-    for line in fileobj:
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        line = line.rsplit(" #")[0]
-        matcher = parse_rule_match(line)
-        if not matcher:
-            logger.warn("Failed to parse: \"%s\"" % (line))
-        else:
-            matchers.append(matcher)
-
-    return matchers
-
-def load_matchers(filename):
-    with open(filename) as fileobj:
-        return parse_matchers(fileobj)
 
 def load_local(local, files):
 
@@ -626,7 +416,7 @@ def write_to_directory(directory, files, rulemap):
                         modified.append(rule.id)
         for key in rulemap:
             if not key in oldset:
-                added.append(key)
+                added.append(rule.id)
 
         enabled = len([rule for rule in rulemap.values() if rule.enabled])
         logger.info("Writing rule files to directory %s: total: %d; "
@@ -1102,7 +892,7 @@ def _main():
                                help="Filename of drop rules filters")
     
     update_parser.add_argument("--ignore", metavar="<pattern>", action="append",
-                               default=None,
+                               default=[],
                                help="Filenames to ignore (can be specified multiple times; default: *deleted.rules)")
     update_parser.add_argument("--no-ignore", action="store_true",
                                default=False,
@@ -1260,25 +1050,25 @@ def _main():
     disable_conf_filename = config.get("disable-conf")
     if disable_conf_filename and os.path.exists(disable_conf_filename):
         logger.info("Loading %s.", disable_conf_filename)
-        disable_matchers += load_matchers(disable_conf_filename)
+        disable_matchers += matchers.load_matchers(disable_conf_filename)
 
     # Load user provided enable filters.
     enable_conf_filename = config.get("enable-conf")
     if enable_conf_filename and os.path.exists(enable_conf_filename):
         logger.info("Loading %s.", enable_conf_filename)
-        enable_matchers += load_matchers(enable_conf_filename)
+        enable_matchers += matchers.load_matchers(enable_conf_filename)
 
     # Load user provided modify filters.
     modify_conf_filename = config.get("modify-conf")
     if modify_conf_filename and os.path.exists(modify_conf_filename):
         logger.info("Loading %s.", modify_conf_filename)
-        modify_filters += load_filters(modify_conf_filename)
+        modify_filters += matchers.load_filters(modify_conf_filename)
 
     # Load user provided drop filters.
     drop_conf_filename = config.get("drop-conf")
     if drop_conf_filename and os.path.exists(drop_conf_filename):
         logger.info("Loading %s.", drop_conf_filename)
-        drop_filters += load_drop_filters(drop_conf_filename)
+        drop_filters += matchers.load_drop_filters(drop_conf_filename)
 
     # Load the Suricata configuration if we can.
     suriconf = None
@@ -1297,7 +1087,7 @@ def _main():
                 if not suriconf.is_true(key, ["detection-only"]):
                     proto = key.split(".")[2]
                     logger.info("Disabling rules with proto %s", proto)
-                    disable_matchers.append(ProtoRuleMatcher(proto))
+                    disable_matchers.append(matchers.ProtoRuleMatcher(proto))
 
     # Check that the cache directory exists and is writable.
     if not os.path.exists(config.get_cache_dir()):
