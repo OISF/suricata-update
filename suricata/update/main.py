@@ -1120,7 +1120,7 @@ def _main():
                 if not suriconf.is_true(key, ["detection-only"]):
                     proto = key.split(".")[2]
                     logger.info("Disabling rules with proto %s", proto)
-                    disable_matchers.append(ProtoRuleMatcher(proto))
+                    disable_matchers.append(matchers.ProtoRuleMatcher(proto))
 
     # Check that the cache directory exists and is writable.
     if not os.path.exists(config.get_cache_dir()):
