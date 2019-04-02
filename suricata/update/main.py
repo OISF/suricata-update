@@ -89,14 +89,6 @@ DEFAULT_SURICATA_VERSION = "4.0.0"
 DEFAULT_OUTPUT_RULE_FILENAME = "suricata.rules"
 
 
-
-
-
-
-
-
-
-
 class ModifyRuleFilter(object):
     """Filter to modify an idstools rule object.
 
@@ -130,7 +122,7 @@ class ModifyRuleFilter(object):
             matchstring, a, b = tokens[1], tokens[2], tokens[4]
         else:
             raise Exception("Bad number of arguments.")
-        matcher = parse_rule_match(matchstring)
+        matcher = matchers.parse_rule_match(matchstring)
         if not matcher:
             raise Exception("Bad match string: %s" % (matchstring))
         pattern = re.compile(a)

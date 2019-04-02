@@ -21,7 +21,7 @@ import io
 import unittest
 
 import suricata.update.rule
-from suricata.update import main
+from suricata.update import matchers
 import suricata.update.extract
 
 class GroupMatcherTestCase(unittest.TestCase):
@@ -30,15 +30,15 @@ class GroupMatcherTestCase(unittest.TestCase):
 
     def test_match(self):
         rule = suricata.update.rule.parse(self.rule_string, "rules/malware.rules")
-        matcher = main.parse_rule_match("group: malware.rules")
+        matcher = matchers.parse_rule_match("group: malware.rules")
         self.assertEqual(
-            matcher.__class__, suricata.update.main.GroupMatcher)
+            matcher.__class__, suricata.update.matchers.GroupMatcher)
         self.assertTrue(matcher.match(rule))
 
         # Test match of just the group basename.
-        matcher = main.parse_rule_match("group: malware")
+        matcher = matchers.parse_rule_match("group: malware")
         self.assertEqual(
-            matcher.__class__, suricata.update.main.GroupMatcher)
+            matcher.__class__, suricata.update.matchers.GroupMatcher)
         self.assertTrue(matcher.match(rule))
 
 class FilenameMatcherTestCase(unittest.TestCase):
@@ -47,62 +47,62 @@ class FilenameMatcherTestCase(unittest.TestCase):
 
     def test_match(self):
         rule = suricata.update.rule.parse(self.rule_string, "rules/trojan.rules")
-        matcher = main.parse_rule_match("filename: */trojan.rules")
+        matcher = matchers.parse_rule_match("filename: */trojan.rules")
         self.assertEqual(
-            matcher.__class__, suricata.update.main.FilenameMatcher)
+            matcher.__class__, suricata.update.matchers.FilenameMatcher)
         self.assertTrue(matcher.match(rule))
 
 class LoadMatchersTestCase(unittest.TestCase):
 
     def test_trailing_comment(self):
         """Test loading matchers with a trailing comment."""
-        matchers = main.parse_matchers(io.StringIO(u"""filename: */trojan.rules
+        matchers = matchers.parse_matchers(io.StringIO(u"""filename: */trojan.rules
 re:.# This is a comment*
 1:100 # Trailing comment.
 """))
         self.assertEqual(
-            matchers[0].__class__, suricata.update.main.FilenameMatcher)
+            matchers[0].__class__, suricata.update.matchers.FilenameMatcher)
         self.assertEqual(
-            matchers[1].__class__, suricata.update.main.ReRuleMatcher)
+            matchers[1].__class__, suricata.update.matchers.ReRuleMatcher)
         self.assertEqual(
-            matchers[2].__class__, suricata.update.main.IdRuleMatcher)
+            matchers[2].__class__, suricata.update.matchers.IdRuleMatcher)
 
 class IdRuleMatcherTestCase(unittest.TestCase):
 
     def test_parse_single_sid(self):
-        matcher = main.IdRuleMatcher.parse("123")
+        matcher = matchers.IdRuleMatcher.parse("123")
         self.assertIsNotNone(matcher)
         self.assertEqual(1, len(matcher.signatureIds))
 
     def test_parse_single_gidsid(self):
-        matcher = main.IdRuleMatcher.parse("1:123")
+        matcher = machers.IdRuleMatcher.parse("1:123")
         self.assertIsNotNone(matcher)
         self.assertEqual(1, len(matcher.signatureIds))
 
     def test_parse_multi_sid(self):
-        matcher = main.IdRuleMatcher.parse("1,2,3")
+        matcher = matchers.IdRuleMatcher.parse("1,2,3")
         self.assertIsNotNone(matcher)
         self.assertEqual(3, len(matcher.signatureIds))
 
     def test_parse_multi_gidsid(self):
-        matcher = main.IdRuleMatcher.parse("1:1000,2:2000,    3:3000, 4:4000")
+        matcher = matchers.IdRuleMatcher.parse("1:1000,2:2000,    3:3000, 4:4000")
         self.assertIsNotNone(matcher)
         self.assertEqual(4, len(matcher.signatureIds))
 
     def test_parse_multi_mixed(self):
-        matcher = main.IdRuleMatcher.parse("1:1000, 2000, 3:3000, 4000")
+        matcher = matchers.IdRuleMatcher.parse("1:1000, 2000, 3:3000, 4000")
         self.assertIsNotNone(matcher)
         self.assertEqual(4, len(matcher.signatureIds))
 
     def test_parse_invalid(self):
-        matcher = main.IdRuleMatcher.parse("a")
+        matcher = matchers.IdRuleMatcher.parse("a")
         self.assertIsNone(matcher)
 
-        matcher = main.IdRuleMatcher.parse("1, a")
+        matcher = matchers.IdRuleMatcher.parse("1, a")
         self.assertIsNone(matcher)
 
-        matcher = main.IdRuleMatcher.parse("1a")
+        matcher = matchers.IdRuleMatcher.parse("1a")
         self.assertIsNone(matcher)
 
-        matcher = main.IdRuleMatcher.parse("1:a")
+        matcher = matchers.IdRuleMatcher.parse("1:a")
         self.assertIsNone(matcher)
