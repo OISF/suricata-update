@@ -134,7 +134,7 @@ def get(url, fileobj, progress_hook=None):
     opener.addheaders = http_headers
 
     try:
-        remote = opener.open(url)
+        remote = opener.open(url, timeout=30)
     except ValueError as ve:
         logger.error(ve)
     else:
