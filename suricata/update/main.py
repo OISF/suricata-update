@@ -32,7 +32,11 @@ import shutil
 import glob
 import io
 import tempfile
-import matchers
+
+if (__name__ == "__main__"):
+    import matchers
+else:
+    from suricata.update import matchers
 
 try:
     # Python 3.

@@ -21,6 +21,7 @@ import io
 import unittest
 
 import suricata.update.rule
+from suricata.update import main
 from suricata.update import matchers
 import suricata.update.extract
 
@@ -56,16 +57,16 @@ class LoadMatchersTestCase(unittest.TestCase):
 
     def test_trailing_comment(self):
         """Test loading matchers with a trailing comment."""
-        matchers = matchers.parse_matchers(io.StringIO(u"""filename: */trojan.rules
+        matcher = matchers.parse_matchers(io.StringIO(u"""filename: */trojan.rules
 re:.# This is a comment*
 1:100 # Trailing comment.
 """))
         self.assertEqual(
-            matchers[0].__class__, suricata.update.matchers.FilenameMatcher)
+            matcher[0].__class__, suricata.update.matchers.FilenameMatcher)
         self.assertEqual(
-            matchers[1].__class__, suricata.update.matchers.ReRuleMatcher)
+            matcher[1].__class__, suricata.update.matchers.ReRuleMatcher)
         self.assertEqual(
-            matchers[2].__class__, suricata.update.matchers.IdRuleMatcher)
+            matcher[2].__class__, suricata.update.matchers.IdRuleMatcher)
 
 class IdRuleMatcherTestCase(unittest.TestCase):
 
@@ -75,7 +76,7 @@ class IdRuleMatcherTestCase(unittest.TestCase):
         self.assertEqual(1, len(matcher.signatureIds))
 
     def test_parse_single_gidsid(self):
-        matcher = machers.IdRuleMatcher.parse("1:123")
+        matcher = matchers.IdRuleMatcher.parse("1:123")
         self.assertIsNotNone(matcher)
         self.assertEqual(1, len(matcher.signatureIds))
 

@@ -23,6 +23,7 @@ import unittest
 
 import suricata.update.rule
 from suricata.update import main
+from suricata.update import matchers
 import suricata.update.extract
 
 class TestRulecat(unittest.TestCase):
@@ -195,7 +196,7 @@ class DropRuleFilterTestCase(unittest.TestCase):
 
     def test_enabled_rule(self):
         rule0 = suricata.update.rule.parse(self.rule_string, "rules/malware.rules")
-        id_matcher = main.IdRuleMatcher.parse("2020757")
+        id_matcher = matchers.IdRuleMatcher.parse("2020757")
         self.assertTrue(id_matcher.match(rule0))
 
         drop_filter = main.DropRuleFilter(id_matcher)
@@ -207,7 +208,7 @@ class DropRuleFilterTestCase(unittest.TestCase):
     def test_disabled_rule(self):
         rule0 = suricata.update.rule.parse(
             "# " + self.rule_string, "rules/malware.rules")
-        id_matcher = main.IdRuleMatcher.parse("2020757")
+        id_matcher = matchers.IdRuleMatcher.parse("2020757")
         self.assertTrue(id_matcher.match(rule0))
 
         drop_filter = main.DropRuleFilter(id_matcher)
@@ -224,11 +225,11 @@ class DropRuleFilterTestCase(unittest.TestCase):
         rule_with_noalert = """alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN [CrowdStrike] ANCHOR PANDA Torn RAT Beacon Message Header Local"; flow:established, to_server; dsize:16; content:"|00 00 00 11 c8 00 00 00 00 00 00 00 00 00 00 00|"; depth:16; flowbits:set,ET.Torn.toread_header; flowbits: noalert; reference:url,blog.crowdstrike.com/whois-anchor-panda/index.html; classtype:trojan-activity; sid:2016659; rev:2; metadata:created_at 2013_03_22, updated_at 2013_03_22;)"""
 
         rule = suricata.update.rule.parse(rule_without_noalert)
-        matcher = main.IdRuleMatcher.parse("2016659")
+        matcher = matchers.IdRuleMatcher.parse("2016659")
         filter = main.DropRuleFilter(matcher)
         self.assertTrue(filter.match(rule))
 
         rule = suricata.update.rule.parse(rule_with_noalert)
-        matcher = main.IdRuleMatcher.parse("2016659")
+        matcher = matchers.IdRuleMatcher.parse("2016659")
         filter = main.DropRuleFilter(matcher)
         self.assertFalse(filter.match(rule))

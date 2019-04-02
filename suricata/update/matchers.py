@@ -16,6 +16,7 @@
 # 02110-1301, USA.
 
 """Module for separating out matchers code."""
+import fnmatch
 
 class AllRuleMatcher(object):
     """Matcher object to match all rules. """
