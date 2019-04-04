@@ -93,49 +93,6 @@ DEFAULT_SURICATA_VERSION = "4.0.0"
 DEFAULT_OUTPUT_RULE_FILENAME = "suricata.rules"
 
 
-class ModifyRuleFilter(object):
-    """Filter to modify an idstools rule object.
-
-    Important note: This filter does not modify the rule inplace, but
-    instead returns a new rule object with the modification.
-    """
-
-    def __init__(self, matcher, pattern, repl):
-        self.matcher = matcher
-        self.pattern = pattern
-        self.repl = repl
-
-    def match(self, rule):
-        return self.matcher.match(rule)
-
-    def filter(self, rule):
-        modified_rule = self.pattern.sub(self.repl, rule.format())
-        parsed = suricata.update.rule.parse(modified_rule, rule.group)
-        if parsed is None:
-            logger.error("Modification of rule %s results in invalid rule: %s",
-                         rule.idstr, modified_rule)
-            return rule
-        return parsed
-
-    @classmethod
-    def parse(cls, buf):
-        tokens = shlex.split(buf)
-        if len(tokens) == 3:
-            matchstring, a, b = tokens
-        elif len(tokens) > 3 and tokens[0] == "modifysid":
-            matchstring, a, b = tokens[1], tokens[2], tokens[4]
-        else:
-            raise Exception("Bad number of arguments.")
-        matcher = matchers.parse_rule_match(matchstring)
-        if not matcher:
-            raise Exception("Bad match string: %s" % (matchstring))
-        pattern = re.compile(a)
-
-        # Convert Oinkmaster backticks to Python.
-        b = re.sub("\$\{(\d+)\}", "\\\\\\1", b)
-
-        return cls(matcher, pattern, b)
-
 class DropRuleFilter(object):
     """ Filter to modify an idstools rule object to a drop rule. """
 

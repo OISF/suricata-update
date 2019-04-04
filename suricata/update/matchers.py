@@ -17,6 +17,30 @@
 
 """Module for separating out matchers code."""
 import fnmatch
+import os
+import logging
+import sys
+import shlex
+import re
+
+
+
+sys.path.insert(0, os.path.abspath(os.path.join(__file__, "..", "..", "..")))
+
+import suricata.update.loghandler
+
+# Initialize logging, use colour if on a tty.
+if len(logging.root.handlers) == 0 and os.isatty(sys.stderr.fileno()):
+    logger = logging.getLogger()
+    logger.setLevel(level=logging.INFO)
+    logger.addHandler(suricata.update.loghandler.SuriColourLogHandler())
+else:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - <%(levelname)s> - %(message)s")
+    logger = logging.getLogger()
+
+
 
 class AllRuleMatcher(object):
     """Matcher object to match all rules. """
@@ -167,7 +191,6 @@ class ReRuleMatcher(object):
                 pass
         return None
 
-
 def parse_rule_match(match):
     matcher = AllRuleMatcher.parse(match)
     if matcher:
@@ -191,6 +214,48 @@ def parse_rule_match(match):
 
     return None
 
+class ModifyRuleFilter(object):
+    """Filter to modify an idstools rule object.
+    Important note: This filter does not modify the rule inplace, but
+    instead returns a new rule object with the modification.
+    """
+
+    def __init__(self, matcher, pattern, repl):
+        self.matcher = matcher
+        self.pattern = pattern
+        self.repl = repl
+
+    def match(self, rule):
+        return self.matcher.match(rule)
+
+    def filter(self, rule):
+        modified_rule = self.pattern.sub(self.repl, rule.format())
+        parsed = suricata.update.rule.parse(modified_rule, rule.group)
+        if parsed is None:
+            logger.error("Modification of rule %s results in invalid rule: %s",
+                         rule.idstr, modified_rule)
+            return rule
+        return parsed
+
+    @classmethod
+    def parse(cls, buf):
+        tokens = shlex.split(buf)
+        if len(tokens) == 3:
+            matchstring, a, b = tokens
+        elif len(tokens) > 3 and tokens[0] == "modifysid":
+            matchstring, a, b = tokens[1], tokens[2], tokens[4]
+        else:
+            raise Exception("Bad number of arguments.")
+        matcher = parse_rule_match(matchstring)
+        if not matcher:
+            raise Exception("Bad match string: %s" % (matchstring))
+        pattern = re.compile(a)
+
+        # Convert Oinkmaster backticks to Python.
+        b = re.sub("\$\{(\d+)\}", "\\\\\\1", b)
+
+        return cls(matcher, pattern, b)
+
 def parse_matchers(fileobj):
     matchers = []
 
@@ -199,7 +264,7 @@ def parse_matchers(fileobj):
         if not line or line.startswith("#"):
             continue
         line = line.rsplit(" #")[0]
-        matcher = parse_rule_match(line)
+        matcher =parse_rule_match(line)
         if not matcher:
             logger.warn("Failed to parse: \"%s\"" % (line))
         else:
