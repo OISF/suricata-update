@@ -250,16 +250,13 @@ def load_filters(filename):
 
 def load_drop_filters(filename):
     
-    matchers = matchers.load_matchers(filename)
+    match = matchers.load_matchers(filename)
     filters = []
 
-    for matcher in matchers:
+    for matcher in match:
         filters.append(DropRuleFilter(matcher))
 
     return filters
-
-
-
 
 
 def load_local(local, files):
