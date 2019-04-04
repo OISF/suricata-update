@@ -25,6 +25,10 @@ For example::
 This will prevent the prompt for the et/pro secret code using the
 value provided on the command line instead.
 
+To update parameters for enabled sources, just re-run the ``enable-source``
+command above again with changed parameters. Changed parameters will be
+updated in the stored configuration.
+
 Options
 =======
 
