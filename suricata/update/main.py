@@ -725,6 +725,7 @@ def resolve_flowbits(rulemap, disabled_rules):
                     "Enabling previously disabled rule for flowbits: %s" % (
                         rule.brief()))
             rule.enabled = True
+            rule.noalert = True
             flowbit_enabled.add(rule)
     logger.info("Enabled %d rules for flowbit dependencies." % (
         len(flowbit_enabled)))
