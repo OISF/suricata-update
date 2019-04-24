@@ -36,5 +36,5 @@ Environment Variables
 URLs
 ====
 
-``https://raw.githubusercontent.com/jasonish/suricata-intel-index/master/index.yaml``
+``https://www.openinfosecfoundation.org/rules/index.yaml``
   The default URL used to download the index from.
