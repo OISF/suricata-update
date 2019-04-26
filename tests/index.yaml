@@ -3,14 +3,14 @@ version: 1
 
 sources:
 
-  # Proofpoint/Emerging Threats Open ruleset.
   et/open:
+    summary: Emerging Threats Open Ruleset
+    description: |
+      Proofpoint ET Open is a timely and accurate rule set for detecting and blocking advanced threats
     vendor: Proofpoint
     license: MIT
-    summary: Emerging Threats Open Ruleset
     url: https://rules.emergingthreats.net/open/suricata-%(__version__)s/emerging.rules.tar.gz
 
-  # Proofpoint/Emerging Threats Pro ruleset.
   et/pro:
     summary: Emerging Threats Pro Ruleset
     description: |
@@ -25,27 +25,78 @@ sources:
     replaces:
       - et/open
 
-  # The OISF Traffic ID ruleset.
   oisf/trafficid:
-    vendor: OISF
     summary: Suricata Traffic ID ruleset
+    vendor: OISF
     license: MIT
-    url: https://raw.githubusercontent.com/jasonish/suricata-trafficid/master/rules/traffic-id.rules
+    url: https://openinfosecfoundation.org/rules/trafficid/trafficid.rules
     support-url: https://redmine.openinfosecfoundation.org/
     min-version: 4.0.0
 
   ptresearch/attackdetection:
-    vendor: Positive Technologies
     summary: Positive Technologies Attack Detection Team ruleset
     description: |
       The Attack Detection Team searches for new vulnerabilities and 0-days, reproduces it and creates PoC exploits to understand how these security flaws work and how related attacks can be detected on the network layer. Additionally, we are interested in malware and hackers’ TTPs, so we develop Suricata rules for detecting all sorts of such activities.
-    url: https://raw.githubusercontent.com/ptresearch/AttackDetection/master/pt.rules.tar.gz
+    vendor: Positive Technologies
     license: Custom
     license-url: https://raw.githubusercontent.com/ptresearch/AttackDetection/master/LICENSE
+    url: https://raw.githubusercontent.com/ptresearch/AttackDetection/master/pt.rules.tar.gz
 
-  # SSBL FP blacklist ruleset.
+  scwx/malware:
+    summary: Secureworks suricata-malware ruleset
+    description: |
+      High-fidelity, high-priority ruleset composed mainly of malware-related countermeasures and curated by the Secureworks Counter Threat Unit research team.
+    vendor: Secureworks
+    license: Commercial
+    url: https://ws.secureworks.com/ti/ruleset/%(secret-code)s/Suricata_suricata-malware_latest.tgz
+    parameters:
+      secret-code:
+        prompt: Secureworks Threat Intelligence Authentication Token
+    subscribe-url: https://www.secureworks.com/contact/ (Please reference CTU Countermeasures)
+    min-version: 2.0.9
+
+  scwx/security:
+    summary: Secureworks suricata-security ruleset
+    description: |
+      Broad ruleset composed of malware rules and other security-related countermeasures, and curated by the Secureworks Counter Threat Unit research team.
+    vendor: Secureworks
+    license: Commercial
+    url: https://ws.secureworks.com/ti/ruleset/%(secret-code)s/Suricata_suricata-security_latest.tgz
+    parameters:
+      secret-code:
+        prompt: Secureworks Threat Intelligence Authentication Token
+    subscribe-url: https://www.secureworks.com/contact/ (Please reference CTU Countermeasures)
+    min-version: 2.0.9
+
   sslbl/ssl-fp-blacklist:
     summary: Abuse.ch SSL Blacklist
+    description: |
+      The SSL Blacklist (SSLBL) is a project of abuse.ch with the goal of detecting malicious SSL connections, by identifying and blacklisting SSL certificates used by botnet C&C servers. In addition, SSLBL identifies JA3 fingerprints that helps you to detect & block malware botnet C&C communication on the TCP layer.
     vendor: Abuse.ch
     license: Non-Commercial
     url: https://sslbl.abuse.ch/blacklist/sslblacklist.rules
+
+  sslbl/ja3-fingerprints:
+    summary: Abuse.ch Suricata JA3 Fingerprint Ruleset
+    description: |
+      If you are running Suricata, you can use the SSLBL's Suricata JA3 FingerprintRuleset to detect and/or block malicious SSL connections in your network based on the JA3 fingerprint. Please note that your need Suricata 4.1.0 or newer in order to use the JA3 fingerprint ruleset.
+    vendor: Abuse.ch
+    license: Non-Commercial
+    url: https://sslbl.abuse.ch/blacklist/ja3_fingerprints.rules
+    min-version: 4.1.0
+
+  etnetera/aggressive:
+    summary: Etnetera aggressive IP blacklist
+    vendor: Etnetera a.s.
+    license: MIT
+    url: https://security.etnetera.cz/feeds/etn_aggressive.rules
+    min-version: 4.0.0
+
+  tgreen/hunting:
+    summary: Threat hunting rules
+    description: |
+      Heuristic ruleset for hunting. Focus on anomaly detection and showcasing latest engine features, not performance.
+    vendor: tgreen
+    license: GPLv3
+    url: https://raw.githubusercontent.com/travisbgreen/hunting-rules/master/hunting.rules
+    min-version: 4.1.0
