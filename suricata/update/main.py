@@ -1320,7 +1320,7 @@ def _main():
             del(files[filename])
 
     rules = []
-    for filename in files:
+    for filename in sorted(files):
         if not filename.endswith(".rules"):
             continue
         logger.debug("Parsing %s." % (filename))
