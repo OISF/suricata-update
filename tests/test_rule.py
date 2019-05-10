@@ -23,6 +23,7 @@ import io
 import tempfile
 
 import suricata.update.rule
+import suricata.update.main
 
 class RuleTestCase(unittest.TestCase):
 
@@ -123,6 +124,54 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
         rule_string = u"""alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; noalert; sid:10000000; rev:1;)"""
         rule = suricata.update.rule.parse(rule_string)
         self.assertTrue(rule["noalert"])
+
+    def test_set_noalert(self):
+        rule_string = u"""alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:10000000; rev:1;)"""
+        rule = suricata.update.rule.parse(rule_string)
+        self.assertFalse(rule["noalert"])
+        self.assertTrue(rule.enabled)
+        rule["noalert"] = True
+        self.assertEqual(str(rule), """alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; noalert; sid:10000000; rev:1;)""")
+        self.assertTrue(rule["noalert"])
+
+        rule_string = u"""alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; flowbits:noalert; sid:10000000; rev:1;)"""
+        rule = suricata.update.rule.parse(rule_string)
+        self.assertTrue(rule["noalert"])
+        self.assertTrue(rule.enabled)
+        self.assertEqual(str(rule), """alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; flowbits:noalert; sid:10000000; rev:1;)""")
+
+    def test_resolve_flowbits(self):
+        rule_string_1 = u"""#alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; flowbits:set,bit1; flowbits:noalert; sid:10000001; rev:1;)"""
+        rule_string_2 = u"""#alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; flowbits:isset,bit1; flowbits:set,bit2; flowbits:noalert; sid:10000002; rev:1;)"""
+        rule_string_3 = u"""alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; flowbits:isset,bit2; sid:10000003; rev:1;)"""
+        rule1 = suricata.update.rule.parse(rule_string_1)
+        rule2 = suricata.update.rule.parse(rule_string_2)
+        rule3 = suricata.update.rule.parse(rule_string_3)
+        rulemap = {}
+        rulemap[rule1.id] = rule1
+        rulemap[rule2.id] = rule2
+        rulemap[rule3.id] = rule3
+        disabled_rules = [rule1, rule2]
+        suricata.update.main.resolve_flowbits(rulemap, disabled_rules)
+        self.assertEqual(str(rule1), """alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; flowbits:set,bit1; flowbits:noalert; sid:10000001; rev:1;)""")
+        self.assertEqual(str(rule2), """alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; flowbits:isset,bit1; flowbits:set,bit2; flowbits:noalert; sid:10000002; rev:1;)""")
+        self.assertEqual(str(rule3), """alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; flowbits:isset,bit2; sid:10000003; rev:1;)""")
+
+        rule_string_1 = u"""#alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; flowbits:set,bit1; sid:10000001; rev:1;)"""
+        rule_string_2 = u"""#alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; flowbits:isset,bit1; flowbits:set,bit2; sid:10000002; rev:1;)"""
+        rule_string_3 = u"""alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; flowbits:isset,bit2; sid:10000003; rev:1;)"""
+        rule1 = suricata.update.rule.parse(rule_string_1)
+        rule2 = suricata.update.rule.parse(rule_string_2)
+        rule3 = suricata.update.rule.parse(rule_string_3)
+        rulemap = {}
+        rulemap[rule1.id] = rule1
+        rulemap[rule2.id] = rule2
+        rulemap[rule3.id] = rule3
+        disabled_rules = [rule1, rule2]
+        suricata.update.main.resolve_flowbits(rulemap, disabled_rules)
+        self.assertEqual(str(rule1), """alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; flowbits:set,bit1; noalert; sid:10000001; rev:1;)""")
+        self.assertEqual(str(rule2), """alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; flowbits:isset,bit1; flowbits:set,bit2; noalert; sid:10000002; rev:1;)""")
+        self.assertEqual(str(rule3), """alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; flowbits:isset,bit2; sid:10000003; rev:1;)""")
 
     def test_parse_message_with_semicolon(self):
         rule_string = u"""alert ip any any -> any any (msg:"TEST RULE\; and some"; content:"uid=0|28|root|29|"; tag:session,5,packets; classtype:bad-unknown; sid:10000000; rev:1;)"""
