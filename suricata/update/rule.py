@@ -146,6 +146,8 @@ class Rule(dict):
         return self.format()
 
     def format(self):
+        if self.noalert and not "noalert;" in self.raw:
+            self.raw = re.sub(r'( *sid\: *[0-9]+\;)', r' noalert;\1', self.raw)
         return u"%s%s" % (u"" if self.enabled else u"# ", self.raw)
 
 def find_opt_end(options):
