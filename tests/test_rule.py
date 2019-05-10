@@ -120,6 +120,10 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
         rule = suricata.update.rule.parse(rule_string)
         self.assertTrue(rule["noalert"])
 
+        rule_string = u"""alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; noalert; sid:10000000; rev:1;)"""
+        rule = suricata.update.rule.parse(rule_string)
+        self.assertTrue(rule["noalert"])
+
     def test_parse_message_with_semicolon(self):
         rule_string = u"""alert ip any any -> any any (msg:"TEST RULE\; and some"; content:"uid=0|28|root|29|"; tag:session,5,packets; classtype:bad-unknown; sid:10000000; rev:1;)"""
         rule = suricata.update.rule.parse(rule_string)

@@ -272,6 +272,8 @@ def parse(buf, group=None):
             rule.flowbits.append(val)
             if val and val.find("noalert") > -1:
                 rule["noalert"] = True
+        elif name == "noalert":
+            rule["noalert"] = True
         elif name == "reference":
             rule.references.append(val)
         elif name == "msg":
