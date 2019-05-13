@@ -32,6 +32,7 @@ import shutil
 import glob
 import io
 import tempfile
+from collections import Iterable
 
 try:
     # Python 3.
@@ -1018,6 +1019,20 @@ def check_output_directory(output_dir):
                 "Failed to create directory %s: %s" % (
                     output_dir, err))
 
+
+def show_defaults():
+    row_format = "{:<30}" * 2
+    for conf_key, conf_val in config._config.items():
+        if conf_val and isinstance(conf_val, Iterable) and \
+                not isinstance(conf_val, str):
+            print(conf_key)
+            if isinstance(conf_val, list):
+                for i in conf_val:
+                    print("{:>30}{}".format("", i))
+        else:
+            print(row_format.format(conf_key, conf_val if conf_val else "Not set"))
+
+
 def _main():
     global args
 
@@ -1045,6 +1060,9 @@ def _main():
     global_parser.add_argument(
         "--suricata-version", metavar="<version>",
         help="Override Suricata version")
+    global_parser.add_argument(
+        "--show-defaults", action="store_true", default=None,
+        help="Show current default configuration")
     global_parser.add_argument(
         "--user-agent", metavar="<user-agent>",
         help="Set custom user-agent string")
@@ -1204,6 +1222,9 @@ def _main():
             return 1
 
     suricata_path = config.get("suricata")
+
+    if args.show_defaults:
+        return show_defaults()
 
     # Now parse the Suricata version. If provided on the command line,
     # use that, otherwise attempt to get it from Suricata.
