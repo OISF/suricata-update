@@ -1280,6 +1280,28 @@ def _main():
         logger.info("Loading %s.", drop_conf_filename)
         drop_filters += load_drop_filters(drop_conf_filename)
 
+    # Check permission for configuration file.
+    if config.get("suricata-conf") and \
+       os.path.exists(config.get("suricata-conf")):
+        try:
+            file = open(config.get("suricata-conf"))
+        except IOError as err:
+            logger.error(
+                   "permission denied for: %s", config.get("suricata-conf"))
+            return
+
+    # Check permission for rule files.
+    dist_rule_path = config.get(config.DIST_RULE_DIRECTORY_KEY)
+    files = os.listdir(dist_rule_path)
+    for rulefiles in files:
+        path = os.path.join(dist_rule_path, rulefiles)
+        try:
+            with open(path, "rb") as fileobj:
+                fileobj.read()
+        except IOError as err:
+            logger.error("permission denied for: %s", dist_rule_path)
+            return
+
     # Load the Suricata configuration if we can.
     suriconf = None
     if config.get("suricata-conf") and \
