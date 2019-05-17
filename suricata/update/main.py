@@ -1280,6 +1280,28 @@ def _main():
         logger.info("Loading %s.", drop_conf_filename)
         drop_filters += load_drop_filters(drop_conf_filename)
 
+    # Check permission for configuration file.
+    if config.get("suricata-conf") and \
+       os.path.exists(config.get("suricata-conf")):
+        try:
+            with open(config.get("suricata-conf")) as fileobj:
+                pass
+        except IOError as err:
+            logger.error(
+                   "permission denied for: %s", config.get("suricata-conf"))
+            return 1
+
+    # Check permission for output rule file.
+    if os.path.exists(config.get_output_dir()):
+        output_filename = os.path.join(
+                config.get_output_dir(), DEFAULT_OUTPUT_RULE_FILENAME)
+        try:
+            with open(output_filename) as fileobj:
+                pass
+        except IOError as err:
+            logger.error("permission denied for: %s", output_filename)
+            return 1
+
     # Load the Suricata configuration if we can.
     suriconf = None
     if config.get("suricata-conf") and \
