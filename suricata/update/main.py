@@ -353,6 +353,11 @@ class Fetch:
         net_arg = url
         url = url[0] if isinstance(url, tuple) else url
         tmp_filename = self.get_tmp_filename(url)
+        try:
+            with open(tmp_filename, 'wb') as fileobj:
+                pass
+        except IOError as err:
+            logger.warning("Failed to open %s: %s" % (tmp_filename, err))
         if not config.args().force and os.path.exists(tmp_filename):
             if not config.args().now and \
                time.time() - os.stat(tmp_filename).st_mtime < (60 * 15):
@@ -381,6 +386,9 @@ class Fetch:
                     "will use latest cached version: %s", url, err)
                 return self.extract_files(tmp_filename)
             raise err
+        except IOError as err:
+            logger.error("Failed to copy file %s", err)
+            sys.exit(1)
         except Exception as err:
             raise err
         self.progress_hook_finish()
