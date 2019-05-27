@@ -19,6 +19,7 @@ from __future__ import print_function
 
 import sys
 import re
+import errno
 import os.path
 import logging
 import argparse
@@ -1018,6 +1019,14 @@ def check_output_directory(output_dir):
                 "Failed to create directory %s: %s" % (
                     output_dir, err))
 
+
+def is_dir_empty(path):
+    for _, _, files in os.walk(path):
+        if files:
+            return False
+    return True
+
+
 def _main():
     global args
 
@@ -1390,6 +1399,11 @@ def _main():
     # Backup the output directory.
     logger.info("Backing up current rules.")
     backup_directory = util.mktempdir()
+    if not (any(fname.endswith('.rules') for fname in os.listdir(
+        config.get_output_dir())) or is_dir_empty(config.get_output_dir())):
+        logger.error("Output directory is not an ideal rule directory: %s",
+                config.get_output_dir())
+        return 1
     shutil.copytree(config.get_output_dir(), os.path.join(
         backup_directory, "backup"), ignore=copytree_ignore_backup)
 
