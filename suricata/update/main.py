@@ -391,6 +391,10 @@ class Fetch:
                     "will use latest cached version: %s", url, err)
                 return self.extract_files(tmp_filename)
             raise err
+        except IOError as err:
+            self.progress_hook_finish()
+            logger.error("Failed to copy file: %s", err)
+            sys.exit(1)
         except Exception as err:
             raise err
         self.progress_hook_finish()
@@ -1306,8 +1310,11 @@ def _main():
        os.path.exists(config.get("suricata-conf")) and \
        suricata_path and os.path.exists(suricata_path):
         logger.info("Loading %s",config.get("suricata-conf"))
-        suriconf = suricata.update.engine.Configuration.load(
-            config.get("suricata-conf"), suricata_path=suricata_path)
+        try:
+            suriconf = suricata.update.engine.Configuration.load(
+                config.get("suricata-conf"), suricata_path=suricata_path)
+        except subprocess.CalledProcessError:
+            return 1
 
     # Disable rule that are for app-layers that are not enabled.
     if suriconf:
