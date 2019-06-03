@@ -692,7 +692,14 @@ def build_rule_map(rules):
         if rule.id not in rulemap:
             rulemap[rule.id] = rule
         else:
+            if rule["rev"] == rulemap[rule.id]["rev"]:
+                logger.warning(
+                    "Found duplicate rule ID {}, keeping existing rule."
+                    .format(rule.id))
             if rule["rev"] > rulemap[rule.id]["rev"]:
+                logger.warning(
+                    "Found duplicate rule ID {}, keeping one with higher revision."
+                    .format(rule.id))
                 rulemap[rule.id] = rule
 
     return rulemap
