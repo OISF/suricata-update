@@ -119,7 +119,7 @@ class ModifyRuleFilterTestCase(unittest.TestCase):
         rule_filter = main.ModifyRuleFilter.parse(line)
         self.assertTrue(rule_filter != None)
         self.assertTrue(rule_filter.match(rule0))
-        rule1 = rule_filter.filter(rule0)
+        rule1 = rule_filter.run(rule0)
         self.assertEqual(
             str(rule1),
             """alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET MALWARE Windows executable sent when remote host claims to send an image 2"; flow: established,from_server; content:"|ff ff|Content-Type|3a| image/jpeg|0d 0a 0d 0a|MZ"; fast_pattern:12,20; classtype:trojan-activity; sid:2020757; rev:2;)""")
@@ -130,7 +130,7 @@ class ModifyRuleFilterTestCase(unittest.TestCase):
         rule_filter = main.ModifyRuleFilter.parse(line)
         self.assertTrue(rule_filter != None)
         self.assertTrue(rule_filter.match(rule0))
-        rule1 = rule_filter.filter(rule0)
+        rule1 = rule_filter.run(rule0)
         self.assertEqual(
             str(rule1),
             """alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET MALWARE Windows executable sent when remote host claims to send an image 2"; flow: established,from_server; content:"|ff ff|Content-Type|3a| image/jpeg|0d 0a 0d 0a|MZ"; fast_pattern:12,20; classtype:trojan-activity; sid:2020757; rev:2;)""")
@@ -138,20 +138,20 @@ class ModifyRuleFilterTestCase(unittest.TestCase):
     def test_re_backref_one(self):
         rule0 = suricata.update.rule.parse(self.rule_string)
         line = 're:classtype:trojan-activity "(alert)(.*)" "drop\\2"'
-        filter = main.ModifyRuleFilter.parse(line)
-        self.assertTrue(filter != None)
-        self.assertTrue(filter.match(rule0))
-        rule1 = filter.filter(rule0)
+        rule_filter = main.ModifyRuleFilter.parse(line)
+        self.assertTrue(rule_filter != None)
+        self.assertTrue(rule_filter.match(rule0))
+        rule1 = rule_filter.run(rule0)
         expected = """drop http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET MALWARE Windows executable sent when remote host claims to send an image 2"; flow: established,from_server; content:"|0d 0a|Content-Type|3a| image/jpeg|0d 0a 0d 0a|MZ"; fast_pattern:12,20; classtype:trojan-activity; sid:2020757; rev:2;)"""
         self.assertEqual(str(rule1), expected)
 
     def test_re_backref_two(self):
         rule0 = suricata.update.rule.parse(self.rule_string)
         line = 're:classtype:trojan-activity "(alert)(.*)(from_server)(.*)" "drop\\2to_client\\4"'
-        filter = main.ModifyRuleFilter.parse(line)
-        self.assertTrue(filter != None)
-        self.assertTrue(filter.match(rule0))
-        rule1 = filter.filter(rule0)
+        rule_filter = main.ModifyRuleFilter.parse(line)
+        self.assertTrue(rule_filter != None)
+        self.assertTrue(rule_filter.match(rule0))
+        rule1 = rule_filter.run(rule0)
         expected = """drop http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET MALWARE Windows executable sent when remote host claims to send an image 2"; flow: established,to_client; content:"|0d 0a|Content-Type|3a| image/jpeg|0d 0a 0d 0a|MZ"; fast_pattern:12,20; classtype:trojan-activity; sid:2020757; rev:2;)"""
         self.assertEqual(str(rule1), expected)
 
@@ -163,21 +163,21 @@ class ModifyRuleFilterTestCase(unittest.TestCase):
             'group:emerging-trojan.rules "^alert" "drop"')
         self.assertIsNotNone(f)
 
-        rule_out = f.filter(rule_in)
+        rule_out = f.run(rule_in)
         self.assertTrue(rule_out.format().startswith("drop"))
 
     def test_oinkmaster_backticks(self):
         f = main.ModifyRuleFilter.parse(
             '* "^drop(.*)noalert(.*)" "alert${1}noalert${2}"')
         rule_in ="""drop http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET MALWARE Windows executable sent when remote host claims to send an image 2"; flow: established,to_client; content:"|0d 0a|Content-Type|3a| image/jpeg|0d 0a 0d 0a|MZ"; fast_pattern:12,20; noalert; classtype:trojan-activity; sid:2020757; rev:2;)"""
-        rule_out = f.filter(suricata.update.rule.parse(rule_in))
+        rule_out = f.run(suricata.update.rule.parse(rule_in))
         self.assertEqual("""alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET MALWARE Windows executable sent when remote host claims to send an image 2"; flow: established,to_client; content:"|0d 0a|Content-Type|3a| image/jpeg|0d 0a 0d 0a|MZ"; fast_pattern:12,20; noalert; classtype:trojan-activity; sid:2020757; rev:2;)""", rule_out.format())
 
     def test_oinkmaster_backticks_not_noalert(self):
         f = main.ModifyRuleFilter.parse(
             'modifysid * "^drop(.*)noalert(.*)" | "alert${1}noalert${2}"')
         rule_in ="""drop http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET MALWARE Windows executable sent when remote host claims to send an image 2"; flow: established,to_client; content:"|0d 0a|Content-Type|3a| image/jpeg|0d 0a 0d 0a|MZ"; fast_pattern:12,20; classtype:trojan-activity; sid:2020757; rev:2;)"""
-        rule_out = f.filter(suricata.update.rule.parse(rule_in))
+        rule_out = f.run(suricata.update.rule.parse(rule_in))
         self.assertEqual(rule_in, rule_out.format())
 
     def test_oinkmaster_modify_group_name(self):
@@ -186,7 +186,7 @@ class ModifyRuleFilterTestCase(unittest.TestCase):
             'modifysid botcc.rules "^alert" | "drop"')
         rule_in ="""alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET MALWARE Windows executable sent when remote host claims to send an image 2"; flow: established,to_client; content:"|0d 0a|Content-Type|3a| image/jpeg|0d 0a 0d 0a|MZ"; fast_pattern:12,20; classtype:trojan-activity; sid:2020757; rev:2;)"""
         rule = suricata.update.rule.parse(rule_in, "rules/botcc.rules")
-        rule_out = f.filter(rule)
+        rule_out = f.run(rule)
         self.assertTrue(rule_out.format().startswith("drop"))
 
 class DropRuleFilterTestCase(unittest.TestCase):
@@ -199,7 +199,7 @@ class DropRuleFilterTestCase(unittest.TestCase):
         self.assertTrue(id_matcher.match(rule0))
 
         drop_filter = main.DropRuleFilter(id_matcher)
-        rule1 = drop_filter.filter(rule0)
+        rule1 = drop_filter.run(rule0)
         self.assertEqual("drop", rule1.action)
         self.assertTrue(rule1.enabled)
         self.assertTrue(str(rule1).startswith("drop"))
@@ -211,7 +211,7 @@ class DropRuleFilterTestCase(unittest.TestCase):
         self.assertTrue(id_matcher.match(rule0))
 
         drop_filter = main.DropRuleFilter(id_matcher)
-        rule1 = drop_filter.filter(rule0)
+        rule1 = drop_filter.run(rule0)
         self.assertEqual("drop", rule1.action)
         self.assertFalse(rule1.enabled)
         self.assertTrue(str(rule1).startswith("# drop"))
@@ -225,10 +225,10 @@ class DropRuleFilterTestCase(unittest.TestCase):
 
         rule = suricata.update.rule.parse(rule_without_noalert)
         matcher = main.IdRuleMatcher.parse("2016659")
-        filter = main.DropRuleFilter(matcher)
-        self.assertTrue(filter.match(rule))
+        rule_filter = main.DropRuleFilter(matcher)
+        self.assertTrue(rule_filter.match(rule))
 
         rule = suricata.update.rule.parse(rule_with_noalert)
         matcher = main.IdRuleMatcher.parse("2016659")
-        filter = main.DropRuleFilter(matcher)
-        self.assertFalse(filter.match(rule))
+        rule_filter = main.DropRuleFilter(matcher)
+        self.assertFalse(rule_filter.match(rule))
