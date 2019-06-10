@@ -252,7 +252,7 @@ class ModifyRuleFilter(object):
     def match(self, rule):
         return self.matcher.match(rule)
 
-    def filter(self, rule):
+    def run(self, rule):
         modified_rule = self.pattern.sub(self.repl, rule.format())
         parsed = suricata.update.rule.parse(modified_rule, rule.group)
         if parsed is None:
@@ -291,7 +291,7 @@ class DropRuleFilter(object):
             return False
         return self.matcher.match(rule)
 
-    def filter(self, rule):
+    def run(self, rule):
         drop_rule = suricata.update.rule.parse(re.sub("^\w+", "drop", rule.raw))
         drop_rule.enabled = rule.enabled
         return drop_rule
@@ -448,9 +448,9 @@ def load_filters(filename):
             line = line.rsplit(" #")[0]
 
             line = re.sub(r'\\\$', '$', line)  # needed to escape $ in pp
-            filter = ModifyRuleFilter.parse(line)
-            if filter:
-                filters.append(filter)
+            rule_filter = ModifyRuleFilter.parse(line)
+            if rule_filter:
+                filters.append(rule_filter)
             else:
                 log.error("Failed to parse modify filter: %s" % (line))
 
@@ -1353,16 +1353,16 @@ def _main():
                 rule.enabled = True
                 enable_count += 1
 
-        for filter in drop_filters:
-            if filter.match(rule):
-                rulemap[rule.id] = filter.filter(rule)
+        for fltr in drop_filters:
+            if fltr.match(rule):
+                rulemap[rule.id] = fltr.run(rule)
                 drop_count += 1
 
     # Apply modify filters.
     for fltr in modify_filters:
         for key, rule in rulemap.items():
             if fltr.match(rule):
-                new_rule = fltr.filter(rule)
+                new_rule = fltr.run(rule)
                 if new_rule and new_rule.format() != rule.format():
                     rulemap[rule.id] = new_rule
                     modify_count += 1
