@@ -40,7 +40,7 @@ Directories and Permissions
 In order for ``suricata-update`` to function, the following
 permissions are required:
 
-* Directory /etc/suricata: read access
+* Directory /etc/suricata: read/write access
 * Directory /var/lib/suricata/rules: read/write access
 * Directory /var/lib/suricata/update: read/write access
 
@@ -48,12 +48,47 @@ One option is to simply run ``suricata-update`` as root or with
 ``sudo``.
 
 .. note:: It is recommended to create a ``suricata`` group and setup
-          the above directories with the correction permissions for
+          the above directories with the correct permissions for
           the ``suricata`` group then add users to the ``suricata``
           group.
 
-	  More documentation will be provided about this, including a
-	  tool to verify and maybe setup the permissions.
+Steps to setup the above directories with the correct permissions:
+
+First, create a group ``suricata``::
+
+    sudo groupadd suricata
+
+Next, change the group of the directories and its files recursively::
+
+    sudo chgrp -R suricata /etc/suricata
+    sudo chgrp -R suricata /var/lib/suricata/rules
+    sudo chgrp -R suricata /var/lib/suricata/update
+
+.. note:: Do not use the path ``/etc/suricata`` and ``/var/lib`` for
+	        example, since it could be any other path that user defines
+	        during configuration and is by default ``/usr/local``. Please
+	        check your configuration directory for the path and use that
+	        accordingly.
+
+Setup the directories with the correct permissions for the ``suricata``
+group::
+
+    sudo chmod -R g+rw /etc/suricata/
+    sudo chmod -R g+rw /var/lib/suricata/rules
+    sudo chmod -R g+rw /var/lib/suricata/update
+
+Now, add user to the group::
+
+    sudo usermod -a -G suricata username
+
+Verify whether group has been changed::
+
+    ls -al /etc/suricata
+    ls -al /var/lib/suricata/rules
+    ls -al /var/lib/suricata/update
+
+Reboot your system. Run ``suricata-update`` without a sudo to check
+if suricata-update functions.
 
 Update Your Rules
 =================
