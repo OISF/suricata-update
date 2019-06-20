@@ -172,6 +172,10 @@ Options
 
    Display the version of **suricata-update**.
 
+.. option:: --offline
+
+   Run offline using most recent cached rules.
+
 Rule Matching
 =============
 
