@@ -353,6 +353,13 @@ class Fetch:
         net_arg = url
         url = url[0] if isinstance(url, tuple) else url
         tmp_filename = self.get_tmp_filename(url)
+        if config.args().offline:
+            logger.info("Proceeding offline, will use latest cached version.")
+            if not os.path.exists(tmp_filename):
+                logger.error("Can't proceed offline, "
+                             "source has not yet been downloaded.")
+                sys.exit(1)
+            return self.extract_files(tmp_filename)
         if not config.args().force and os.path.exists(tmp_filename):
             if not config.args().now and \
                time.time() - os.stat(tmp_filename).st_mtime < (60 * 15):
@@ -985,7 +992,7 @@ def load_sources(suricata_version):
     # If --etopen is on the command line, make sure its added. Or if
     # there are no URLs, default to ET/Open.
     if config.get("etopen") or not urls:
-        if not urls:
+        if not config.args().offline and not urls:
             logger.info("No sources configured, will use Emerging Threats Open")
         urls.append(sources.get_etopen_url(internal_params))
 
@@ -1129,6 +1136,9 @@ def _main():
     
     update_parser.add_argument("--no-merge", action="store_true", default=False,
                                help="Do not merge the rules into a single file")
+    update_parser.add_argument("--offline", action="store_true", default=False,
+                               help="Proceed offline. "
+                               "Use locally cached latest version of rules.")
 
     # Hidden argument, --now to bypass the timebased bypass of
     # updating a ruleset.
