@@ -87,6 +87,8 @@ DEFAULT_SURICATA_VERSION = "4.0.0"
 # single file concatenating all input rule files together.
 DEFAULT_OUTPUT_RULE_FILENAME = "suricata.rules"
 
+INDEX_EXPIRATION_TIME = 60 * 60 * 24 * 14
+
 class AllRuleMatcher(object):
     """Matcher object to match all rules. """
 
@@ -955,6 +957,10 @@ def load_sources(suricata_version):
         if not os.path.exists(index_filename):
             logger.warning("No index exists, will use bundled index.")
             logger.warning("Please run suricata-update update-sources.")
+        if os.path.exists(index_filename) and time.time() - \
+                os.stat(index_filename).st_mtime > INDEX_EXPIRATION_TIME:
+            logger.warning("Source index is older than 2 weeks. "
+                "Please update with suricata-update update-sources.")
         index = sources.Index(index_filename)
 
         for (name, source) in enabled_sources.items():
