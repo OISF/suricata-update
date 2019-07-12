@@ -1018,6 +1018,26 @@ def check_output_directory(output_dir):
                 "Failed to create directory %s: %s" % (
                     output_dir, err))
 
+def check_version(suricata_version):
+    index_filename = sources.get_index_filename()
+    if not os.path.exists(index_filename):
+        logger.warning("No index exists, will use bundled index.")
+        logger.warning("Please run suricata-update update-sources.")
+    index = sources.Index(index_filename)
+    version = index.get_versions()
+    if suricata_version.full in version['suricata']['recommended'] or \
+            "dev" in str(suricata_version.full):
+        logger.info("Suricata version %s is up to date", suricata_version.full)
+    elif suricata_version.short in version['suricata'] and \
+            suricata_version.full not in version['suricata']['4.1']:
+        logger.warning("Suricata version %s is outdated. "
+                       "Please upgrade to %s.", suricata_version.full,
+                       version['suricata']['recommended'])
+    else:
+        logger.warning("Suricata version %s is End of life. "
+                       "Please upgrade to %s.", suricata_version.full,
+                       version['suricata']['recommended'])
+
 def _main():
     global args
 
@@ -1129,6 +1149,8 @@ def _main():
     
     update_parser.add_argument("--no-merge", action="store_true", default=False,
                                help="Do not merge the rules into a single file")
+    update_parser.add_argument("--check-versions", action="store_true",
+                               help="Check version of suricata.")
 
     # Hidden argument, --now to bypass the timebased bypass of
     # updating a ruleset.
@@ -1243,6 +1265,10 @@ def _main():
 
     if args.dump_sample_configs:
         return dump_sample_configs()
+
+    if args.check_versions:
+        check_version(suricata_version)
+        return 0
 
     # If --no-ignore was provided, clear any ignores provided in the
     # config.

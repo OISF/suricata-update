@@ -126,6 +126,9 @@ class Index:
             return self.index["sources"][name]
         return None
 
+    def get_versions(self):
+        return self.index["versions"]
+
 def load_source_index(config):
     return Index(get_index_filename())
 
