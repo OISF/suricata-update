@@ -1189,6 +1189,7 @@ def _main():
     remove-source              Remove an enabled or disabled source
     list-enabled-sources       List all enabled sources
     add-source                 Add a new source by URL
+    check-versions             Check version of suricata
 """
 
     # The Python 2.7 argparse module does prefix matching which can be
@@ -1216,6 +1217,8 @@ def _main():
         "disable-source", parents=[global_parser]))
     commands.removesource.register(subparsers.add_parser(
         "remove-source", parents=[global_parser]))
+    commands.checkversions.register(subparsers.add_parser(
+        "check-versions", parents=[global_parser]))
 
     args = parser.parse_args(rem)
 
@@ -1281,7 +1284,9 @@ def _main():
     suricata.update.net.set_user_agent_suricata_version(suricata_version.full)
 
     if args.subcommand:
-        if hasattr(args, "func"):
+        if args.subcommand == "check-versions" and hasattr(args, "func"):
+            return args.func(suricata_version)
+        elif hasattr(args, "func"):
             return args.func()
         elif args.subcommand != "update":
             logger.error("Unknown command: %s", args.subcommand)
