@@ -126,6 +126,12 @@ class Index:
             return self.index["sources"][name]
         return None
 
+    def get_versions(self):
+        try:
+            return self.index["versions"]
+        except KeyError:
+            raise Exception("Version information not in index")
+
 def load_source_index(config):
     return Index(get_index_filename())
 
