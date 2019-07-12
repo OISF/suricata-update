@@ -21,3 +21,4 @@ from suricata.update.commands import updatesources
 from suricata.update.commands import enablesource
 from suricata.update.commands import disablesource
 from suricata.update.commands import removesource
+from suricata.update.commands import checkversions
