@@ -15,6 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
+import sys
 import logging
 import time
 
@@ -77,3 +78,24 @@ class SuriColourLogHandler(logging.StreamHandler):
         for secret in secrets:
             msg = msg.replace(secret, "<%s>" % secrets[secret])
         return msg
+
+class LessThanFilter(logging.Filter):
+    def __init__(self, exclusive_maximum, name=""):
+        super(LessThanFilter, self).__init__(name)
+        self.max_level = exclusive_maximum
+
+    def filter(self, record):
+        return 1 if record.levelno < self.max_level else 0
+
+def SuriStreamHandler():
+    logger = logging.getLogger()
+    logger.setLevel(logging.NOTSET)
+
+    logging_handler_out = SuriColourLogHandler(sys.stdout)
+    logging_handler_out.setLevel(logging.DEBUG)
+    logging_handler_out.addFilter(LessThanFilter(logging.WARNING))
+    logger.addHandler(logging_handler_out)
+
+    logging_handler_err = SuriColourLogHandler(sys.stderr)
+    logging_handler_err.setLevel(logging.WARNING)
+    logger.addHandler(logging_handler_err)
