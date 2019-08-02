@@ -70,7 +70,7 @@ except:
     revision = None
 
 # Initialize logging, use colour if on a tty.
-if len(logging.root.handlers) == 0 and os.isatty(sys.stderr.fileno()):
+if len(logging.root.handlers) == 0:
     logger = logging.getLogger()
     suricata.update.loghandler.SuriStreamHandler()
     logger.setLevel(level=logging.INFO)
