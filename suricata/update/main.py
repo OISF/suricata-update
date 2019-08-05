@@ -72,8 +72,8 @@ except:
 # Initialize logging, use colour if on a tty.
 if len(logging.root.handlers) == 0 and os.isatty(sys.stderr.fileno()):
     logger = logging.getLogger()
+    suricata.update.loghandler.configure_logging()
     logger.setLevel(level=logging.INFO)
-    logger.addHandler(suricata.update.loghandler.SuriColourLogHandler())
 else:
     logging.basicConfig(
         level=logging.INFO,
