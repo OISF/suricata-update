@@ -16,6 +16,7 @@
 # 02110-1301, USA.
 
 import sys
+import os
 import logging
 import time
 
@@ -65,16 +66,22 @@ class SuriColourLogHandler(logging.StreamHandler):
             level_prefix = self.YELLOW
             message_prefix = ""
 
-        self.stream.write("%s%s%s - <%s%s%s> -- %s%s%s\n" % (
-            self.GREEN,
-            self.formatTime(record),
-            self.RESET,
-            level_prefix,
-            record.levelname.title(),
-            self.RESET,
-            message_prefix,
-            self.mask_secrets(record.getMessage()),
-            self.RESET))
+        if os.isatty(self.stream.fileno()):
+            self.stream.write("%s%s%s - <%s%s%s> -- %s%s%s\n" % (
+                self.GREEN,
+                self.formatTime(record),
+                self.RESET,
+                level_prefix,
+                record.levelname.title(),
+                self.RESET,
+                message_prefix,
+                self.mask_secrets(record.getMessage()),
+                self.RESET))
+        else:
+            self.stream.write("%s - <%s> -- %s\n" % (
+                self.formatTime(record),
+                record.levelname.title(),
+                self.mask_secrets(record.getMessage())))
 
     def mask_secrets(self, msg):
         for secret in secrets:
