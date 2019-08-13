@@ -352,6 +352,7 @@ class Fetch:
 
     def fetch(self, url):
         net_arg = url
+        no_checksum = url[2] if isinstance(url, tuple) else False
         url = url[0] if isinstance(url, tuple) else url
         tmp_filename = self.get_tmp_filename(url)
         if config.args().offline:
@@ -370,9 +371,11 @@ class Fetch:
                     "Last download less than 15 minutes ago. Not downloading %s.",
                     url)
                 return self.extract_files(tmp_filename)
-            if self.check_checksum(tmp_filename, url):
-                logger.info("Remote checksum has not changed. Not fetching.")
-                return self.extract_files(tmp_filename)
+            if not no_checksum:
+                if self.check_checksum(tmp_filename, url):
+                    logger.info("Remote checksum has not changed. "
+                                "Not fetching.")
+                    return self.extract_files(tmp_filename)
         if not os.path.exists(config.get_cache_dir()):
             os.makedirs(config.get_cache_dir(), mode=0o770)
         logger.info("Fetching %s." % (url))
@@ -980,14 +983,16 @@ def load_sources(suricata_version):
             params.update(internal_params)
             if "url" in source:
                 # No need to go off to the index.
-                url = (source["url"] % params, source.get("http-header"))
+                url = (source["url"] % params, source.get(
+                    "http-header"), source.get("no-checksum"))
                 logger.debug("Resolved source %s to URL %s.", name, url[0])
             else:
                 if not index:
                     raise exceptions.ApplicationError(
                         "Source index is required for source %s; "
                         "run suricata-update update-sources" % (source["source"]))
-                url = index.resolve_url(name, params)
+                url = (index.resolve_url(name, params), source.get(
+                    "http-header"), source.get("no-checksum"))
                 logger.debug("Resolved source %s to URL %s.", name, url)
             urls.append(url)
 
