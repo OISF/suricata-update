@@ -4,6 +4,23 @@
 - Enable integration tests on
   Travis-CI. https://redmine.openinfosecfoundation.org/issues/2760
 
+## 1.0.5 - 2019-04-26
+- Fix NULL pointer dereference (FORWARD_NULL) found by
+  Coverity. https://redmine.openinfosecfoundation.org/issues/2834
+- Add a download connection timeout of 30
+  seconds. https://redmine.openinfosecfoundation.org/issues/2703
+- Fix issue with --no-merge command line
+  option. https://redmine.openinfosecfoundation.org/issues/2869
+- Fix handling of default ignore
+  files. https://redmine.openinfosecfoundation.org/issues/2851
+- Allow repeated calls to enable the same rule source without exiting
+  with an error. https://redmine.openinfosecfoundation.org/issues/2728
+
+## 1.0.4 - 2019-03-07
+- Enable integration tests on
+  Travis-CI. https://redmine.openinfosecfoundation.org/issues/2760
+- Reduce memory usage. https://redmine.openinfosecfoundation.org/issues/2791
+
 ## 1.0.3 - 2018-12-21
 - Fix enable-source command.
   https://redmine.openinfosecfoundation.org/issues/2753
