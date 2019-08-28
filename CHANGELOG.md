@@ -7,6 +7,18 @@
   parsing. https://redmine.openinfosecfoundation.org/issues/2867
 - Improve permission errors from tracebacks to more user friendly
   error messages. https://redmine.openinfosecfoundation.org/issues/2875
+- Log warnings and errors to stderr, info and debug to stdout.
+  https://redmine.openinfosecfoundation.org/issues/2565
+- Cleaner exit on CTRL-C.
+  https://redmine.openinfosecfoundation.org/issues/2878
+- Run offline.
+  https://redmine.openinfosecfoundation.org/issues/2864
+- Log warning on duplicate SID.
+  https://redmine.openinfosecfoundation.org/issues/2879
+- Parse rule files alphabetically.
+  https://redmine.openinfosecfoundation.org/issues/2892
+- Set the noalert option on rules enabled for flowbit dependencies.
+  https://redmine.openinfosecfoundation.org/issues/2906
 
 ## 1.0.5 - 2019-04-26
 - Fix NULL pointer dereference (FORWARD_NULL) found by
