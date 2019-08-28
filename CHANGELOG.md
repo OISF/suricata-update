@@ -5,6 +5,8 @@
   Travis-CI. https://redmine.openinfosecfoundation.org/issues/2760
 - Fix error on missing sid, or missing ';' in rule
   parsing. https://redmine.openinfosecfoundation.org/issues/2867
+- Improve permission errors from tracebacks to more user friendly
+  error messages. https://redmine.openinfosecfoundation.org/issues/2875
 
 ## 1.0.5 - 2019-04-26
 - Fix NULL pointer dereference (FORWARD_NULL) found by
