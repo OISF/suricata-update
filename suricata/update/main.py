@@ -354,7 +354,8 @@ class Fetch:
 
     def fetch(self, url):
         net_arg = url
-        url = url[0] if isinstance(url, tuple) else url
+        no_checksum = url[2]
+        url = url[0]
         tmp_filename = self.get_tmp_filename(url)
         if config.args().offline:
             if config.args().force:
@@ -372,9 +373,11 @@ class Fetch:
                     "Last download less than 15 minutes ago. Not downloading %s.",
                     url)
                 return self.extract_files(tmp_filename)
-            if self.check_checksum(tmp_filename, url):
-                logger.info("Remote checksum has not changed. Not fetching.")
-                return self.extract_files(tmp_filename)
+            if not no_checksum:
+                if self.check_checksum(tmp_filename, url):
+                    logger.info("Remote checksum has not changed. "
+                                "Not fetching.")
+                    return self.extract_files(tmp_filename)
         if not os.path.exists(config.get_cache_dir()):
             os.makedirs(config.get_cache_dir(), mode=0o770)
         logger.info("Fetching %s." % (url))
@@ -956,10 +959,13 @@ def load_sources(suricata_version):
 
     urls = []
 
+    http_header = None
+    no_checksum = None
+
     # Add any URLs added with the --url command line parameter.
     if config.args().url:
         for url in config.args().url:
-            urls.append(url)
+            urls.append((url, http_header, no_checksum))
 
     # Get the new style sources.
     enabled_sources = sources.get_enabled_sources()
@@ -991,14 +997,22 @@ def load_sources(suricata_version):
             params.update(internal_params)
             if "url" in source:
                 # No need to go off to the index.
-                url = (source["url"] % params, source.get("http-header"))
+                http_header = source.get("http_header")
+                no_checksum = source.get("no-checksum")
+                url = (source["url"] % params, http_header, no_checksum)
                 logger.debug("Resolved source %s to URL %s.", name, url[0])
             else:
                 if not index:
                     raise exceptions.ApplicationError(
                         "Source index is required for source %s; "
                         "run suricata-update update-sources" % (source["source"]))
-                url = index.resolve_url(name, params)
+                source_config = index.get_source_by_name(name)
+                try:
+                    no_checksum = source_config["no-checksum"]
+                except:
+                    no_checksum = False
+                url = (index.resolve_url(name, params), http_header,
+                       no_checksum)
                 logger.debug("Resolved source %s to URL %s.", name, url)
             urls.append(url)
 
@@ -1007,7 +1021,7 @@ def load_sources(suricata_version):
             if type(url) not in [type("")]:
                 raise exceptions.InvalidConfigurationError(
                     "Invalid datatype for source URL: %s" % (str(url)))
-            url = url % internal_params
+            url = (url % internal_params, http_header, no_checksum)
             logger.debug("Adding source %s.", url)
             urls.append(url)
 
@@ -1016,7 +1030,8 @@ def load_sources(suricata_version):
     if config.get("etopen") or not urls:
         if not config.args().offline and not urls:
             logger.info("No sources configured, will use Emerging Threats Open")
-        urls.append(sources.get_etopen_url(internal_params))
+        urls.append((sources.get_etopen_url(internal_params), http_header,
+                     no_checksum))
 
     # Converting the URLs to a set removed dupes.
     urls = set(urls)

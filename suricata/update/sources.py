@@ -77,11 +77,13 @@ def save_source_config(source_config):
 
 class SourceConfiguration:
 
-    def __init__(self, name, header=None, url=None, params={}):
+    def __init__(self, name, header=None, url=None,
+                 params={}, no_checksum=False):
         self.name = name
         self.url = url
         self.params = params
         self.header = header
+        self.no_checksum = no_checksum
 
     def dict(self):
         d = {
@@ -93,6 +95,8 @@ class SourceConfiguration:
             d["params"] = self.params
         if self.header:
             d["http-header"] = self.header
+        if self.no_checksum:
+            d["no-checksum"] = self.no_checksum
         return d
 
 class Index:
