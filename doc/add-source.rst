@@ -25,6 +25,10 @@ Options
 
      add-source --http-header "X-API-Key: 1234"
 
+.. option:: --no-checksum
+
+   Skips downloading the checksum URL for the rule source.
+
 Common Options
 ==============
 

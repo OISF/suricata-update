@@ -103,7 +103,13 @@ def enable_source():
                         break
                 params[param] = r.strip()
 
-    new_source = sources.SourceConfiguration(name, params=params)
+    if "checksum" in source:
+        checksum = source["checksum"]
+    else:
+        checksum = source.get("checksum", True)
+
+    new_source = sources.SourceConfiguration(
+        name, params=params, checksum=checksum)
 
     # If the source directory does not exist, create it. Also create
     # the default rule-source of et/open, unless the source being
