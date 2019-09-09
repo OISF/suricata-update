@@ -1,6 +1,6 @@
 # Change Log
 
-## unreleased
+## 1.1.0rc1 - 2019-09-09
 - Enable integration tests on
   Travis-CI. https://redmine.openinfosecfoundation.org/issues/2760
 - Fix error on missing sid, or missing ';' in rule
