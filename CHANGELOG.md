@@ -19,6 +19,9 @@
   https://redmine.openinfosecfoundation.org/issues/2892
 - Set the noalert option on rules enabled for flowbit dependencies.
   https://redmine.openinfosecfoundation.org/issues/2906
+- Allow sources to be specified without a checksum URL to prevent the
+  warning log message when this URL does not
+  exist. https://redmine.openinfosecfoundation.org/issues/3100
 
 ## 1.0.5 - 2019-04-26
 - Fix NULL pointer dereference (FORWARD_NULL) found by
