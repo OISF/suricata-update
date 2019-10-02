@@ -64,14 +64,18 @@ def get_build_info(suricata):
 class Configuration:
     """An abstraction over the Suricata configuration file."""
 
-    def __init__(self, conf):
+    def __init__(self, conf, build_info = {}):
         self.conf = conf
+        self.build_info = build_info
 
     def keys(self):
         return self.conf.keys()
 
     def has_key(self, key):
         return key in self.conf
+
+    def get(self, key):
+        return self.conf.get(key, None)
 
     def is_true(self, key, truthy=[]):
         if not key in self.conf:

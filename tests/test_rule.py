@@ -180,3 +180,22 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
         rule_string = u"""alert ip any any -> any any (content:"uid=0|28|root|29|"; classtype:bad-unknown; sid:10000000;)"""
         rule = suricata.update.rule.parse(rule_string)
         self.assertEqual(0, rule["rev"])
+
+    def test_parse_no_sid(self):
+        """Test parsing a rule where the sid is not parsed correctly. """
+        rule_buf = u"""alert icmp any any -> $HOME_NET any (msg:"ICMP test detected"; gid:0; rev:1; classtype: icmp-event;)"""
+        self.assertRaises(
+            suricata.update.rule.BadSidError,
+            suricata.update.rule.parse, rule_buf)
+
+    def test_parse_feature_ja3(self):
+        """Test parsing rules that should set the ja3 feature."""
+        rule_string = u"""alert tls any any -> any any (msg:"REQUIRES JA3"; ja3_hash; content:"61d50e7771aee7f2f4b89a7200b4d45"; sid:1; rev:1;)"""
+        rule = suricata.update.rule.parse(rule_string)
+        self.assertIsNotNone(rule)
+        self.assertTrue("ja3" in rule["features"])
+
+        rule_string = u"""alert tls any any -> any any (msg:"REQUIRES JA3"; ja3.hash; content:"61d50e7771aee7f2f4b89a7200b4d45"; sid:1; rev:1;)"""
+        rule = suricata.update.rule.parse(rule_string)
+        self.assertIsNotNone(rule)
+        self.assertTrue("ja3" in rule["features"])
