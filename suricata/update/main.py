@@ -1416,6 +1416,45 @@ def _main():
                     rulemap[rule.id] = new_rule
                     modify_count += 1
 
+    # Check if we should disable ja3 rules.
+    if suriconf and suriconf.build_info:
+        enabled = False
+        reason = None
+        logged = False
+        if "HAVE_NSS" not in suriconf.build_info["features"]:
+            reason = "Disabling rules with ja3_hash as Suricata built without libnss."
+        else:
+            # Check if disabled. Must be explicitly disabled,
+            # otherwise we'll keep ja3 rules enabled.
+            val = suriconf.get("app-layer.protocols.tls.ja3-fingerprints")
+
+            # Prior to Suricata 5, leaving ja3-fingerprints undefined
+            # in the configuration disabled the feature. With 5.0,
+            # having it undefined will enable it as needed.
+            if not val:
+                if suriconf.build_info["version"].major < 5:
+                    val = "no"
+                else:
+                    val = "auto"
+
+            if val and val.lower() not in ["1", "yes", "true", "auto"]:
+                reason = "Disabling rules with ja3_hash as ja3 fingerprints are not enabled."
+            else:
+                enabled = True
+
+        count = 0
+        if not enabled:
+            for key, rule in rulemap.items():
+                if "ja3" in rule["features"]:
+                    if not logged:
+                        logger.warn(reason)
+                        logged = True
+                    rule.enabled = False
+                    disabled_rules.append(rule)
+                    count += 1
+            if count:
+                logger.info("%d ja3_hash rules disabled." % (count))
+
     # Check rule vars, disabling rules that use unknown vars.
     check_vars(suriconf, rulemap)
 
