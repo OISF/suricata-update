@@ -35,7 +35,9 @@ SuricataVersion = namedtuple(
     "SuricataVersion", ["major", "minor", "patch", "full", "short", "raw"])
 
 def get_build_info(suricata):
-    build_info = {}
+    build_info = {
+        "features": [],
+    }
     build_info_output = subprocess.check_output([suricata, "--build-info"])
     for line in build_info_output.decode("utf-8").split("\n"):
         line = line.strip()
@@ -45,6 +47,8 @@ def get_build_info(suricata):
             build_info["sysconfdir"] = line.split()[-1].strip()
         elif line.startswith("--localstatedir"):
             build_info["localstatedir"] = line.split()[-1].strip()
+        elif line.startswith("Features:"):
+            build_info["features"] = line.split()[1:]
 
     if not "prefix" in build_info:
         logger.warning("--prefix not found in build-info.")
