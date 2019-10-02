@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Open Information Security Foundation
+# Copyright (C) 2017-2019 Open Information Security Foundation
 # Copyright (c) 2011 Jason Ish
 #
 # You can copy, redistribute or modify this Program under the terms of
@@ -76,6 +76,7 @@ class Rule(dict):
     - **classtype**: The classification type
     - **priority**: The rule priority, 0 if not provided
     - **noalert**: Is the rule a noalert rule
+    - **features**: Features required by this rule
     - **raw**: The raw rule as read from the file or buffer
 
     :param enabled: Optional parameter to set the enabled state of the rule
@@ -105,6 +106,8 @@ class Rule(dict):
         self["classtype"] = None
         self["priority"] = 0
         self["noalert"] = False
+
+        self["features"] = []
 
         self["raw"] = None
 
@@ -285,6 +288,9 @@ def parse(buf, group=None):
             rule[name] = val
         else:
             rule[name] = val
+
+        if name.startswith("ja3"):
+            rule["features"].append("ja3")
 
     if rule["msg"] is None:
         rule["msg"] = ""

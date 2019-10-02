@@ -1062,6 +1062,49 @@ def check_output_directory(output_dir):
                 "Failed to create directory %s: %s" % (
                     output_dir, err))
 
+# Check and disable ja3 rules if needed.
+#
+# Note: This is a bit of a quick fixup job for 5.0, but we should look
+# at making feature handling more generic.
+def disable_ja3(suriconf, rulemap, disabled_rules):
+    if suriconf and suriconf.build_info:
+        enabled = False
+        reason = None
+        logged = False
+        if "HAVE_NSS" not in suriconf.build_info["features"]:
+            reason = "Disabling ja3 rules as Suricata is built without libnss."
+        else:
+            # Check if disabled. Must be explicitly disabled,
+            # otherwise we'll keep ja3 rules enabled.
+            val = suriconf.get("app-layer.protocols.tls.ja3-fingerprints")
+
+            # Prior to Suricata 5, leaving ja3-fingerprints undefined
+            # in the configuration disabled the feature. With 5.0,
+            # having it undefined will enable it as needed.
+            if not val:
+                if suriconf.build_info["version"].major < 5:
+                    val = "no"
+                else:
+                    val = "auto"
+
+            if val and val.lower() not in ["1", "yes", "true", "auto"]:
+                reason = "Disabling ja3 rules as ja3 fingerprints are not enabled."
+            else:
+                enabled = True
+
+        count = 0
+        if not enabled:
+            for key, rule in rulemap.items():
+                if "ja3" in rule["features"]:
+                    if not logged:
+                        logger.warn(reason)
+                        logged = True
+                    rule.enabled = False
+                    disabled_rules.append(rule)
+                    count += 1
+            if count:
+                logger.info("%d ja3_hash rules disabled." % (count))
+
 def _main():
     global args
 
@@ -1415,6 +1458,12 @@ def _main():
                 if new_rule and new_rule.format() != rule.format():
                     rulemap[rule.id] = new_rule
                     modify_count += 1
+
+    # Check if we should disable ja3 rules.
+    try:
+        disable_ja3(suriconf, rulemap, disabled_rules)
+    except Exception as err:
+        logger.error("Failed to dynamically disable ja3 rules: %s" % (err))
 
     # Check rule vars, disabling rules that use unknown vars.
     check_vars(suriconf, rulemap)
