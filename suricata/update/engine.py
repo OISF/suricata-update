@@ -47,6 +47,8 @@ def get_build_info(suricata):
             build_info["sysconfdir"] = line.split()[-1].strip()
         elif line.startswith("--localstatedir"):
             build_info["localstatedir"] = line.split()[-1].strip()
+        elif line.startswith("--datarootdir"):
+            build_info["datarootdir"] = line.split()[-1].strip()
         elif line.startswith("Features:"):
             build_info["features"] = line.split()[1:]
         elif line.startswith("This is Suricata version"):
