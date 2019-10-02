@@ -242,3 +242,15 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
         self.assertRaises(
             suricata.update.rule.BadSidError,
             suricata.update.rule.parse, rule_buf)
+
+    def test_parse_feature_ja3(self):
+        """Test parsing rules that should set the ja3 feature."""
+        rule_string = u"""alert tls any any -> any any (msg:"REQUIRES JA3"; ja3_hash; content:"61d50e7771aee7f2f4b89a7200b4d45"; sid:1; rev:1;)"""
+        rule = suricata.update.rule.parse(rule_string)
+        self.assertIsNotNone(rule)
+        self.assertTrue("ja3" in rule["features"])
+
+        rule_string = u"""alert tls any any -> any any (msg:"REQUIRES JA3"; ja3.hash; content:"61d50e7771aee7f2f4b89a7200b4d45"; sid:1; rev:1;)"""
+        rule = suricata.update.rule.parse(rule_string)
+        self.assertIsNotNone(rule)
+        self.assertTrue("ja3" in rule["features"])
