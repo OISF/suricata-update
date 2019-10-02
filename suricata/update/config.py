@@ -208,9 +208,15 @@ def init(args):
                 0, os.path.join(
                     build_info["sysconfdir"], "suricata/suricata.yaml"))
 
+        # Amend the path to look for Suricata provided rules based on
+        # the build info. As we are inserting at the front, put the
+        # highest priority path last.
         if "sysconfdir" in build_info:
             DEFAULT_DIST_RULE_PATH.insert(
                 0, os.path.join(build_info["sysconfdir"], "suricata/rules"))
+        if "datarootdir" in build_info:
+            DEFAULT_DIST_RULE_PATH.insert(
+                0, os.path.join(build_info["datarootdir"], "suricata/rules"))
 
         # Set the data-directory prefix to that of the --localstatedir
         # found in the build-info.
