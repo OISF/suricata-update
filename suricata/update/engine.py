@@ -49,6 +49,8 @@ def get_build_info(suricata):
             build_info["localstatedir"] = line.split()[-1].strip()
         elif line.startswith("Features:"):
             build_info["features"] = line.split()[1:]
+        elif line.startswith("This is Suricata version"):
+            build_info["version"] = parse_version(line)
 
     if not "prefix" in build_info:
         logger.warning("--prefix not found in build-info.")
