@@ -107,7 +107,8 @@ class Configuration:
                 conf[key] = val
             except:
                 logger.warning("Failed to parse: %s", line)
-        return cls(conf)
+        build_info = get_build_info(suricata_path)
+        return cls(conf, build_info)
 
 def get_path(program="suricata"):
     """Find Suricata in the shell path."""
