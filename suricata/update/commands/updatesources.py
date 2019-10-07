@@ -71,8 +71,12 @@ def compare_sources(initial_content, final_content):
 
 
 def write_and_compare(initial_content, fileobj):
-    with open(local_index_filename, "wb") as outobj:
-        outobj.write(fileobj.getvalue())
+    try:
+        with open(local_index_filename, "wb") as outobj:
+            outobj.write(fileobj.getvalue())
+    except IOError as ioe:
+        logger.error("Failed to open directory: %s", ioe)
+        return 1
     with open(local_index_filename) as stream:
         final_content = yaml.safe_load(stream)
     compare_sources(initial_content, final_content)
