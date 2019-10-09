@@ -134,7 +134,8 @@ class Index:
         try:
             return self.index["versions"]
         except KeyError:
-            raise Exception("Version information not in index")
+            logger.error("Version information not in index")
+            sys.exit(1)
 
 def load_source_index(config):
     return Index(get_index_filename())
