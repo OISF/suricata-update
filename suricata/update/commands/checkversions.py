@@ -26,33 +26,38 @@ def register(parser):
 
 
 def check_version(suricata_version):
+    if "dev" in suricata_version.full:
+        logger.warning("Development version of Suricata found: %s. "
+                "Skipping version check.", suricata_version.full)
+        return
+
     index_filename = sources.get_index_filename()
     if not os.path.exists(index_filename):
         logger.warning("No index exists, will use bundled index.")
         logger.warning("Please run suricata-update update-sources.")
     index = sources.Index(index_filename)
     version = index.get_versions()
-    recommended = engine.parse_version(version['suricata']['recommended'])
-    if suricata_version.full in recommended.full:
-        logger.info("Suricata version %s is up to date", suricata_version.full)
-    elif suricata_version.short > recommended.short:
-        return None
-    elif "dev" in suricata_version.full:
-        if (suricata_version.short not in recommended.short or
-                suricata_version.short not in version['suricata']) and \
-                float(suricata_version.short) < float(recommended.short):
-            logger.warning(
-                "Suricata version %s has reached EOL. Please upgrade to %s.",
+    recommended = engine.parse_version(version["suricata"]["recommended"])
+    if not recommended:
+        logger.error("Recommended version was not parsed properly")
+        sys.exit(1)
+    # In case index is out of date
+    if float(suricata_version.short) > float(recommended.short):
+        return
+    # Evaluate if the installed version is present in index
+    upgrade_version = version["suricata"].get(suricata_version.short)
+    if not upgrade_version:
+        logger.warning("Suricata version %s has reached EOL. Please upgrade to %s.",
                 suricata_version.full, recommended.full)
-        elif float(suricata_version.short) >= float(recommended.short):
-            logger.info(
-                "Suricata version %s is up to date", suricata_version.full)
-    elif suricata_version.short in version['suricata'] and \
-            suricata_version.full not in recommended.full:
+        return
+    if suricata_version.full == upgrade_version:
+        logger.info("Suricata version %s is up to date", suricata_version.full)
+    elif upgrade_version == recommended.full:
         logger.warning(
             "Suricata version %s is outdated. Please upgrade to %s.",
             suricata_version.full, recommended.full)
     else:
         logger.warning(
-            "Suricata version %s has reached EOL. Please upgrade to %s.",
-            suricata_version.full, recommended.full)
+            "Suricata version %s is outdated. Please upgrade to %s or %s.",
+            suricata_version.full, upgrade_version, recommended.full)
+
