@@ -16,6 +16,7 @@
 
 from __future__ import print_function
 
+import sys
 import os
 import logging
 import io
@@ -134,7 +135,7 @@ class Index:
         try:
             return self.index["versions"]
         except KeyError:
-            logger.error("Version information not in index")
+            logger.error("Version information not in index. Please update with suricata-update update-sources.")
             sys.exit(1)
 
 def load_source_index(config):
