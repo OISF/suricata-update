@@ -30,6 +30,13 @@ def embed_index():
     url = "https://raw.githubusercontent.com/oisf/suricata-intel-index/master/index.yaml"
     response = urlopen(url)
     index = yaml.safe_load(response.read())
+
+    # Delete the version info to prevent the issue of the version info being out of
+    # date around a new release of Suricata where the index has not been updated
+    # to the latest recommended version.  The user will be asked to update their
+    # sources to run the version check.
+    del(index["versions"])
+
     with open(dist_filename, "w") as fileobj:
         fileobj.write("index = %s" % (str(index)))
     
