@@ -92,11 +92,8 @@ class Configuration:
 
     @classmethod
     def load(cls, config_filename, suricata_path=None):
-        env = {
-            "SC_LOG_FORMAT": "%t - <%d> -- ",
-            "SC_LOG_LEVEL": "Error",
-            "ASAN_OPTIONS": "detect_leaks=0",
-        }
+        env = build_env()
+        env["SC_LOG_LEVEL"] = "Error"
         if not suricata_path:
             suricata_path = get_path()
         if not suricata_path:
@@ -176,16 +173,18 @@ def test_configuration(suricata_path, suricata_conf=None, rule_filename=None):
     if rule_filename:
         test_command += ["-S", rule_filename]
 
-    # This makes the Suricata output look just like suricata-update
-    # output.
-    env = {
-        "SC_LOG_FORMAT": "%t - <%d> -- ",
-        "SC_LOG_LEVEL": "Warning",
-        "ASAN_OPTIONS": "detect_leaks=0",
-    }
+    env = build_env()
+    env["SC_LOG_LEVEL"] = "Warning"
 
     logger.debug("Running %s; env=%s", " ".join(test_command), str(env))
     rc = subprocess.Popen(test_command, env=env).wait()
     if rc == 0:
         return True
     return False
+
+def build_env():
+    env = os.environ.copy()
+    env["SC_LOG_FORMAT"] = "%t - <%d> -- "
+    env["SC_LOG_LEVEL"] = "Error"
+    env["ASAN_OPTIONS"] = "detect_leaks=0"
+    return env
