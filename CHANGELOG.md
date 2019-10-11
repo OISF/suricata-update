@@ -1,5 +1,14 @@
 # Change Log
 
+## 1.1.0 - 2019-10-11
+- Disable ja3 rules if the Suricata build or runtime configuration
+  does not support
+  ja3. https://redmine.openinfosecfoundation.org/issues/3215
+- New command, check-versions to compare the version of Suricata on
+  the system to Suricata version information in the index. Can let you
+  know if Suricata is
+  outdated. https://redmine.openinfosecfoundation.org/issues/2341
+
 ## 1.1.0rc1 - 2019-09-09
 - Enable integration tests on
   Travis-CI. https://redmine.openinfosecfoundation.org/issues/2760
