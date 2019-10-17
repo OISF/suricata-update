@@ -22,7 +22,6 @@ import re
 import os.path
 import logging
 import argparse
-import shlex
 import time
 import hashlib
 import fnmatch
@@ -60,6 +59,7 @@ from suricata.update import (
     rule as rule_mod,
     sources,
     util,
+    matchers as matchers_mod
 )
 
 from suricata.update.version import version
@@ -91,215 +91,6 @@ DEFAULT_SURICATA_VERSION = "4.0.0"
 DEFAULT_OUTPUT_RULE_FILENAME = "suricata.rules"
 
 INDEX_EXPIRATION_TIME = 60 * 60 * 24 * 14
-
-class AllRuleMatcher(object):
-    """Matcher object to match all rules. """
-
-    def match(self, rule):
-        return True
-
-    @classmethod
-    def parse(cls, buf):
-        if buf.strip() == "*":
-            return cls()
-        return None
-
-class ProtoRuleMatcher:
-    """A rule matcher that matches on the protocol of a rule."""
-
-    def __init__(self, proto):
-        self.proto = proto
-
-    def match(self, rule):
-        return rule.proto == self.proto
-
-class IdRuleMatcher(object):
-    """Matcher object to match an idstools rule object by its signature
-    ID."""
-
-    def __init__(self, generatorId=None, signatureId=None):
-        self.signatureIds = []
-        if generatorId and signatureId:
-            self.signatureIds.append((generatorId, signatureId))
-
-    def match(self, rule):
-        for (generatorId, signatureId) in self.signatureIds:
-            if generatorId == rule.gid and signatureId == rule.sid:
-                return True
-        return False
-
-    @classmethod
-    def parse(cls, buf):
-        matcher = cls()
-
-        for entry in buf.split(","):
-            entry = entry.strip()
-
-            parts = entry.split(":", 1)
-            if not parts:
-                return None
-            if len(parts) == 1:
-                try:
-                    signatureId = int(parts[0])
-                    matcher.signatureIds.append((1, signatureId))
-                except:
-                    return None
-            else:
-                try:
-                    generatorId = int(parts[0])
-                    signatureId = int(parts[1])
-                    matcher.signatureIds.append((generatorId, signatureId))
-                except:
-                    return None
-
-        return matcher
-
-class FilenameMatcher(object):
-    """Matcher object to match a rule by its filename. This is similar to
-    a group but has no specifier prefix.
-    """
-
-    def __init__(self, pattern):
-        self.pattern = pattern
-
-    def match(self, rule):
-        if hasattr(rule, "group") and rule.group is not None:
-            return fnmatch.fnmatch(rule.group, self.pattern)
-        return False
-
-    @classmethod
-    def parse(cls, buf):
-        if buf.startswith("filename:"):
-            try:
-                group = buf.split(":", 1)[1]
-                return cls(group.strip())
-            except:
-                pass
-        return None
-
-class GroupMatcher(object):
-    """Matcher object to match an idstools rule object by its group (ie:
-    filename).
-
-    The group is just the basename of the rule file with or without
-    extension.
-
-    Examples:
-    - emerging-shellcode
-    - emerging-trojan.rules
-
-    """
-
-    def __init__(self, pattern):
-        self.pattern = pattern
-
-    def match(self, rule):
-        if hasattr(rule, "group") and rule.group is not None:
-            if fnmatch.fnmatch(os.path.basename(rule.group), self.pattern):
-                return True
-            # Try matching against the rule group without the file
-            # extension.
-            if fnmatch.fnmatch(
-                    os.path.splitext(
-                        os.path.basename(rule.group))[0], self.pattern):
-                return True
-        return False
-
-    @classmethod
-    def parse(cls, buf):
-        if buf.startswith("group:"):
-            try:
-                logger.debug("Parsing group matcher: %s" % (buf))
-                group = buf.split(":", 1)[1]
-                return cls(group.strip())
-            except:
-                pass
-        if buf.endswith(".rules"):
-            return cls(buf.strip())
-        return None
-
-class ReRuleMatcher(object):
-    """Matcher object to match an idstools rule object by regular
-    expression."""
-
-    def __init__(self, pattern):
-        self.pattern = pattern
-
-    def match(self, rule):
-        if self.pattern.search(rule.raw):
-            return True
-        return False
-
-    @classmethod
-    def parse(cls, buf):
-        if buf.startswith("re:"):
-            try:
-                logger.debug("Parsing regex matcher: %s" % (buf))
-                patternstr = buf.split(":", 1)[1].strip()
-                pattern = re.compile(patternstr, re.I)
-                return cls(pattern)
-            except:
-                pass
-        return None
-
-class ModifyRuleFilter(object):
-    """Filter to modify an idstools rule object.
-
-    Important note: This filter does not modify the rule inplace, but
-    instead returns a new rule object with the modification.
-    """
-
-    def __init__(self, matcher, pattern, repl):
-        self.matcher = matcher
-        self.pattern = pattern
-        self.repl = repl
-
-    def match(self, rule):
-        return self.matcher.match(rule)
-
-    def run(self, rule):
-        modified_rule = self.pattern.sub(self.repl, rule.format())
-        parsed = rule_mod.parse(modified_rule, rule.group)
-        if parsed is None:
-            logger.error("Modification of rule %s results in invalid rule: %s",
-                         rule.idstr, modified_rule)
-            return rule
-        return parsed
-
-    @classmethod
-    def parse(cls, buf):
-        tokens = shlex.split(buf)
-        if len(tokens) == 3:
-            matchstring, a, b = tokens
-        elif len(tokens) > 3 and tokens[0] == "modifysid":
-            matchstring, a, b = tokens[1], tokens[2], tokens[4]
-        else:
-            raise Exception("Bad number of arguments.")
-        matcher = parse_rule_match(matchstring)
-        if not matcher:
-            raise Exception("Bad match string: %s" % (matchstring))
-        pattern = re.compile(a)
-
-        # Convert Oinkmaster backticks to Python.
-        b = re.sub("\$\{(\d+)\}", "\\\\\\1", b)
-
-        return cls(matcher, pattern, b)
-
-class DropRuleFilter(object):
-    """ Filter to modify an idstools rule object to a drop rule. """
-
-    def __init__(self, matcher):
-        self.matcher = matcher
-
-    def match(self, rule):
-        if rule["noalert"]:
-            return False
-        return self.matcher.match(rule)
-
-    def run(self, rule):
-        drop_rule = rule_mod.parse(re.sub("^\w+", "drop", rule.raw))
-        drop_rule.enabled = rule.enabled
-        return drop_rule
 
 class Fetch:
 
@@ -434,29 +225,6 @@ class Fetch:
         files[basename] = open(filename, "rb").read()
         return files
 
-def parse_rule_match(match):
-    matcher = AllRuleMatcher.parse(match)
-    if matcher:
-        return matcher
-
-    matcher = IdRuleMatcher.parse(match)
-    if matcher:
-        return matcher
-
-    matcher = ReRuleMatcher.parse(match)
-    if matcher:
-        return matcher
-
-    matcher = FilenameMatcher.parse(match)
-    if matcher:
-        return matcher
-
-    matcher = GroupMatcher.parse(match)
-    if matcher:
-        return matcher
-
-    return None
-
 def load_filters(filename):
 
     filters = []
@@ -469,7 +237,7 @@ def load_filters(filename):
             line = line.rsplit(" #")[0]
 
             line = re.sub(r'\\\$', '$', line)  # needed to escape $ in pp
-            rule_filter = ModifyRuleFilter.parse(line)
+            rule_filter = matchers_mod.ModifyRuleFilter.parse(line)
             if rule_filter:
                 filters.append(rule_filter)
             else:
@@ -483,7 +251,7 @@ def load_drop_filters(filename):
     filters = []
 
     for matcher in matchers:
-        filters.append(DropRuleFilter(matcher))
+        filters.append(matchers_mod.DropRuleFilter(matcher))
 
     return filters
 
@@ -495,7 +263,7 @@ def parse_matchers(fileobj):
         if not line or line.startswith("#"):
             continue
         line = line.rsplit(" #")[0]
-        matcher = parse_rule_match(line)
+        matcher = matchers_mod.parse_rule_match(line)
         if not matcher:
             logger.warn("Failed to parse: \"%s\"" % (line))
         else:
@@ -1227,7 +995,7 @@ def _main():
                 proto = m.group(1)
                 if not suriconf.is_true(key, ["detection-only"]):
                     logger.info("Disabling rules for protocol %s", proto)
-                    disable_matchers.append(ProtoRuleMatcher(proto))
+                    disable_matchers.append(matchers_mod.ProtoRuleMatcher(proto))
                 elif proto == "smb" and suriconf.build_info:
                     # Special case for SMB rules. For versions less
                     # than 5, disable smb rules if Rust is not
@@ -1235,7 +1003,7 @@ def _main():
                     if suriconf.build_info["version"].major < 5:
                         if not "RUST" in suriconf.build_info["features"]:
                             logger.info("Disabling rules for protocol {}".format(proto))
-                            disable_matchers.append(ProtoRuleMatcher(proto))
+                            disable_matchers.append(matchers_mod.ProtoRuleMatcher(proto))
 
     # Check that the cache directory exists and is writable.
     if not os.path.exists(config.get_cache_dir()):
