@@ -32,6 +32,7 @@ import glob
 import io
 import tempfile
 import signal
+import aristotle
 
 try:
     # Python 3.
@@ -81,6 +82,9 @@ else:
         level=logging.INFO,
         format="%(asctime)s - <%(levelname)s> - %(message)s")
     logger = logging.getLogger()
+
+# logging for Aristotle
+logging.getLogger("aristotle").addHandler(logging.StreamHandler())
 
 # If Suricata is not found, default to this version.
 DEFAULT_SURICATA_VERSION = "4.0.0"
@@ -505,6 +509,11 @@ def parse_matchers(fileobj):
 def load_matchers(filename):
     with open(filename) as fileobj:
         return parse_matchers(fileobj)
+
+def load_meta_filter(filename):
+    # Aristotle library handles loading of this file
+    return filename
+
 
 def load_local(local, files):
 
@@ -1184,6 +1193,8 @@ def _main():
                                help="Filename of rule modification filters")
     update_parser.add_argument("--drop-conf", metavar="<filename>",
                                help="Filename of drop rules filters")
+    update_parser.add_argument("--meta-conf", metavar="<filename>",
+                               help="Filename of rule metadata filter")
     
     update_parser.add_argument("--ignore", metavar="<pattern>", action="append",
                                default=None,
@@ -1369,6 +1380,12 @@ def _main():
         logger.info("Loading %s.", drop_conf_filename)
         drop_filters += load_drop_filters(drop_conf_filename)
 
+    # Load user provided metadata filter.
+    meta_conf_filename = config.get("meta-conf")
+    if meta_conf_filename and os.path.exists(meta_conf_filename):
+        logger.info("Loading %s.", meta_conf_filename)
+        meta_filter = load_meta_filter(meta_conf_filename)
+
     # Load the Suricata configuration if we can.
     suriconf = None
     if config.get("suricata-conf") and \
@@ -1429,6 +1446,14 @@ def _main():
     # List of rules disabled by user. Used for counting, and to log
     # rules that are re-enabled to meet flowbit requirements.
     disabled_rules = []
+
+    # AAAAAAAAAAAaaaaristotel
+    if meta_filter:
+        rawrules = [r.raw if r.enabled else "#{}".format(r.raw) for r in rules]
+        aruleset = aristotle.Ruleset(rules='\n'.join(rawrules), metadata_filter=meta_filter)
+        filtered_sids = aruleset.filter_ruleset()
+        print("A GOT: {}".format(len(filtered_sids)))
+
 
     for key, rule in rulemap.items():
 
