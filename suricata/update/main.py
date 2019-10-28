@@ -481,7 +481,7 @@ def load_filters(filename):
     return filters
 
 def load_drop_filters(filename):
-    
+
     matchers = load_matchers(filename)
     filters = []
 
@@ -510,7 +510,7 @@ def load_matchers(filename):
     with open(filename) as fileobj:
         return parse_matchers(fileobj)
 
-def load_meta_filter(filename):
+def load_metadata_filter(filename):
     # Aristotle library handles loading of this file
     return filename
 
@@ -627,7 +627,7 @@ def write_merged(filename, rulemap):
                         len(added),
                         len(removed),
                         len(modified)))
-    
+
     with io.open(filename, encoding="utf-8", mode="w") as fileobj:
         for rule in rulemap:
             print(rulemap[rule].format(), file=fileobj)
@@ -1184,7 +1184,7 @@ def _main():
                                help="Generate a sid-msg.map file")
     update_parser.add_argument("--sid-msg-map-2", metavar="<filename>",
                                help="Generate a v2 sid-msg.map file")
-    
+
     update_parser.add_argument("--disable-conf", metavar="<filename>",
                                help="Filename of rule disable filters")
     update_parser.add_argument("--enable-conf", metavar="<filename>",
@@ -1193,21 +1193,21 @@ def _main():
                                help="Filename of rule modification filters")
     update_parser.add_argument("--drop-conf", metavar="<filename>",
                                help="Filename of drop rules filters")
-    update_parser.add_argument("--meta-conf", metavar="<filename>",
-                               help="Filename of rule metadata filter")
-    
+    update_parser.add_argument("--metadata-conf", metavar="<filename>",
+                               help="Filename of rule metadata Boolean filter")
+
     update_parser.add_argument("--ignore", metavar="<pattern>", action="append",
                                default=None,
                                help="Filenames to ignore (can be specified multiple times; default: *deleted.rules)")
     update_parser.add_argument("--no-ignore", action="store_true",
                                default=False,
                                help="Disables the ignore option.")
-    
+
     update_parser.add_argument("--threshold-in", metavar="<filename>",
                                help="Filename of rule thresholding configuration")
     update_parser.add_argument("--threshold-out", metavar="<filename>",
                                help="Output of processed threshold configuration")
-    
+
     update_parser.add_argument("--dump-sample-configs", action="store_true",
                                default=False,
                                help="Dump sample config files to current directory")
@@ -1221,7 +1221,7 @@ def _main():
                                help="Command to test Suricata configuration")
     update_parser.add_argument("--no-test", action="store_true", default=False,
                                help="Disable testing rules with Suricata")
-    
+
     update_parser.add_argument("--no-merge", action="store_true", default=False,
                                help="Do not merge the rules into a single file")
     update_parser.add_argument("--offline", action="store_true",
@@ -1290,7 +1290,7 @@ def _main():
         version, revision, sys.version.replace("\n", "- ")))
 
     config.init(args)
-    
+
     # Error out if any reserved/unimplemented arguments were set.
     unimplemented_args = [
         "disable",
@@ -1381,10 +1381,14 @@ def _main():
         drop_filters += load_drop_filters(drop_conf_filename)
 
     # Load user provided metadata filter.
-    meta_conf_filename = config.get("meta-conf")
-    if meta_conf_filename and os.path.exists(meta_conf_filename):
-        logger.info("Loading %s.", meta_conf_filename)
-        meta_filter = load_meta_filter(meta_conf_filename)
+    metadata_conf_filename = config.get("metadata-conf")
+    if metadata_conf_filename and os.path.exists(metadata_conf_filename):
+        logger.info("Loading %s.", metadata_conf_filename)
+        metadata_filter = load_metadata_filter(metadata_conf_filename)
+    else:
+        metadata_filter = None
+        if metadata_conf_filename is not None:
+            logger.error("Invalid metadata-conf filename provided: '%s'. Filter will not be applied." % metadata_conf_filename)
 
     # Load the Suricata configuration if we can.
     suriconf = None
@@ -1447,15 +1451,33 @@ def _main():
     # rules that are re-enabled to meet flowbit requirements.
     disabled_rules = []
 
-    # AAAAAAAAAAAaaaaristotel
-    if meta_filter:
-        rawrules = [r.raw if r.enabled else "#{}".format(r.raw) for r in rules]
-        aruleset = aristotle.Ruleset(rules='\n'.join(rawrules), metadata_filter=meta_filter)
-        filtered_sids = aruleset.filter_ruleset()
-        print("A GOT: {}".format(len(filtered_sids)))
+    # Counts of rules enabled/disabled by metadata filter
+    metadata_enable_count = 0
+    metadata_disable_count = 0
 
+    # Leverages Aristotle to do Boolean filtering based on metadata
+    # key-value pairs; see https://github.com/secureworks/aristotle/
+    if metadata_filter:
+        rawrules = [r.raw if r.enabled else "#{}".format(r.raw) for r in rules if "better-metadata" in r["features"]]
+        aristotle_ruleset = aristotle.Ruleset(rules='\n'.join(rawrules), metadata_filter=metadata_filter)
+        metadata_filtered_sids = aristotle_ruleset.filter_ruleset()
 
     for key, rule in rulemap.items():
+        if metadata_filter and "better-metadata" in rule["features"]:
+            if rule.sid in metadata_filtered_sids:
+                # enable rule if not already enabled
+                if not rule.enabled:
+                    logger.debug("(metadata filter) Enabling: %s" % (rule.brief()))
+                    rule.enabled = True
+                    metadata_enable_count += 1
+                    enable_count += 1
+            else:
+                # disable rule if not already disabled
+                if rule.enabled:
+                    logger.debug("(metadata filter) Disabling: %s" % (rule.brief()))
+                    rule.enabled = False
+                    metadata_disable_count += 1
+                    disabled_rules.append(rule)
 
         for matcher in disable_matchers:
             if rule.enabled and matcher.match(rule):
@@ -1493,7 +1515,11 @@ def _main():
     check_vars(suriconf, rulemap)
 
     logger.info("Disabled %d rules." % (len(disabled_rules)))
+    if metadata_filter:
+        logger.info("Disabled %d rules from metadata filter." % (metadata_disable_count))
     logger.info("Enabled %d rules." % (enable_count))
+    if metadata_filter:
+        logger.info("Enabled %d rules from metadata filter." % (metadata_enable_count))
     logger.info("Modified %d rules." % (modify_count))
     logger.info("Dropped %d rules." % (drop_count))
 
