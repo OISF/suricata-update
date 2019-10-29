@@ -251,6 +251,12 @@ desired outcome based on Boolean logic, where the metadata
 key-value pairs are values in a (concrete) Boolean algebra. For
 details see `<https://aristotle-py.readthedocs.io/en/latest/filter_strings.html>`__
 
+   .. note::
+
+     Metadata filtering happens `after` the ``--ignore`` (filename)
+     directive is processed but `before` other rule matching
+     directives are applied.
+
 Modifying Rules
 ---------------
 
