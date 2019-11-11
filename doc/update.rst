@@ -186,6 +186,7 @@ modification can be done with the following:
 - regular expression
 - rule group
 - filename
+- metadata filter
 
 Signature ID Matching
 ---------------------
@@ -232,6 +233,30 @@ are allowed::
   filename:rules/*deleted*
   filename:*/emerging-dos.rules
 
+Metadata Filtering
+------------------
+
+Rules can be enabled and disabled based on metadata key-value pairs
+present in the Suricata rule ``metadata`` keyword.
+
+   .. note::
+
+     Filtering based on metadata requires
+     a ruleset that is compatible with the
+     `BETTER Schema <https://better-schema.readthedocs.io/>`__
+
+Metadata filtering is applied by
+supplying a file containing a "filter string" which defines the
+desired outcome based on Boolean logic, where the metadata
+key-value pairs are values in a (concrete) Boolean algebra. For
+details see `<https://aristotle-py.readthedocs.io/en/latest/filter_strings.html>`__
+
+   .. note::
+
+     Metadata filtering happens `after` the ``--ignore`` (filename)
+     directive is processed but `before` other rule matching
+     directives are applied.
+
 Modifying Rules
 ---------------
 
@@ -276,6 +301,11 @@ Example Configuration to Disable Rules (--disable-conf)
 .. literalinclude:: ../suricata/update/configs/disable.conf
 
 .. _example-drop-conf:
+
+Example Configuration Containing Metadata Filter String (--metatdata-conf)
+--------------------------------------------------------------------------
+
+See `<https://github.com/secureworks/aristotle/tree/master/examples>`__.
 
 Example Configuration to convert Rules to Drop (--drop-conf)
 ------------------------------------------------------------
