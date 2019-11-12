@@ -313,12 +313,15 @@ def parse_fileobj(fileobj, group=None):
     """
     rules = []
     buf = ""
+    better_metadata = False
     for line in fileobj:
         try:
             if type(line) == type(b""):
                 line = line.decode()
         except:
             pass
+        if line.startswith("#better-schema "):
+            better_metadata = True
         if line.rstrip().endswith("\\"):
             buf = "%s%s " % (buf, line.rstrip()[0:-1])
             continue
@@ -326,6 +329,8 @@ def parse_fileobj(fileobj, group=None):
         try:
             rule = parse(buf, group)
             if rule:
+                if better_metadata:
+                    rule["features"].append("better-metadata")
                 rules.append(rule)
         except Exception as err:
             logger.error("Failed to parse rule: %s: %s", buf.rstrip(), err)
