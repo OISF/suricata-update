@@ -47,6 +47,7 @@ DISABLE_CONF_KEY = "disable-conf"
 ENABLE_CONF_KEY = "enable-conf"
 MODIFY_CONF_KEY = "modify-conf"
 DROP_CONF_KEY = "drop-conf"
+METADATA_CONF_KEY = "metadata-conf"
 LOCAL_CONF_KEY = "local"
 OUTPUT_KEY = "output"
 DIST_RULE_DIRECTORY_KEY = "dist-rule-directory"
@@ -77,6 +78,7 @@ DEFAULT_CONFIG = {
     "enable-conf": "/etc/suricata/enable.conf",
     "drop-conf": "/etc/suricata/drop.conf",
     "modify-conf": "/etc/suricata/modify.conf",
+    "metadata-conf": "/etc/suricata/metadata.conf",
     "sources": [],
     LOCAL_CONF_KEY: [],
 
