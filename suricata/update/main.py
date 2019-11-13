@@ -205,11 +205,22 @@ class Fetch:
         if url:
             try:
                 fetched = self.fetch(url)
-                files.update(fetched)
+                for key in fetched:
+                    safe_filename = self.safe_filename(url[0], key)
+                    files[safe_filename] = fetched[key]
             except URLError as err:
                 url = url[0] if isinstance(url, tuple) else url
                 logger.error("Failed to fetch %s: %s", url, err)
         return files
+
+    def safe_filename(self, url, filename):
+        """Create a safe/conflict free filename from the URL and the full path
+        of a file inside the archive.
+        """
+        scheme_end = url.find("://")
+        if scheme_end > 0:
+            return "{}!{}".format(url[scheme_end + 1:], filename)
+        return "{}!{}".format(url, filename)
 
     def extract_files(self, filename):
         files = extract.try_extract(filename)
