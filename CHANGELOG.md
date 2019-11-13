@@ -1,5 +1,10 @@
 # Change Log
 
+## unreleased
+- If Suricata is less than 5, and Rust is not enabled, disable
+  smb rules as they require Rust.
+  https://redmine.openinfosecfoundation.org/issues/3280
+
 ## 1.1.0 - 2019-10-11
 - Disable ja3 rules if the Suricata build or runtime configuration
   does not support
