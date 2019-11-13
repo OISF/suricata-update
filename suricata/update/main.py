@@ -413,7 +413,8 @@ class Fetch:
         if url:
             try:
                 fetched = self.fetch(url)
-                files.update(fetched)
+                for key in fetched:
+                    files["{}!{}".format(url[0], key)] = fetched[key]
             except URLError as err:
                 url = url[0] if isinstance(url, tuple) else url
                 logger.error("Failed to fetch %s: %s", url, err)
