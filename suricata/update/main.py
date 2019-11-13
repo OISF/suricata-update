@@ -407,7 +407,7 @@ class Fetch:
         logger.info("Done.")
         return self.extract_files(tmp_filename)
 
-    def run(self, url=None, files=None):
+    def run(self, url, files=None):
         if files is None:
             files = {}
         if url:
@@ -417,9 +417,6 @@ class Fetch:
             except URLError as err:
                 url = url[0] if isinstance(url, tuple) else url
                 logger.error("Failed to fetch %s: %s", url, err)
-        else:
-            for url in self.args.url:
-                files.update(self.fetch(url))
         return files
 
     def extract_files(self, filename):
