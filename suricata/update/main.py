@@ -1335,12 +1335,20 @@ def _main():
     # Disable rule that are for app-layers that are not enabled.
     if suriconf:
         for key in suriconf.keys():
-            if key.startswith("app-layer.protocols") and \
-               key.endswith(".enabled"):
+            m = re.match("app-layer\.protocols\.([^\.]+)\.enabled", key)
+            if m:
+                proto = m.group(1)
                 if not suriconf.is_true(key, ["detection-only"]):
-                    proto = key.split(".")[2]
-                    logger.info("Disabling rules with proto %s", proto)
+                    logger.info("Disabling rules for protocol %s", proto)
                     disable_matchers.append(ProtoRuleMatcher(proto))
+                elif proto == "smb" and suriconf.build_info:
+                    # Special case for SMB rules. For versions less
+                    # than 5, disable smb rules if Rust is not
+                    # available.
+                    if suriconf.build_info["version"].major < 5:
+                        if not "RUST" in suriconf.build_info["features"]:
+                            logger.info("Disabling rules for protocol {}".format(proto))
+                            disable_matchers.append(ProtoRuleMatcher(proto))
 
     # Check that the cache directory exists and is writable.
     if not os.path.exists(config.get_cache_dir()):
