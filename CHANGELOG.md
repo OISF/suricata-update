@@ -1,5 +1,13 @@
 # Change Log
 
+## 1.0.6 - unreleased
+- If Suricata is less than 5, and Rust is not enabled, disable smb
+  rules as they require
+  Rust. https://redmine.openinfosecfoundation.org/issues/3280
+- Disable ja3 rules if the Suricata build or runtime configuration
+  does not support ja3.
+  https://redmine.openinfosecfoundation.org/issues/3215
+
 ## 1.0.5 - 2019-04-26
 - Fix NULL pointer dereference (FORWARD_NULL) found by
   Coverity. https://redmine.openinfosecfoundation.org/issues/2834
