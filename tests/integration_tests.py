@@ -29,6 +29,7 @@ if os.path.exists(DATA_DIR):
     delete(DATA_DIR)
 
 common_args = [
+    sys.executable,
     "./bin/suricata-update",
     "-D", DATA_DIR,
     "-c", "./tests/empty",
