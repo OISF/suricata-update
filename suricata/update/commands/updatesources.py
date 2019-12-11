@@ -73,7 +73,7 @@ def compare_sources(initial_content, final_content):
 def write_and_compare(initial_content, fileobj):
     with open(local_index_filename, "wb") as outobj:
         outobj.write(fileobj.getvalue())
-    with open(local_index_filename) as stream:
+    with open(local_index_filename, "rb") as stream:
         final_content = yaml.safe_load(stream)
     compare_sources(initial_content, final_content)
     logger.info("Saved %s", local_index_filename)
