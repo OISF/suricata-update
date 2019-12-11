@@ -1,0 +1,205 @@
+name: Distribution Checks
+
+on:
+  - push
+  - pull_request
+
+jobs:
+
+  centos-8:
+    name: CentOS 8
+    runs-on: ubuntu-latest
+    container: centos:8
+    steps:
+      - run: |
+          yum -y install \
+            python2-pytest \
+            python2-pyyaml \
+            python3 \
+            python3-pytest \
+            python3-pyyaml
+      - uses: actions/checkout@v1
+
+      - name: Python 2 unit tests
+        run: PYTHONPATH=. pytest-2
+      - name: Python 2 integration tests
+        run: PYTHONPATH=. python2 ./tests/integration_tests.py
+
+      - name: Python 3 unit tests
+        run: PYTHONPATH=. pytest-3
+      - name: Python 3 integration tests
+        run: PYTHONPATH=. python3 ./tests/integration_tests.py
+
+  centos-7:
+    name: CentOS 7
+    runs-on: ubuntu-latest
+    container: centos:7
+    steps:
+      - run: yum -y install epel-release
+      - run: |
+          yum -y install \
+            python2-pytest \
+            python2-pyyaml \
+            python36-pytest \
+            python36-yaml
+      - uses: actions/checkout@v1
+
+      - name: Python 2 unit tests
+        run: PYTHONPATH=. py.test-2.7
+      - name: Python 2 integration tests
+        run: PYTHONPATH=. python2 ./tests/integration_tests.py
+
+      - name: Python 3 unit tests
+        run: PYTHONPATH=. py.test-3
+      - name: Python 3 integration tests
+        run: PYTHONPATH=. python3 ./tests/integration_tests.py
+
+  centos-6:
+    name: CentOS 6
+    runs-on: ubuntu-latest
+    container: centos:6
+    steps:
+      - run: yum -y install epel-release
+      - run: |
+          yum -y install \
+            python34-pytest \
+            python34-yaml
+      - uses: actions/checkout@v1
+
+      - name: Python 3 unit tests
+        run: PYTHONPATH=. py.test-3
+      - name: Python 3 integration tests
+        run: PYTHONPATH=. python3 ./tests/integration_tests.py
+
+  fedora-latest:
+    name: Fedora Latest
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - run: |
+          yum -y install \
+            python2-pytest \
+            python2-pyyaml \
+            python3 \
+            python3-pytest \
+            python3-pyyaml
+      - uses: actions/checkout@v1
+
+      - name: Python 2 unit tests
+        run: PYTHONPATH=. pytest-2
+      - name: Python 2 integration tests
+        run: PYTHONPATH=. python2 ./tests/integration_tests.py
+
+      - name: Python 3 unit tests
+        run: PYTHONPATH=. pytest-3
+      - name: Python 3 integration tests
+        run: PYTHONPATH=. python3 ./tests/integration_tests.py
+
+  ubuntu-1804:
+    name: Ubuntu 18.04
+    runs-on: ubuntu-latest
+    container: ubuntu:18.04
+    steps:
+      - run: apt update
+      - run: |
+          apt -y install \
+            python-pytest \
+            python-yaml \
+            python3-pytest \
+            python3-yaml
+      - uses: actions/checkout@v1
+
+      - name: Python 2 unit tests
+        run: PYTHONPATH=. pytest
+      - name: Python 2 integration tests
+        run: PYTHONPATH=. python2 ./tests/integration_tests.py
+
+      - name: Python 3 unit tests
+        run: PYTHONPATH=. pytest-3
+      - name: Python 3 integration tests
+        run: PYTHONPATH=. python3 ./tests/integration_tests.py
+
+  ubuntu-1604:
+    name: Ubuntu 16.04
+    runs-on: ubuntu-latest
+    container: ubuntu:16.04
+    steps:
+      - run: apt update
+      - run: |
+          apt -y install \
+            python-pytest \
+            python-yaml \
+            python3-pytest \
+            python3-yaml
+      - uses: actions/checkout@v1
+
+      - name: Python 2 unit tests
+        run: PYTHONPATH=. py.test
+      - name: Python 2 integration tests
+        run: PYTHONPATH=. python2 ./tests/integration_tests.py
+
+      - name: Python 3 unit tests
+        run: PYTHONPATH=. py.test-3
+      - name: Python 3 integration tests
+        run: PYTHONPATH=. python3 ./tests/integration_tests.py
+
+  debian-10:
+    name: Debian 10
+    runs-on: ubuntu-latest
+    container: debian:10
+    steps:
+      - run: apt update
+      - run: |
+          apt -y install \
+            python-pytest \
+            python-yaml \
+            python3-pytest \
+            python3-yaml
+      - uses: actions/checkout@v1
+
+      - name: Python 2 unit tests
+        run: PYTHONPATH=. pytest
+      - name: Python 2 integration tests
+        run: PYTHONPATH=. python2 ./tests/integration_tests.py
+
+      - name: Python 3 unit tests
+        run: PYTHONPATH=. pytest-3
+      - name: Python 3 integration tests
+        run: PYTHONPATH=. python3 ./tests/integration_tests.py
+
+  debian-9:
+    name: Debian 9
+    runs-on: ubuntu-latest
+    container: debian:9
+    steps:
+      - run: apt update
+      - run: |
+          apt -y install \
+            python-pytest \
+            python-yaml \
+            python3-pytest \
+            python3-yaml
+      - uses: actions/checkout@v1
+
+      - name: Python 2 unit tests
+        run: PYTHONPATH=. pytest
+      - name: Python 2 integration tests
+        run: PYTHONPATH=. python2 ./tests/integration_tests.py
+
+      - name: Python 3 unit tests
+        run: PYTHONPATH=. pytest-3
+      - name: Python 3 integration tests
+        run: PYTHONPATH=. python3 ./tests/integration_tests.py
+
+  macos-latest:
+    name: MacOS Latest
+    runs-on: macos-latest
+    steps:
+      - run: brew install python
+      - run: pip install PyYAML
+      - run: pip install pytest
+      - uses: actions/checkout@v1
+      - run: PYTHONPATH=. pytest
+      - run: PYTHONPATH=. python ./tests/integration_tests.py
+        
+        
