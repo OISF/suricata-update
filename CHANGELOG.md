@@ -1,6 +1,6 @@
 # Change Log
 
-## unreleased
+## 1.1.1 - 2019-12-11
 - If Suricata is less than 5, and Rust is not enabled, disable
   smb rules as they require Rust.
   https://redmine.openinfosecfoundation.org/issues/3280
