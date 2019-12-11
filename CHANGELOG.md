@@ -1,5 +1,13 @@
 # Change Log
 
+## unreleased
+
+### Added
+- Add summary for update-sources
+  command. https://redmine.openinfosecfoundation.org/issues/2472
+- Disable SMB if installed Suricata does not support them.
+  https://redmine.openinfosecfoundation.org/issues/3280
+
 ## 1.1.0 - 2019-10-11
 - Disable ja3 rules if the Suricata build or runtime configuration
   does not support
