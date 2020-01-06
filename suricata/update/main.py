@@ -1063,12 +1063,10 @@ def _main():
                 rulemap[rule.id] = fltr.run(rule)
                 drop_count += 1
 
-    # Apply modify filters.
-    for fltr in modify_filters:
-        for key, rule in rulemap.items():
+        for fltr in modify_filters:
             if fltr.match(rule):
                 new_rule = fltr.run(rule)
-                if new_rule and new_rule.format() != rule.format():
+                if new_rule:
                     rulemap[rule.id] = new_rule
                     modify_count += 1
 
