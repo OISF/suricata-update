@@ -26,7 +26,9 @@ import os.path
 import subprocess
 import re
 import logging
+import shutil
 import yaml
+import tempfile
 from collections import namedtuple
 
 logger = logging.getLogger()
@@ -163,10 +165,11 @@ def get_version(path):
 
 def test_configuration(suricata_path, suricata_conf=None, rule_filename=None):
     """Test the Suricata configuration with -T."""
+    tempdir = tempfile.TemporaryDirectory()
     test_command = [
         suricata_path,
         "-T",
-        "-l", "/tmp",
+        "-l", tempdir.name,
     ]
     if suricata_conf:
         test_command += ["-c", suricata_conf]
@@ -178,9 +181,12 @@ def test_configuration(suricata_path, suricata_conf=None, rule_filename=None):
 
     logger.debug("Running %s; env=%s", " ".join(test_command), str(env))
     rc = subprocess.Popen(test_command, env=env).wait()
-    if rc == 0:
-        return True
-    return False
+    ret = True if rc == 0 else False
+
+    # Cleanup the temp dir
+    shutil.rmtree(tempdir.name)
+
+    return ret
 
 def build_env():
     env = os.environ.copy()
