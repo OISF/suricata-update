@@ -246,7 +246,6 @@ def load_filters(filename):
     return filters
 
 def load_drop_filters(filename):
-    
     matchers = load_matchers(filename)
     filters = []
 
@@ -374,6 +373,7 @@ def write_merged(filename, rulemap):
                     removed.append(rule)
                 elif rule.format() != rulemap[rule.id].format():
                     modified.append(rulemap[rule.id])
+
         for key in rulemap:
             if not key in oldset:
                 added.append(key)
@@ -387,10 +387,22 @@ def write_merged(filename, rulemap):
                         len(added),
                         len(removed),
                         len(modified)))
-    
     with io.open(filename, encoding="utf-8", mode="w") as fileobj:
-        for rule in rulemap:
-            print(rulemap[rule].format(), file=fileobj)
+        for sid in rulemap:
+            rule = rulemap[sid]
+            if "dataset" in rule:
+                load_attr = [el for el in rule.dataset.split(",") if "load" in el][0]
+                dataset_fname = load_attr.split(" ")[1] # ASK if there can only be one filename
+                logger.debug("Copying dataset file %s to output directory" % dataset_fname)
+                shutil.copy(os.path.join(config.get_cache_dir(), dataset_fname),
+                            os.path.join(config.get_output_dir(), dataset_fname))
+            if "filemd5" in rule:
+                filemd5_fname = rule.get("filemd5")
+                logger.debug("Copying filemd5 file %s to output directory" % filemd5_fname)
+                shutil.copy(os.path.join(config.get_cache_dir(), filemd5_fname),
+                            os.path.join(config.get_output_dir(), filemd5_fname))
+
+            print(rule.format(), file=fileobj)
 
 def write_to_directory(directory, files, rulemap):
     # List of rule IDs that have been added.
