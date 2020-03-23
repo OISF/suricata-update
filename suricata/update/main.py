@@ -246,7 +246,6 @@ def load_filters(filename):
     return filters
 
 def load_drop_filters(filename):
-    
     matchers = load_matchers(filename)
     filters = []
 
@@ -356,7 +355,28 @@ def load_dist_rules(files):
                 logger.error("Failed to open %s: %s" % (path, err))
                 sys.exit(1)
 
-def write_merged(filename, rulemap):
+def handle_dataset_files(rule, dep_files):
+    load_attr = [el for el in rule.dataset.split(",") if "load" in el][0]
+    dataset_fname = load_attr.split(" ")[1]
+    filename = [fname for fname, content in dep_files.items() if os.path.basename(fname) == dataset_fname]
+    if filename:
+        logger.debug("Copying dataset file %s to output directory" % dataset_fname)
+        with open(os.path.join(config.get_output_dir(), dataset_fname), "w+") as fp:
+            fp.write(dep_files[dataset_fname].decode("utf-8"))
+    else:
+        logger.error("Dataset file %s was not found" % dataset_fname)
+
+def handle_filemd5_files(rule, dep_files):
+    filemd5_fname = rule.get("filemd5")
+    filename = [fname for fname, content in dep_files.items() if os.path.basename(fname) == filemd5_fname]
+    if filename:
+        logger.debug("Copying filemd5 file %s to output directory" % filemd5_fname)
+        with open(os.path.join(config.get_output_dir(), filemd5_fname), "w+") as fp:
+            fp.write(dep_files[filemd5_fname].decode("utf-8"))
+    else:
+        logger.error("Filemd5 file %s was not found" % filemd5_fname)
+
+def write_merged(filename, rulemap, dep_files):
 
     if not args.quiet:
         # List of rule IDs that have been added.
@@ -374,6 +394,7 @@ def write_merged(filename, rulemap):
                     removed.append(rule)
                 elif rule.format() != rulemap[rule.id].format():
                     modified.append(rulemap[rule.id])
+
         for key in rulemap:
             if not key in oldset:
                 added.append(key)
@@ -387,12 +408,17 @@ def write_merged(filename, rulemap):
                         len(added),
                         len(removed),
                         len(modified)))
-    
     with io.open(filename, encoding="utf-8", mode="w") as fileobj:
-        for rule in rulemap:
-            print(rulemap[rule].format(), file=fileobj)
+        for sid in rulemap:
+            rule = rulemap[sid]
+            if "dataset" in rule:
+                handle_dataset_files(rule, dep_files)
+            if "filemd5" in rule:
+                handle_filemd5_files(rule, dep_files)
 
-def write_to_directory(directory, files, rulemap):
+            print(rule.format(), file=fileobj)
+
+def write_to_directory(directory, files, rulemap, dep_files):
     # List of rule IDs that have been added.
     added = []
     # List of rule objects that have been removed.
@@ -440,6 +466,10 @@ def write_to_directory(directory, files, rulemap):
                 if not rule:
                     content.append(line.strip())
                 else:
+                    if "dataset" in rule:
+                        handle_dataset_files(rule, dep_files)
+                    if "filemd5" in rule:
+                        handle_filemd5_files(rule, dep_files)
                     content.append(rulemap[rule.id].format())
             io.open(outpath, encoding="utf-8", mode="w").write(
                 u"\n".join(content))
@@ -1026,8 +1056,10 @@ def _main():
             del(files[filename])
 
     rules = []
+    dep_files = {}
     for filename in sorted(files):
         if not filename.endswith(".rules"):
+            dep_files.update({os.path.basename(filename): files[filename]})
             continue
         logger.debug("Parsing %s." % (filename))
         rules += rule_mod.parse_fileobj(io.BytesIO(files[filename]), filename)
@@ -1109,13 +1141,13 @@ def _main():
         output_filename = os.path.join(
             config.get_output_dir(), DEFAULT_OUTPUT_RULE_FILENAME)
         file_tracker.add(output_filename)
-        write_merged(os.path.join(output_filename), rulemap)
+        write_merged(os.path.join(output_filename), rulemap, dep_files)
     else:
         for filename in files:
             file_tracker.add(
                 os.path.join(
                     config.get_output_dir(), os.path.basename(filename)))
-        write_to_directory(config.get_output_dir(), files, rulemap)
+        write_to_directory(config.get_output_dir(), files, rulemap, dep_files)
 
     if args.yaml_fragment:
         file_tracker.add(args.yaml_fragment)
