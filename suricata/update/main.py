@@ -31,6 +31,7 @@ import glob
 import io
 import tempfile
 import signal
+import errno
 
 try:
     # Python 3.
@@ -91,6 +92,9 @@ DEFAULT_SURICATA_VERSION = "4.0.0"
 DEFAULT_OUTPUT_RULE_FILENAME = "suricata.rules"
 
 INDEX_EXPIRATION_TIME = 60 * 60 * 24 * 14
+
+# Rule keywords that come with files
+file_kw = ["filemd5", "filesha1", "filesha256", "dataset"]
 
 class Fetch:
 
@@ -247,7 +251,6 @@ def load_filters(filename):
     return filters
 
 def load_drop_filters(filename):
-    
     matchers = load_matchers(filename)
     filters = []
 
@@ -357,7 +360,37 @@ def load_dist_rules(files):
                 logger.error("Failed to open %s: %s" % (path, err))
                 sys.exit(1)
 
-def write_merged(filename, rulemap):
+def handle_dataset_files(rule, dep_files):
+    load_attr = [el for el in rule.dataset.split(",") if "load" in el][0]
+    dataset_fname = os.path.basename(load_attr.split(" ")[1])
+    filename = [fname for fname, content in dep_files.items() if fname == dataset_fname]
+    if filename:
+        logger.debug("Copying dataset file %s to output directory" % dataset_fname)
+        with open(os.path.join(config.get_output_dir(), dataset_fname), "w+") as fp:
+            fp.write(dep_files[dataset_fname].decode("utf-8"))
+    else:
+        logger.error("Dataset file %s was not found" % dataset_fname)
+
+def handle_filehash_files(rule, dep_files, fhash):
+    filehash_fname = rule.get(fhash)
+    filename = [fname for fname, content in dep_files.items() if os.path.join(*(fname.split(os.path.sep)[1:])) == filehash_fname]
+    if filename:
+        logger.debug("Copying %s file %s to output directory" % (fhash, filehash_fname))
+        filepath = os.path.join(config.get_state_dir(), os.path.dirname(filename[0]))
+        logger.debug("filepath: %s" % filepath)
+        try:
+            os.makedirs(filepath)
+        except OSError as oserr:
+            if oserr.errno != errno.EEXIST:
+                logger.error(oserr)
+                sys.exit(1)
+        logger.debug("output fname: %s" % os.path.join(filepath, os.path.basename(filehash_fname)))
+        with open(os.path.join(filepath, os.path.basename(filehash_fname)), "w+") as fp:
+            fp.write(dep_files[os.path.join("rules", filehash_fname)].decode("utf-8"))
+    else:
+        logger.error("%s file %s was not found" % (fhash, filehash_fname))
+
+def write_merged(filename, rulemap, dep_files):
 
     if not args.quiet:
         # List of rule IDs that have been added.
@@ -375,6 +408,7 @@ def write_merged(filename, rulemap):
                     removed.append(rule)
                 elif rule.format() != rulemap[rule.id].format():
                     modified.append(rulemap[rule.id])
+
         for key in rulemap:
             if not key in oldset:
                 added.append(key)
@@ -388,12 +422,19 @@ def write_merged(filename, rulemap):
                         len(added),
                         len(removed),
                         len(modified)))
-    
     with io.open(filename, encoding="utf-8", mode="w") as fileobj:
-        for rule in rulemap:
-            print(rulemap[rule].format(), file=fileobj)
+        for sid in rulemap:
+            rule = rulemap[sid]
+            for kw in file_kw:
+                if kw in rule:
+                    if "dataset" == kw:
+                        handle_dataset_files(rule, dep_files)
+                    else:
+                        handle_filehash_files(rule, dep_files, kw)
 
-def write_to_directory(directory, files, rulemap):
+            print(rule.format(), file=fileobj)
+
+def write_to_directory(directory, files, rulemap, dep_files):
     # List of rule IDs that have been added.
     added = []
     # List of rule objects that have been removed.
@@ -441,6 +482,12 @@ def write_to_directory(directory, files, rulemap):
                 if not rule:
                     content.append(line.strip())
                 else:
+                    for kw in file_kw:
+                        if kw in rule:
+                            if "dataset" == kw:
+                                handle_dataset_files(rule, dep_files)
+                            else:
+                                handle_filehash_files(rule, dep_files, kw)
                     content.append(rulemap[rule.id].format())
             io.open(outpath, encoding="utf-8", mode="w").write(
                 u"\n".join(content))
@@ -1027,8 +1074,10 @@ def _main():
             del(files[filename])
 
     rules = []
+    dep_files = {}
     for filename in sorted(files):
         if not filename.endswith(".rules"):
+            dep_files.update({filename: files[filename]})
             continue
         logger.debug("Parsing %s." % (filename))
         rules += rule_mod.parse_fileobj(io.BytesIO(files[filename]), filename)
@@ -1108,13 +1157,13 @@ def _main():
         output_filename = os.path.join(
             config.get_output_dir(), DEFAULT_OUTPUT_RULE_FILENAME)
         file_tracker.add(output_filename)
-        write_merged(os.path.join(output_filename), rulemap)
+        write_merged(os.path.join(output_filename), rulemap, dep_files)
     else:
         for filename in files:
             file_tracker.add(
                 os.path.join(
                     config.get_output_dir(), os.path.basename(filename)))
-        write_to_directory(config.get_output_dir(), files, rulemap)
+        write_to_directory(config.get_output_dir(), files, rulemap, dep_files)
 
     if args.yaml_fragment:
         file_tracker.add(args.yaml_fragment)
