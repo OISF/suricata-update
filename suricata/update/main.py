@@ -448,11 +448,13 @@ def load_filters(filename):
             line = line.rsplit(" #")[0]
 
             line = re.sub(r'\\\$', '$', line)  # needed to escape $ in pp
-            filter = ModifyRuleFilter.parse(line)
-            if filter:
-                filters.append(filter)
-            else:
-                log.error("Failed to parse modify filter: %s" % (line))
+            try:
+                rule_filter = ModifyRuleFilter.parse(line)
+                if rule_filter:
+                    filters.append(rule_filter)
+            except Exception as err:
+                raise exceptions.ApplicationError(
+                    "Failed to parse modify filter: {}".format(line))
 
     return filters
 
