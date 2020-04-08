@@ -3,10 +3,17 @@
 ## unreleased
 
 ### Added
-- Add summary for update-sources
-  command. https://redmine.openinfosecfoundation.org/issues/2472
-- Disable SMB if installed Suricata does not support them.
+- Add summary for update-sources command:
+  https://redmine.openinfosecfoundation.org/issues/2472
+- Disable SMB rules if installed Suricata does not support them:
   https://redmine.openinfosecfoundation.org/issues/3280
+- Better error on bad modify filter:
+  https://redmine.openinfosecfoundation.org/issues/3536
+- Missing documentation for list-sources, list-enabled-sources and
+  check-versions:
+  https://redmine.openinfosecfoundation.org/issues/3228
+- Optimization for modify filters:
+  https://redmine.openinfosecfoundation.org/issues/3620
 
 ## 1.1.0 - 2019-10-11
 - Disable ja3 rules if the Suricata build or runtime configuration
