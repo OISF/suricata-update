@@ -35,6 +35,7 @@ except ImportError:
 
 from suricata.update.version import version
 from suricata.update import config
+from suricata.update import osinfo
 
 logger = logging.getLogger()
 
@@ -61,16 +62,24 @@ def build_user_agent():
             logger.debug("Suppressing HTTP User-Agent header")
             return None
         return user_agent
-    uname_system = platform.uname()[0]
 
-    params.append("OS: %s" % (uname_system))
-    params.append("CPU: %s" % (platform.machine()))
-    params.append("Python: %s" % (platform.python_version()))
-
-    if uname_system == "Linux" and hasattr(platform, "linux_distribution"):
-        distribution = platform.linux_distribution()
-        params.append("Dist: %s/%s" % (
-            str(distribution[0]), str(distribution[1])))
+    params = []
+    try:
+        params.append("OS: {}".format(platform.system()))
+    except Exception as err:
+        logger.error("Failed to set user-agent OS: {}".format(str(err)))
+    try:
+        params.append("CPU: {}".format(osinfo.arch()))
+    except Exception as err:
+        logger.error("Failed to set user-agent architecture: {}".format(str(err)))
+    try:
+        params.append("Python: {}".format(platform.python_version()))
+    except Exception as err:
+        logger.error("Failed to set user-agent python version: {}".format(str(err)))
+    try:
+        params.append("Dist: {}".format(osinfo.dist()))
+    except Exception as err:
+        logger.error("Failed to set user-agent distribution: {}".format(str(err)))
 
     params.append("Suricata: %s" % (user_agent_suricata_verison))
 
