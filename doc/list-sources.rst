@@ -22,3 +22,7 @@ Options
 .. option:: --free
 
    List all freely available sources.
+
+.. option:: --enabled
+
+   Lists all the enabled sources.
