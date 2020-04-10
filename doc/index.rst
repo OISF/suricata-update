@@ -12,6 +12,5 @@ suricata-update - A Suricata Rule Update Tool
    enable-source
    disable-source
    remove-source
-   list-enabled-sources
    add-source
    check-versions
