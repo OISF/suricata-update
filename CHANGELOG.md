@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.1.2 - 2020-04-17
+- Better error on bad modify filter:
+  https://redmine.openinfosecfoundation.org/issues/3536
+- Optimization for modify filters:
+  https://redmine.openinfosecfoundation.org/issues/3620
+
 ## 1.1.1 - 2019-12-11
 - If Suricata is less than 5, and Rust is not enabled, disable
   smb rules as they require Rust.
