@@ -251,6 +251,13 @@ Example converting all drop rules with noalert back to alert::
 
   re:. "^drop(.*)noalert(.*)" "alert\\1noalert\\2"  
 
+Order of application of configuration files
+===========================================
+1. disable.conf
+2. enable.conf
+3. drop.conf
+4. modify.conf
+
 Example Configuration Files
 ===========================
 
