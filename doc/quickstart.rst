@@ -16,9 +16,7 @@ Pip can install ``suricata-update`` globally making it available to
 all users or it can install ``suricata-update`` into your home
 directory for use by your user.
 
-.. note:: Version 4.1+ from the Ubuntu PPA is bundled with
-          ``suricata-update``. At some point other packages should be
-	  bundled with Suricata avoid the need for a separate installation.
+.. note:: From version 4.1+ ``suricata-update`` is bundled with Suricata.
 
 To install ``suricata-update`` globally::
 
