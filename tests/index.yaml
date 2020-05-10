@@ -100,3 +100,30 @@ sources:
     license: GPLv3
     url: https://raw.githubusercontent.com/travisbgreen/hunting-rules/master/hunting.rules
     min-version: 4.1.0
+
+  malsilo/dns:
+    summary: Commodity malware rules
+    description: |
+      malware DNS artifacts observed at runtime.
+    vendor: malsilo
+    license: MIT
+    url: https://malsilo.gitlab.io/feeds/dumps/malsilo-dns.rules
+    min-version: 4.1.0
+
+  malsilo/ip:
+    summary: Commodity malware rules
+    description: |
+      malware TCP/UDP artifacts observed at runtime.
+    vendor: malsilo
+    license: MIT
+    url: https://malsilo.gitlab.io/feeds/dumps/malsilo-ip.rules
+    min-version: 4.1.0
+
+  malsilo/url:
+    summary: Commodity malware rules
+    description: |
+      malware malware HTTP artifacts observed at runtime.
+    vendor: malsilo
+    license: MIT
+    url: https://malsilo.gitlab.io/feeds/dumps/malsilo-url.rules
+    min-version: 4.1.0
