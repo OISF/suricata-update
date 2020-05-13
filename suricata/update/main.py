@@ -999,7 +999,7 @@ def load_sources(suricata_version):
             params.update(internal_params)
             if "url" in source:
                 # No need to go off to the index.
-                http_header = source.get("http_header")
+                http_header = source.get("http-header")
                 checksum = source.get("checksum")
                 url = (source["url"] % params, http_header, checksum)
                 logger.debug("Resolved source %s to URL %s.", name, url[0])
