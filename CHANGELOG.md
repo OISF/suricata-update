@@ -14,6 +14,8 @@
   https://redmine.openinfosecfoundation.org/issues/3228
 - Optimization for modify filters:
   https://redmine.openinfosecfoundation.org/issues/3620
+- Fix --http-header option. Header was not being sent:
+  https://redmine.openinfosecfoundation.org/issues/3696
 
 ## 1.1.0 - 2019-10-11
 - Disable ja3 rules if the Suricata build or runtime configuration
