@@ -99,6 +99,12 @@ class ThresholdProcessorTestCase(unittest.TestCase):
             "suppress gen_id 1, sig_id 2020757",
             self.processor.replace(line, rule))
 
+        bad_line = "nothing to match"
+        self.assertEqual(
+            "nothing to match",
+            self.processor.replace(bad_line, rule)
+        )
+
         line = 'threshold re:"ET MALWARE Windows", type threshold, ' \
                'track by_dst, count 1, seconds 10'
         self.assertEqual("threshold gen_id 1, sig_id 2020757, type threshold, track by_dst, count 1, seconds 10", self.processor.replace(line, rule))
