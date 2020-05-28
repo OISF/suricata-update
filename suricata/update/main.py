@@ -552,7 +552,7 @@ class ThresholdProcessor:
             if m:
                 return threshold.replace(
                     m.group(1), "gen_id %d, sig_id %d" % (rule.gid, rule.sid))
-        return thresold
+        return threshold
 
     def process(self, filein, fileout, rulemap):
         count = 0
