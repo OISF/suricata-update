@@ -1028,8 +1028,6 @@ def _main():
 
     rules = []
     for filename in sorted(files):
-        if not filename.endswith(".rules"):
-            continue
         logger.debug("Parsing %s." % (filename))
         rules += rule_mod.parse_fileobj(io.BytesIO(files[filename]), filename)
 
