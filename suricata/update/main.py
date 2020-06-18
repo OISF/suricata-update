@@ -357,6 +357,57 @@ def load_dist_rules(files):
                 logger.error("Failed to open %s: %s" % (path, err))
                 sys.exit(1)
 
+def load_classification(suriconf, files):
+    # TODO ASK if there can be overwriting of classification files
+    filename = os.path.join("suricata", "classification.config")
+    dirs = []
+    classification_arr = {}
+    if "sysconfdir" in suriconf.build_info:
+        dirs.append(os.path.join(suriconf.build_info["sysconfdir"], filename))
+    if "datarootdir" in suriconf.build_info:
+        dirs.append(os.path.join(suriconf.build_info["datarootdir"], filename))
+
+    for path in dirs:
+        if os.path.exists(path):
+            with open(path) as fp:
+                for line in fp:
+                    if line.startswith("#") or not line.strip():
+                        continue
+                    config_classification = line.split(":")[1].strip()
+                    key, desc, priority = config_classification.split(",")
+                    if key in classification_arr:
+                        if classification_arr[key][1] >= priority:
+                            continue
+                    classification_arr[key] = [desc, priority, line]
+    if files:
+        for filep in files:
+            lines = filep.decode().split('\n')
+            for line in lines:
+                if line.startswith("#") or not line.strip():
+                    continue
+                config_classification = line.split(":")[1].strip()
+                key, desc, priority = config_classification.split(",")
+                if key in classification_arr:
+                    if classification_arr[key][1] >= priority:
+                        continue
+                classification_arr[key] = [desc, priority, line]
+
+    return classification_arr
+
+def manage_classification(suriconf, files):
+    if suriconf is None:
+        # Can't continue without a valid Suricata configuration
+        # object.
+        return
+    classification_arr = load_classification(suriconf, files)
+    filename = os.path.join("rules", "classification.config")
+    filename = os.path.join("suricata", filename)
+    filename = os.path.join("lib", filename)
+    if "sysconfdir" in suriconf.build_info:
+        path = os.path.join(suriconf.build_info["localstatedir"], filename)
+    with open(path, "w+") as fp:
+        fp.writelines("{}".format(v[2]) for k, v in classification_arr.items())
+
 def write_merged(filename, rulemap):
 
     if not args.quiet:
@@ -1027,7 +1078,11 @@ def _main():
             del(files[filename])
 
     rules = []
+    classification_files = []
     for filename in sorted(files):
+        if "classification.config" in filename:
+            classification_files.append(files[filename])
+            continue
         if not filename.endswith(".rules"):
             continue
         logger.debug("Parsing %s." % (filename))
@@ -1035,6 +1090,7 @@ def _main():
 
     rulemap = build_rule_map(rules)
     logger.info("Loaded %d rules." % (len(rules)))
+    manage_classification(suriconf, classification_files)
 
     # Counts of user enabled and modified rules.
     enable_count = 0
