@@ -357,6 +357,61 @@ def load_dist_rules(files):
                 logger.error("Failed to open %s: %s" % (path, err))
                 sys.exit(1)
 
+def load_classification(suriconf, files):
+    filename = os.path.join("suricata", "classification.config")
+    dirs = []
+    classification_dict = {}
+    if "sysconfdir" in suriconf.build_info:
+        dirs.append(os.path.join(suriconf.build_info["sysconfdir"], filename))
+    if "datarootdir" in suriconf.build_info:
+        dirs.append(os.path.join(suriconf.build_info["datarootdir"], filename))
+
+    for path in dirs:
+        if os.path.exists(path):
+            with open(path) as fp:
+                for line in fp:
+                    if line.startswith("#") or not line.strip():
+                        continue
+                    config_classification = line.split(":")[1].strip()
+                    key, desc, priority = config_classification.split(",")
+                    if key in classification_dict:
+                        if classification_dict[key][1] >= priority:
+                            continue
+                    classification_dict[key] = [desc, priority, line.strip()]
+
+    # Handle files from the sources
+    for filep in files:
+        logger.info("Loading {}".format(filep[0]))
+        lines = filep[1].decode().split('\n')
+        for line in lines:
+            if line.startswith("#") or not line.strip():
+                continue
+            config_classification = line.split(":")[1].strip()
+            key, desc, priority = config_classification.split(",")
+            if key in classification_dict:
+                if classification_dict[key][1] >= priority:
+                    if classification_dict[key][1] > priority:
+                        logger.warning("Found classification with same shortname \"{}\","
+                                       " keeping the one with higher priority ({})".format(
+                                       key, classification_dict[key][1]))
+                    continue
+            classification_dict[key] = [desc, priority, line.strip()]
+
+    return classification_dict
+
+def manage_classification(suriconf, files):
+    if suriconf is None:
+        # Can't continue without a valid Suricata configuration
+        # object.
+        return
+    classification_dict = load_classification(suriconf, files)
+    path = os.path.join(config.get_output_dir(), "classification.config")
+    try:
+        with open(path, "w+") as fp:
+            fp.writelines("{}\n".format(v[2]) for k, v in classification_dict.items())
+    except (OSError, IOError) as err:
+        logger.error(err)
+
 def write_merged(filename, rulemap):
 
     if not args.quiet:
@@ -1027,7 +1082,11 @@ def _main():
             del(files[filename])
 
     rules = []
+    classification_files = []
     for filename in sorted(files):
+        if "classification.config" in filename:
+            classification_files.append((filename, files[filename]))
+            continue
         if not filename.endswith(".rules"):
             continue
         logger.debug("Parsing %s." % (filename))
@@ -1115,6 +1174,8 @@ def _main():
                 os.path.join(
                     config.get_output_dir(), os.path.basename(filename)))
         write_to_directory(config.get_output_dir(), files, rulemap)
+
+    manage_classification(suriconf, classification_files)
 
     if args.yaml_fragment:
         file_tracker.add(args.yaml_fragment)
