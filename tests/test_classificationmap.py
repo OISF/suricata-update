@@ -20,7 +20,7 @@ from suricata.update.maps import ClassificationMap
 
 class ClassificationMapTestCase(unittest.TestCase):
 
-    test_filename = "tests/classification.config"
+    test_filename = "tests/classification1.config"
 
     def test_load_from_file(self):
         m = ClassificationMap(open(self.test_filename))
