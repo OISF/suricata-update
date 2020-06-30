@@ -239,3 +239,36 @@ class DropRuleFilterTestCase(unittest.TestCase):
         matcher = matchers_mod.IdRuleMatcher.parse("2016659")
         rule_filter = matchers_mod.DropRuleFilter(matcher)
         self.assertFalse(rule_filter.match(rule))
+
+
+class DummySuriConf(dict):
+    def __getattr__(self, val):
+        return self[val]
+
+
+class ClassificationConfigMergeTestCase(unittest.TestCase):
+    test_fname1 = "tests/classification1.config"
+    test_fname2 = "tests/classification2.config"
+
+    def test_merge_classification_files(self):
+        """ Test if the two files get merged properly and priority is maintained"""
+        suriconf = DummySuriConf()
+        suriconf["build_info"] = {}
+        with open(self.test_fname1) as fp:
+            test_file1 = fp.read()
+        with open(self.test_fname2) as fp:
+            test_file2 = fp.read()
+        files = [("test_file1", test_file1.encode()),
+                ("test_file2", test_file2.encode())]
+        cdict = main.load_classification(suriconf, files)
+
+        # Number of classifications in classification1.config: 42
+        # Number of classifications in classification2.config: 44 (2 new)
+        self.assertEqual(44, len(cdict))
+
+        # classification1.config:
+        # config classification: misc-attack,Misc Attack,2
+        #
+        # classification2.config:
+        # config classification: misc-attack,Misc Attack,5
+        self.assertEqual("5", cdict["misc-attack"][1])
