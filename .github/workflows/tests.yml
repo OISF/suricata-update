@@ -71,10 +71,10 @@ jobs:
       - name: Python 3 integration tests
         run: PYTHONPATH=. python3 ./tests/integration_tests.py
 
-  fedora-latest:
-    name: Fedora Latest
+  fedora-31:
+    name: Fedora 31
     runs-on: ubuntu-latest
-    container: fedora:latest
+    container: fedora:31
     steps:
       - run: |
           yum -y install \
