@@ -16,6 +16,10 @@
   https://redmine.openinfosecfoundation.org/issues/3620
 - Fix --http-header option. Header was not being sent:
   https://redmine.openinfosecfoundation.org/issues/3696
+- Add classification.config management. Suricata-Update will now load
+  the Suricata installed classification.config and merge it with
+  classification.config's found in rule
+  files. https://redmine.openinfosecfoundation.org/issues/3203
 
 ## 1.1.0 - 2019-10-11
 - Disable ja3 rules if the Suricata build or runtime configuration
