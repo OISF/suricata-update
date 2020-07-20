@@ -368,6 +368,7 @@ def load_classification(suriconf, files):
 
     for path in dirs:
         if os.path.exists(path):
+            logger.debug("Loading {}".format(path))
             with open(path) as fp:
                 for line in fp:
                     if line.startswith("#") or not line.strip():
@@ -381,7 +382,7 @@ def load_classification(suriconf, files):
 
     # Handle files from the sources
     for filep in files:
-        logger.info("Loading {}".format(filep[0]))
+        logger.debug("Loading {}".format(filep[0]))
         lines = filep[1].decode().split('\n')
         for line in lines:
             if line.startswith("#") or not line.strip():
@@ -407,6 +408,7 @@ def manage_classification(suriconf, files):
     classification_dict = load_classification(suriconf, files)
     path = os.path.join(config.get_output_dir(), "classification.config")
     try:
+        logger.info("Writing {}".format(path))
         with open(path, "w+") as fp:
             fp.writelines("{}\n".format(v[2]) for k, v in classification_dict.items())
     except (OSError, IOError) as err:
