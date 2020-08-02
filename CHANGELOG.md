@@ -20,6 +20,10 @@
   the Suricata installed classification.config and merge it with
   classification.config's found in rule
   files. https://redmine.openinfosecfoundation.org/issues/3203
+- Copy md5/sha1/sha256 file lists from rulesets into the rule output
+  directory: https://redmine.openinfosecfoundation.org/issues/2688
+- Copy dataset files from ruleset into the rule output directory:
+  https://redmine.openinfosecfoundation.org/issues/3528
 
 ## 1.1.0 - 2019-10-11
 - Disable ja3 rules if the Suricata build or runtime configuration
