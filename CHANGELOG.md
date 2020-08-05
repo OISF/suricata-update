@@ -1,6 +1,6 @@
 # Change Log
 
-## unreleased
+## 1.2.0rc1 - 2020-08-05
 
 ### Added
 - Add summary for update-sources command:
