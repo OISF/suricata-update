@@ -422,7 +422,7 @@ def manage_classification(suriconf, files):
 def handle_dataset_files(rule, dep_files):
     if not rule.enabled:
         return
-    load_attr = [el for el in rule.dataset.split(",") if "load" in el][0]
+    load_attr = [el.strip() for el in rule.dataset.split(",") if "load" in el][0]
     dataset_fname = os.path.basename(load_attr.split(" ")[1])
     filename = [fname for fname, content in dep_files.items() if fname == dataset_fname]
     if filename:
