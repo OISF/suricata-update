@@ -62,7 +62,7 @@ def enable_source():
 
     source_index = sources.load_source_index(config)
 
-    if not name in source_index.get_sources():
+    if not name in source_index.get_sources() and not name in sources.get_sources_from_dir():
         logger.error("Unknown source: %s", name)
         return 1
 
