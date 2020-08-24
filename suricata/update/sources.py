@@ -44,6 +44,15 @@ def get_source_directory():
 def get_index_filename():
     return os.path.join(config.get_cache_dir(), SOURCE_INDEX_FILENAME)
 
+def get_sources_from_dir():
+    """Return names of all files existing in the sources dir"""
+    source_dir = get_source_directory()
+    source_names = []
+    # TODO: Check if this will work with Python 3
+    (_, _, fnames) = next(os.walk(source_dir))
+    source_names = [".".join(fname.split('.')[:-1]) for fname in fnames]
+    return source_names
+
 def get_enabled_source_filename(name):
     return os.path.join(get_source_directory(), "%s.yaml" % (
         safe_filename(name)))
