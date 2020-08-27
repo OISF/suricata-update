@@ -32,6 +32,7 @@ import io
 import tempfile
 import signal
 import errno
+from datetime import datetime as dt
 
 try:
     # Python 3.
@@ -451,6 +452,28 @@ def handle_filehash_files(rule, dep_files, fhash):
     else:
         logger.error("%s file %s was not found" % (fhash, filehash_fname))
 
+def log_report(rulemap, added, removed, modified):
+    fpath = config.get("report")
+    actions = {"added": added, "removed": removed, "modified": modified}
+    if not fpath:
+        return
+    with open(fpath, "w") as f:
+        f.write("Generated on {}\n\n".format(
+            dt.now().strftime("%A, %d %b %Y, %H:%M:%S")))
+        import ipdb
+        ipdb.set_trace()
+        for action in actions.keys():
+            f.write("\n{} Rules\n{}\n".format(action.title(), "=" * (len(action) + 6)))
+            traversal_list = actions[action] if action != "removed" else removed
+            for sid in traversal_list:
+                rule = rulemap[sid]
+                rule_group = rule.get("group")
+                rule_fname = rule_group.split("/")[-1] if rule_group else None
+                fmt_string =  " ({})".format(
+                        rule_fname.split(".")[0] if rule_fname else None)
+                f.write("{}{}\n".format(
+                    rule.brief(), fmt_string if rule_fname else ""))
+
 def write_merged(filename, rulemap, dep_files):
 
     if not args.quiet:
@@ -483,6 +506,7 @@ def write_merged(filename, rulemap, dep_files):
                         len(added),
                         len(removed),
                         len(modified)))
+    log_report(rulemap, added, removed, modified)
     with io.open(filename, encoding="utf-8", mode="w") as fileobj:
         for sid in rulemap:
             rule = rulemap[sid]
@@ -530,6 +554,7 @@ def write_to_directory(directory, files, rulemap, dep_files):
                         len(removed),
                         len(modified)))
 
+    log_report(rulemap, added, removed, modified)
     for filename in sorted(files):
         outpath = os.path.join(
             directory, os.path.basename(filename))
