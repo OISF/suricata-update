@@ -452,27 +452,70 @@ def handle_filehash_files(rule, dep_files, fhash):
     else:
         logger.error("%s file %s was not found" % (fhash, filehash_fname))
 
+def _append_to_file(fpath, lines):
+    with open(fpath, "a") as f:
+        f.write("\n")
+        f.write("\n".join(lines))
+
+
+def _header_underline(header):
+    hlength = len(header)
+    ulined_header = "\n{}\n{}".format(header, "=" * hlength)
+    return ulined_header
+
+
+def counter(f):
+    def wrapped(*args, **kwargs):
+        wrapped.calls += 1
+        return f(*args, **kwargs)
+    wrapped.calls = 0
+    return wrapped
+
+@counter
+def log_timestamp(fpath):
+    with open(fpath, "w") as f:
+        f.write("Generated on {}\n\n".format(
+            dt.now().strftime("%A, %d %b %Y, %H:%M:%S")))
+        f.write(_header_underline("Summary"))
+
+def log_summary(rcount_map, conf=False):
+    fpath = config.get("report")
+    if not fpath:
+        return
+    if log_timestamp.calls == 0:
+        log_timestamp(fpath=fpath)
+    lines = list()
+    predicate_map = {
+            "disabled": " by disable.conf",
+            "enabled": " by enable.conf",
+            "modified": " by modify.conf",
+            "dropped": "converted to drop",
+            "flowbit": "enabled for flowbit dependencies",
+            }
+    for rtype, rcount in rcount_map.items():
+        lines.append("Rules {}{}: {}".format(
+                    rtype if rtype not in ["flowbit", "dropped"] else "",
+                    predicate_map[rtype] if conf else "", rcount))
+    _append_to_file(fpath=fpath, lines=lines)
+
 def log_report(rulemap, added, removed, modified):
     fpath = config.get("report")
     actions = {"added": added, "removed": removed, "modified": modified}
     if not fpath:
         return
-    with open(fpath, "w") as f:
-        f.write("Generated on {}\n\n".format(
-            dt.now().strftime("%A, %d %b %Y, %H:%M:%S")))
-        import ipdb
-        ipdb.set_trace()
-        for action in actions.keys():
-            f.write("\n{} Rules\n{}\n".format(action.title(), "=" * (len(action) + 6)))
-            traversal_list = actions[action] if action != "removed" else removed
-            for sid in traversal_list:
-                rule = rulemap[sid]
-                rule_group = rule.get("group")
-                rule_fname = rule_group.split("/")[-1] if rule_group else None
-                fmt_string =  " ({})".format(
-                        rule_fname.split(".")[0] if rule_fname else None)
-                f.write("{}{}\n".format(
-                    rule.brief(), fmt_string if rule_fname else ""))
+    log_summary(rcount_map={key:len(actions[key]) for key in actions})
+    lines = list()
+    for action in actions.keys():
+        lines.append(_header_underline("{} Rules".format(action.title())))
+        traversal_list = actions[action] if action != "removed" else removed
+        for rule in traversal_list:
+            if action == "added":
+                rule = rulemap[rule]
+            rule_group = rule.get("group")
+            rule_fname = rule_group.split("/")[-1] if rule_group else None
+            fmt_string =  " ({})".format(rule_fname if rule_fname else "")
+            lines.append("{}{}".format(rule.brief(), fmt_string))
+    _append_to_file(fpath=fpath, lines=lines)
 
 def write_merged(filename, rulemap, dep_files):
 
@@ -659,6 +702,7 @@ def resolve_flowbits(rulemap, disabled_rules):
             flowbit_enabled.add(rule)
     logger.info("Enabled %d rules for flowbit dependencies." % (
         len(flowbit_enabled)))
+    return len(flowbit_enabled)
 
 class ThresholdProcessor:
 
@@ -1219,13 +1263,21 @@ def _main():
     # Check rule vars, disabling rules that use unknown vars.
     check_vars(suriconf, rulemap)
 
-    logger.info("Disabled %d rules." % (len(disabled_rules)))
-    logger.info("Enabled %d rules." % (enable_count))
-    logger.info("Modified %d rules." % (modify_count))
-    logger.info("Dropped %d rules." % (drop_count))
+    rcount_map = {
+            "disabled": len(disabled_rules),
+            "enabled": enable_count,
+            "modified": modify_count,
+            "dropped": drop_count,
+            }
+
+    for rtype, rcount in rcount_map.items():
+        logger.info("{} {} rules.".format(rtype.title(), rcount))
 
     # Fixup flowbits.
-    resolve_flowbits(rulemap, disabled_rules)
+    flowbit_enable_count = resolve_flowbits(rulemap, disabled_rules)
+
+    rcount_map["flowbit"] = flowbit_enable_count
+    log_summary(rcount_map=rcount_map, conf=True)
 
     # Check that output directory exists, creating it if needed.
     check_output_directory(config.get_output_dir())
