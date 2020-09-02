@@ -185,6 +185,8 @@ def parse_update(subparsers, global_parser):
 def parse_commands(subparsers, global_parser):
     commands.listsources.register(subparsers.add_parser(
         "list-sources", parents=[global_parser]))
+    commands.listsources.register(subparsers.add_parser(
+        "list-enabled-sources", parents=[global_parser]))
     commands.addsource.register(subparsers.add_parser(
         "add-source", parents=[global_parser]))
     commands.updatesources.register(subparsers.add_parser(
