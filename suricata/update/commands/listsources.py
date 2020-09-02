@@ -34,7 +34,9 @@ def register(parser):
     parser.set_defaults(func=list_sources)
 
 def list_sources():
-    enabled = config.args().enabled
+    enabled = config.args().enabled or \
+        config.args().subcommand == "list-enabled-sources"
+
     if enabled:
         found = False
 
