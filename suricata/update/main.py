@@ -891,7 +891,7 @@ def load_sources(suricata_version):
                     checksum = True
                 url = (index.resolve_url(name, params), http_header,
                        checksum)
-                logger.debug("Resolved source %s to URL %s.", name, url)
+                logger.debug("Resolved source %s to URL %s.", name, url[0])
             urls.append(url)
 
     if config.get("sources"):
