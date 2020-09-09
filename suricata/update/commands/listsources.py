@@ -32,7 +32,7 @@ def register(parser):
     parser.add_argument("--enabled", action="store_true",
                         help="List all enabled sources")
     parser.add_argument("--all", action="store_true",
-                        help="List all sources (including deprecated)")
+                        help="List all sources (including deprecated and obsolete)")
     parser.set_defaults(func=list_sources)
 
 def list_sources():
@@ -82,9 +82,10 @@ def list_sources():
         is_not_free = source.get("subscribe-url")
         if free_only and is_not_free:
             continue
-        deprecated = source.get("deprecated")
-        if deprecated is not None and not config.args().all:
-            continue
+        if not config.args().all:
+            if source.get("deprecated") is not None or \
+               source.get("obsolete") is not None:
+                continue
         print("%s: %s" % (util.bright_cyan("Name"), util.bright_magenta(name)))
         print("  %s: %s" % (
             util.bright_cyan("Vendor"), util.bright_magenta(source["vendor"])))
@@ -112,3 +113,7 @@ def list_sources():
             print("  %s: %s" % (
                 util.orange("Deprecated"),
                 util.bright_magenta(source["deprecated"])))
+        if "obsolete" in source:
+            print("  %s: %s" % (
+                util.orange("Obsolete"),
+                util.bright_magenta(source["obsolete"])))

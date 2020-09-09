@@ -894,6 +894,10 @@ def load_sources(suricata_version):
                 if "deprecated" in source_config:
                     logger.warn("Source has been deprecated: %s: %s" % (
                         name, source_config["deprecated"]))
+                if "obsolete" in source_config:
+                    logger.warn("Source is obsolete and will not be fetched: %s: %s" % (
+                        name, source_config["obsolete"]))
+                    continue
                 logger.debug("Resolved source %s to URL %s.", name, url[0])
             urls.append(url)
 
