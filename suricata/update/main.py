@@ -891,6 +891,9 @@ def load_sources(suricata_version):
                     checksum = True
                 url = (index.resolve_url(name, params), http_header,
                        checksum)
+                if "deprecated" in source_config:
+                    logger.warn("Source has been deprecated: %s: %s" % (
+                        name, source_config["deprecated"]))
                 logger.debug("Resolved source %s to URL %s.", name, url[0])
             urls.append(url)
 
