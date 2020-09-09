@@ -1,6 +1,17 @@
 # Change Log
 
-## unreleased
+## 1.2.0rc2 - 2020-09-09
+
+### Features
+- Obsolete and deprecated source handling from the index:
+  https://redmine.openinfosecfoundation.org/issues/3918,
+  https://redmine.openinfosecfoundation.org/issues/3919.
+
+### Fixes
+- Fix re-enabling a disabled source that was initially added with
+  "add-source": https://redmine.openinfosecfoundation.org/issues/3843
+- Handle duplicate filenames across multiple sources:
+  https://redmine.openinfosecfoundation.org/issues/3174
 
 ## 1.2.0rc1 - 2020-08-05
 
