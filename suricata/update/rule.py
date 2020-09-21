@@ -29,6 +29,8 @@ duplicate signature IDs.
 
 from __future__ import print_function
 
+from suricata.update import fileparser
+
 import sys
 import re
 import logging
@@ -43,6 +45,7 @@ rule_pattern = re.compile(r"^(?P<enabled>#)*[\s#]*"
                 r"\((?P<options>.*)\)"
                 r"$)")
 
+
 # Rule actions we expect to see.
 actions = (
     "alert", "log", "pass", "activate", "dynamic", "drop", "reject", "sdrop")
@@ -51,6 +54,7 @@ class NoEndOfOptionError(Exception):
     """Exception raised when the end of option terminator (semicolon) is
     missing."""
     pass
+
 
 class Rule(dict):
     """Class representing a rule.
@@ -302,6 +306,7 @@ def parse(buf, group=None):
 
     return rule
 
+
 def parse_fileobj(fileobj, group=None):
     """ Parse multiple rules from a file like object.
 
@@ -311,26 +316,7 @@ def parse_fileobj(fileobj, group=None):
 
     :returns: A list of :py:class:`.Rule` instances, one for each rule parsed
     """
-    rules = []
-    buf = ""
-    for line in fileobj:
-        try:
-            if type(line) == type(b""):
-                line = line.decode()
-        except:
-            pass
-        if line.rstrip().endswith("\\"):
-            buf = "%s%s " % (buf, line.rstrip()[0:-1])
-            continue
-        buf = buf + line
-        try:
-            rule = parse(buf, group)
-            if rule:
-                rules.append(rule)
-        except Exception as err:
-            logger.error("Failed to parse rule: %s: %s", buf.rstrip(), err)
-        buf = ""
-    return rules
+    return fileparser.parse_fileobj(fileobj, parse, group)
 
 def parse_file(filename, group=None):
     """ Parse multiple rules from the provided filename.

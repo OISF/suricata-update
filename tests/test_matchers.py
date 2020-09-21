@@ -21,6 +21,7 @@ import io
 import unittest
 
 import suricata.update.rule
+import suricata.update.iprep
 from suricata.update import main
 import suricata.update.extract
 from suricata.update import matchers as matchers_mod
@@ -28,6 +29,7 @@ from suricata.update import matchers as matchers_mod
 class GroupMatcherTestCase(unittest.TestCase):
 
     rule_string = """alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET MALWARE Windows executable sent when remote host claims to send an image 2"; flow: established,from_server; content:"|0d 0a|Content-Type|3a| image/jpeg|0d 0a 0d 0a|MZ"; fast_pattern:12,20; classtype:trojan-activity; sid:2020757; rev:2;)"""
+    iprep_string = """52.0.161.90,3,120"""
 
     def test_match(self):
         rule = suricata.update.rule.parse(self.rule_string, "rules/malware.rules")
@@ -42,9 +44,23 @@ class GroupMatcherTestCase(unittest.TestCase):
             matcher.__class__, matchers_mod.GroupMatcher)
         self.assertTrue(matcher.match(rule))
 
+    def test_iprep_match(self):
+        iprep = suricata.update.iprep.parse(self.iprep_string, "rules/test.list")
+        matcher = matchers_mod.parse_rule_match("group: test.list")
+        self.assertEqual(
+            matcher.__class__, matchers_mod.GroupMatcher)
+        self.assertTrue(matcher.match(iprep))
+
+        # Test match of just the group basename.
+        matcher = matchers_mod.parse_rule_match("group: test")
+        self.assertEqual(
+            matcher.__class__, matchers_mod.GroupMatcher)
+        self.assertTrue(matcher.match(iprep))
+
 class FilenameMatcherTestCase(unittest.TestCase):
 
     rule_string = """alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET MALWARE Windows executable sent when remote host claims to send an image 2"; flow: established,from_server; content:"|0d 0a|Content-Type|3a| image/jpeg|0d 0a 0d 0a|MZ"; fast_pattern:12,20; classtype:trojan-activity; sid:2020757; rev:2;)"""
+    iprep_string = """52.0.161.90,3,120"""
 
     def test_match(self):
         rule = suricata.update.rule.parse(self.rule_string, "rules/trojan.rules")
@@ -52,6 +68,13 @@ class FilenameMatcherTestCase(unittest.TestCase):
         self.assertEqual(
             matcher.__class__, matchers_mod.FilenameMatcher)
         self.assertTrue(matcher.match(rule))
+
+    def test_iprep_match(self):
+        iprep = suricata.update.iprep.parse(self.iprep_string, "rules/test.list")
+        matcher = matchers_mod.parse_rule_match("filename: */test.list")
+        self.assertEqual(
+            matcher.__class__, matchers_mod.FilenameMatcher)
+        self.assertTrue(matcher.match(iprep))
 
 class LoadMatchersTestCase(unittest.TestCase):
 

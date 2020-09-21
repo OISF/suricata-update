@@ -49,6 +49,7 @@ MODIFY_CONF_KEY = "modify-conf"
 DROP_CONF_KEY = "drop-conf"
 LOCAL_CONF_KEY = "local"
 OUTPUT_KEY = "output"
+IPREP_OUTPUT_KEY = "iprep"
 DIST_RULE_DIRECTORY_KEY = "dist-rule-directory"
 
 if has_defaults:
@@ -83,6 +84,7 @@ DEFAULT_CONFIG = {
     # The default file patterns to ignore.
     "ignore": [
         "*deleted.rules",
+        ".*"
     ],
 }
 
@@ -135,6 +137,12 @@ def get_output_dir():
     if OUTPUT_KEY in _config:
         return _config[OUTPUT_KEY]
     return os.path.join(get_state_dir(), "rules")
+
+def get_iprep_dir():
+    """Get the rule output directory."""
+    if IPREP_OUTPUT_KEY in _config:
+        return _config[IPREP_OUTPUT_KEY]
+    return os.path.join(get_state_dir(), "iprep")
 
 def args():
     """Return sthe parsed argument object."""

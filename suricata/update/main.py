@@ -57,6 +57,8 @@ from suricata.update import (
     notes,
     parsers,
     rule as rule_mod,
+    iprep as iprep_mod,
+    category as category_mod,
     sources,
     util,
     matchers as matchers_mod
@@ -89,6 +91,8 @@ DEFAULT_SURICATA_VERSION = "4.0.0"
 # The default filename to use for the output rule file. This is a
 # single file concatenating all input rule files together.
 DEFAULT_OUTPUT_RULE_FILENAME = "suricata.rules"
+DEFAULT_OUTPUT_IPREP_FILENAME = "reputation.list"
+DEFAULT_OUTPUT_CATEGORIES_FILENAME = "categories.txt"
 
 INDEX_EXPIRATION_TIME = 60 * 60 * 24 * 14
 
@@ -357,7 +361,7 @@ def load_dist_rules(files):
                 logger.error("Failed to open %s: %s" % (path, err))
                 sys.exit(1)
 
-def write_merged(filename, rulemap):
+def write_merged(filename,parse_file, map):
 
     if not args.quiet:
         # List of rule IDs that have been added.
@@ -369,29 +373,29 @@ def write_merged(filename, rulemap):
 
         oldset = {}
         if os.path.exists(filename):
-            for rule in rule_mod.parse_file(filename):
-                oldset[rule.id] = True
-                if not rule.id in rulemap:
-                    removed.append(rule)
-                elif rule.format() != rulemap[rule.id].format():
-                    modified.append(rulemap[rule.id])
-        for key in rulemap:
+            for item in parse_file(filename):
+                oldset[item.id] = True
+                if not item.id in map:
+                    removed.append(item)
+                elif item.format() != map[item.id].format():
+                    modified.append(map[item.id])
+        for key in map:
             if not key in oldset:
                 added.append(key)
 
-        enabled = len([rule for rule in rulemap.values() if rule.enabled])
+        enabled = len([rule for rule in map.values() if rule.enabled])
         logger.info("Writing rules to %s: total: %d; enabled: %d; "
                     "added: %d; removed %d; modified: %d" % (
                         filename,
-                        len(rulemap),
+                        len(map),
                         enabled,
                         len(added),
                         len(removed),
                         len(modified)))
     
     with io.open(filename, encoding="utf-8", mode="w") as fileobj:
-        for rule in rulemap:
-            print(rulemap[rule].format(), file=fileobj)
+        for rule in map:
+            print(map[rule].format(), file=fileobj)
 
 def write_to_directory(directory, files, rulemap):
     # List of rule IDs that have been added.
@@ -493,6 +497,26 @@ def build_rule_map(rules):
                 rulemap[rule.id] = rule
 
     return rulemap
+
+def build_iprep_map(ipreps):
+    """ Turn a list of ipreps into a mapping of ipreps """
+    iprepmap = {}
+
+    for iprep in ipreps:
+        if iprep.id not in iprepmap:
+            iprepmap[iprep.id] = iprep
+
+    return iprepmap
+
+def build_categories_map(categories):
+    """ Turn a list of categories into a mapping of categories """
+    categorymap = {}
+
+    for category in categories:
+        if category.id not in categorymap:
+            categorymap[category.id] = category
+
+    return categorymap
 
 def dump_sample_configs():
 
@@ -988,9 +1012,10 @@ def _main():
         except subprocess.CalledProcessError:
             return 1
 
-    # Disable rule that are for app-layers that are not enabled.
     if suriconf:
+        reputation_files = []
         for key in suriconf.keys():
+            # Disable rule that are for app-layers that are not enabled.
             m = re.match("app-layer\.protocols\.([^\.]+)\.enabled", key)
             if m:
                 proto = m.group(1)
@@ -1005,6 +1030,10 @@ def _main():
                         if not "RUST" in suriconf.build_info["features"]:
                             logger.info("Disabling rules for protocol {}".format(proto))
                             disable_matchers.append(matchers_mod.ProtoRuleMatcher(proto))
+            # get reputaiton files
+            m = re.match("reputation-files\.(?P<index>\d+)", key)
+            if m:
+                reputation_files.append(suriconf.conf.get(m.group()))
 
     # Check that the cache directory exists and is writable.
     if not os.path.exists(config.get_cache_dir()):
@@ -1027,14 +1056,24 @@ def _main():
             del(files[filename])
 
     rules = []
+    ipreps = []
+    categories = []
     for filename in sorted(files):
-        if not filename.endswith(".rules"):
-            continue
-        logger.debug("Parsing %s." % (filename))
-        rules += rule_mod.parse_fileobj(io.BytesIO(files[filename]), filename)
+        if filename.endswith(DEFAULT_OUTPUT_CATEGORIES_FILENAME):
+            logger.debug("Parsing %s." % (filename))
+            categories += category_mod.parse_fileobj(io.BytesIO(files[filename]), filename)
+        elif filename.endswith(".list"):
+            logger.debug("Parsing %s." % (filename))
+            ipreps += iprep_mod.parse_fileobj(io.BytesIO(files[filename]), filename)
+        elif filename.endswith(".rules"):
+            logger.debug("Parsing %s." % (filename))
+            rules += rule_mod.parse_fileobj(io.BytesIO(files[filename]), filename)
 
+    iprepmap = build_iprep_map(ipreps)
     rulemap = build_rule_map(rules)
+    categorymap = build_categories_map(categories)
     logger.info("Loaded %d rules." % (len(rules)))
+    logger.info("Loaded %d iprep directives." % (len(ipreps)))
 
     # Counts of user enabled and modified rules.
     enable_count = 0
@@ -1090,9 +1129,14 @@ def _main():
 
     # Check that output directory exists, creating it if needed.
     check_output_directory(config.get_output_dir())
+    check_output_directory(config.get_iprep_dir())
 
     # Check that output directory is writable.
     if not os.access(config.get_output_dir(), os.W_OK):
+        logger.error(
+            "Output directory is not writable: %s", config.get_output_dir())
+        return 1
+    if not os.access(config.get_iprep_dir(), os.W_OK):
         logger.error(
             "Output directory is not writable: %s", config.get_output_dir())
         return 1
@@ -1107,8 +1151,18 @@ def _main():
         # The default, write out a merged file.
         output_filename = os.path.join(
             config.get_output_dir(), DEFAULT_OUTPUT_RULE_FILENAME)
+        iprep_output_filename = os.path.join(
+            config.get_iprep_dir(), DEFAULT_OUTPUT_IPREP_FILENAME)
+        categories_output_filename = os.path.join(
+            config.get_iprep_dir(), DEFAULT_OUTPUT_CATEGORIES_FILENAME)
+
         file_tracker.add(output_filename)
-        write_merged(os.path.join(output_filename), rulemap)
+        file_tracker.add(iprep_output_filename)
+        file_tracker.add(categories_output_filename)
+
+        write_merged(os.path.join(output_filename), rule_mod.parse_file, rulemap)
+        write_merged(os.path.join(iprep_output_filename), iprep_mod.parse_file, iprepmap)
+        write_merged(os.path.join(categories_output_filename), category_mod.parse_file, categorymap)
     else:
         for filename in files:
             file_tracker.add(
