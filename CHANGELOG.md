@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.1.3 - unreleased
+- Fix --http-header option. Header was not being sent:
+  https://redmine.openinfosecfoundation.org/issues/3731
+
 ## 1.1.2 - 2020-04-17
 - Better error on bad modify filter:
   https://redmine.openinfosecfoundation.org/issues/3536
