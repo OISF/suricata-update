@@ -4,10 +4,10 @@ Quick Start
 Install Suricata Update
 =======================
 
-.. note:: If you have already installed Suricata 4.1 you likely
-          already have Suricata-Update installed. Please check if the
-          ``suricata-update`` command is available to you before
-          installing.
+.. note:: If you have already installed Suricata 4.1 or newer you
+          likely already have Suricata-Update installed. Please check
+          if the ``suricata-update`` command is available to you
+          before installing.
 
 Suricata-Update is a tool written in Python and best installed with
 the ``pip`` tool for installing Python packages.
@@ -94,7 +94,7 @@ Update Your Rules
 =================
 
 Without doing any configuration the default operation of
-``suricata-update`` is use the Emerging Threats Open ruleset.
+``suricata-update`` is to use the Emerging Threats Open ruleset.
 
 Example::
 
@@ -127,21 +127,24 @@ This command will:
 Configure Suricata to Load Suricata-Update Managed Rules
 ========================================================
 
-Suricata-Update takes a different convention to rule files than
-Suricata traditionally has. The most noticeable difference is that the
-rules are stored by default in
-``/var/lib/suricata/rules/suricata.rules``.
+.. note:: If ``suricata-update`` was installed for you by Suricata,
+          then your Suricata configuration should already be setup to
+          work with Suricata-Update.
 
-One way to load the rules is to the the ``-S`` Suricata command line
-option. The other is to update your ``suricata.yaml`` to look
-something like::
+If upgrading from an older version of Suricata, or running a
+development version that may not be bundled with Suricata-Update, you
+will have to check that your ``suricata.yaml`` is configured for
+Suricata-Update. The main difference is the ``default-rule-path``
+which is ``/var/lib/suricata/rules`` when using Suricata-Update.
+
+You will want to update your ``suricata.yaml`` to have the following::
 
   default-rule-path: /var/lib/suricata/rules
   rule-files:
     - suricata.rules
 
-.. note:: In the future we expect Suricata to use this new convention
-          by default.
+If you have local rules you would like Suricata to load, these can be
+listed here as well by using the full path name.
 
 Discover Other Available Rule Sources
 =====================================
@@ -168,7 +171,7 @@ List Enabled Sources
 
 ::
 
-   suricata-update list-enabled-sources
+   suricata-update list-sources --enabled
 
 Disable a Source
 ================
