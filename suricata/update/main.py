@@ -1188,12 +1188,12 @@ def _main():
             logger.info("Ignoring file {}".format(entry.filename))
             continue
         # IPREP Categories file
-        if filename.endswith(DEFAULT_OUTPUT_CATEGORIES_FILENAME):
-            categories += category_mod.parse_fileobj(io.BytesIO(files[filename]), filename)
+        if entry.filename.endswith(DEFAULT_OUTPUT_CATEGORIES_FILENAME):
+            categories += category_mod.parse_fileobj(io.BytesIO(files[entry.filename]), entry.filename)
             continue
         # IPREP List files
-        if filename.endswith(".list"):
-            ipreps += iprep_mod.parse_fileobj(io.BytesIO(files[filename]), filename)
+        if entry.filename.endswith(".list"):
+            ipreps += iprep_mod.parse_fileobj(io.BytesIO(files[entry.filename]), entry.filename)
             continue
         logger.debug("Parsing {}".format(entry.filename))
         rules += rule_mod.parse_fileobj(io.BytesIO(entry.content), entry.filename)
