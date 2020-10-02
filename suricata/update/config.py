@@ -83,6 +83,7 @@ DEFAULT_CONFIG = {
     # The default file patterns to ignore.
     "ignore": [
         "*deleted.rules",
+        ".*"
     ],
 }
 
