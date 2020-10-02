@@ -93,3 +93,6 @@ def bright_magenta(msg):
 
 def bright_cyan(msg):
     return "%s%s%s" % (BRIGHT_CYAN, msg, RESET)
+
+def orange(msg):
+    return "%s%s%s" % (ORANGE, msg, RESET)

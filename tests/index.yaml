@@ -1,3 +1,7 @@
+# NOTE: Please do not add new sources to this file and submit a pull
+#       request. New sources should be added with a pull-request to
+#       the index repo: https://github.com/OISF/suricata-intel-index
+#
 # This is a version 1 formatted index.
 version: 1
 

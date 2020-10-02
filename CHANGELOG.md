@@ -1,6 +1,19 @@
 # Change Log
 
-## unreleased
+## 1.2.0rc2 - 2020-09-09
+
+### Features
+- Obsolete and deprecated source handling from the index:
+  https://redmine.openinfosecfoundation.org/issues/3918,
+  https://redmine.openinfosecfoundation.org/issues/3919.
+
+### Fixes
+- Fix re-enabling a disabled source that was initially added with
+  "add-source": https://redmine.openinfosecfoundation.org/issues/3843
+- Handle duplicate filenames across multiple sources:
+  https://redmine.openinfosecfoundation.org/issues/3174
+
+## 1.2.0rc1 - 2020-08-05
 
 ### Added
 - Add summary for update-sources command:
@@ -16,6 +29,14 @@
   https://redmine.openinfosecfoundation.org/issues/3620
 - Fix --http-header option. Header was not being sent:
   https://redmine.openinfosecfoundation.org/issues/3696
+- Add classification.config management. Suricata-Update will now load
+  the Suricata installed classification.config and merge it with
+  classification.config's found in rule
+  files. https://redmine.openinfosecfoundation.org/issues/3203
+- Copy md5/sha1/sha256 file lists from rulesets into the rule output
+  directory: https://redmine.openinfosecfoundation.org/issues/2688
+- Copy dataset files from ruleset into the rule output directory:
+  https://redmine.openinfosecfoundation.org/issues/3528
 
 ## 1.1.0 - 2019-10-11
 - Disable ja3 rules if the Suricata build or runtime configuration

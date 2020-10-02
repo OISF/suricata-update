@@ -14,7 +14,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-from suricata.update.commands import listenabledsources
 from suricata.update.commands import addsource
 from suricata.update.commands import listsources
 from suricata.update.commands import updatesources

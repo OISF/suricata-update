@@ -29,9 +29,47 @@ logger = logging.getLogger()
 def register(parser):
     parser.add_argument("--free", action="store_true",
                         default=False, help="List all freely available sources")
+    parser.add_argument("--enabled", action="store_true",
+                        help="List all enabled sources")
+    parser.add_argument("--all", action="store_true",
+                        help="List all sources (including deprecated and obsolete)")
     parser.set_defaults(func=list_sources)
 
 def list_sources():
+    enabled = config.args().enabled or \
+        config.args().subcommand == "list-enabled-sources"
+
+    if enabled:
+        found = False
+
+        # First list sources from the main config.
+        config_sources = config.get("sources")
+        if config_sources:
+            found = True
+            print("From %s:" % (config.filename))
+            for source in config_sources:
+                print("  - %s" % (source))
+
+        # And local files.
+        local = config.get("local")
+        if local:
+            found = True
+            print("Local files/directories:")
+            for filename in local:
+                print("  - %s" % (filename))
+
+        enabled_sources = sources.get_enabled_sources()
+        if enabled_sources:
+            found = True
+            print("Enabled sources:")
+            for source in enabled_sources.values():
+                print("  - %s" % (source["source"]))
+
+        # If no enabled sources were found, log it.
+        if not found:
+            logger.warning("No enabled sources.")
+        return 0
+
     free_only = config.args().free
     if not sources.source_index_exists(config):
         logger.info("No source index found, running update-sources")
@@ -44,6 +82,10 @@ def list_sources():
         is_not_free = source.get("subscribe-url")
         if free_only and is_not_free:
             continue
+        if not config.args().all:
+            if source.get("deprecated") is not None or \
+               source.get("obsolete") is not None:
+                continue
         print("%s: %s" % (util.bright_cyan("Name"), util.bright_magenta(name)))
         print("  %s: %s" % (
             util.bright_cyan("Vendor"), util.bright_magenta(source["vendor"])))
@@ -67,3 +109,11 @@ def list_sources():
             print("  %s: %s" % (
                 util.bright_cyan("Subscription"),
                 util.bright_magenta(source["subscribe-url"])))
+        if "deprecated" in source:
+            print("  %s: %s" % (
+                util.orange("Deprecated"),
+                util.bright_magenta(source["deprecated"])))
+        if "obsolete" in source:
+            print("  %s: %s" % (
+                util.orange("Obsolete"),
+                util.bright_magenta(source["obsolete"])))

@@ -185,7 +185,7 @@ def parse_update(subparsers, global_parser):
 def parse_commands(subparsers, global_parser):
     commands.listsources.register(subparsers.add_parser(
         "list-sources", parents=[global_parser]))
-    commands.listenabledsources.register(subparsers.add_parser(
+    commands.listsources.register(subparsers.add_parser(
         "list-enabled-sources", parents=[global_parser]))
     commands.addsource.register(subparsers.add_parser(
         "add-source", parents=[global_parser]))
@@ -223,7 +223,6 @@ def parse_arg():
     enable-source              Enable a source from the index
     disable-source             Disable an enabled source
     remove-source              Remove an enabled or disabled source
-    list-enabled-sources       List all enabled sources
     add-source                 Add a new source by URL
     check-versions             Check version of suricata-update
 """

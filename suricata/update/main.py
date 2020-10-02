@@ -31,6 +31,8 @@ import glob
 import io
 import tempfile
 import signal
+import errno
+from collections import namedtuple
 
 try:
     # Python 3.
@@ -70,6 +72,8 @@ try:
 except:
     revision = None
 
+SourceFile = namedtuple("SourceFile", ["filename", "content"])
+
 if sys.argv[0] == __file__:
     sys.path.insert(
         0, os.path.abspath(os.path.join(__file__, "..", "..", "..")))
@@ -95,6 +99,9 @@ DEFAULT_OUTPUT_IPREP_FILENAME = "reputation.list"
 DEFAULT_OUTPUT_CATEGORIES_FILENAME = "categories.txt"
 
 INDEX_EXPIRATION_TIME = 60 * 60 * 24 * 14
+
+# Rule keywords that come with files
+file_kw = ["filemd5", "filesha1", "filesha256", "dataset"]
 
 class Fetch:
 
@@ -203,9 +210,8 @@ class Fetch:
         logger.info("Done.")
         return self.extract_files(tmp_filename)
 
-    def run(self, url=None, files=None):
-        if files is None:
-            files = {}
+    def run(self, url=None):
+        files = {}
         if url:
             try:
                 fetched = self.fetch(url)
@@ -251,7 +257,6 @@ def load_filters(filename):
     return filters
 
 def load_drop_filters(filename):
-    
     matchers = load_matchers(filename)
     filters = []
 
@@ -301,7 +306,7 @@ def load_local(local, files):
                         filename))
             try:
                 with open(filename, "rb") as fileobj:
-                    files[filename] = fileobj.read()
+                    files.append(SourceFile(filename, fileobj.read()))
             except Exception as err:
                 logger.error("Failed to open %s: %s" % (filename, err))
 
@@ -356,13 +361,103 @@ def load_dist_rules(files):
             logger.info("Loading distribution rule file %s", path)
             try:
                 with open(path, "rb") as fileobj:
-                    files[path] = fileobj.read()
+                    files.append(SourceFile(path, fileobj.read()))
             except Exception as err:
                 logger.error("Failed to open %s: %s" % (path, err))
                 sys.exit(1)
 
-def write_merged(filename,parse_file, map):
+def load_classification(suriconf, files):
+    filename = os.path.join("suricata", "classification.config")
+    dirs = []
+    classification_dict = {}
+    if "sysconfdir" in suriconf.build_info:
+        dirs.append(os.path.join(suriconf.build_info["sysconfdir"], filename))
+    if "datarootdir" in suriconf.build_info:
+        dirs.append(os.path.join(suriconf.build_info["datarootdir"], filename))
 
+    for path in dirs:
+        if os.path.exists(path):
+            logger.debug("Loading {}".format(path))
+            with open(path) as fp:
+                for line in fp:
+                    if line.startswith("#") or not line.strip():
+                        continue
+                    config_classification = line.split(":")[1].strip()
+                    key, desc, priority = config_classification.split(",")
+                    if key in classification_dict:
+                        if classification_dict[key][1] >= priority:
+                            continue
+                    classification_dict[key] = [desc, priority, line.strip()]
+
+    # Handle files from the sources
+    for filep in files:
+        logger.debug("Loading {}".format(filep[0]))
+        lines = filep[1].decode().split('\n')
+        for line in lines:
+            if line.startswith("#") or not line.strip():
+                continue
+            config_classification = line.split(":")[1].strip()
+            key, desc, priority = config_classification.split(",")
+            if key in classification_dict:
+                if classification_dict[key][1] >= priority:
+                    if classification_dict[key][1] > priority:
+                        logger.warning("Found classification with same shortname \"{}\","
+                                       " keeping the one with higher priority ({})".format(
+                                       key, classification_dict[key][1]))
+                    continue
+            classification_dict[key] = [desc, priority, line.strip()]
+
+    return classification_dict
+
+def manage_classification(suriconf, files):
+    if suriconf is None:
+        # Can't continue without a valid Suricata configuration
+        # object.
+        return
+    classification_dict = load_classification(suriconf, files)
+    path = os.path.join(config.get_output_dir(), "classification.config")
+    try:
+        logger.info("Writing {}".format(path))
+        with open(path, "w+") as fp:
+            fp.writelines("{}\n".format(v[2]) for k, v in classification_dict.items())
+    except (OSError, IOError) as err:
+        logger.error(err)
+
+def handle_dataset_files(rule, dep_files):
+    if not rule.enabled:
+        return
+    load_attr = [el.strip() for el in rule.dataset.split(",") if "load" in el][0]
+    dataset_fname = os.path.basename(load_attr.split(" ")[1])
+    filename = [fname for fname, content in dep_files.items() if fname == dataset_fname]
+    if filename:
+        logger.debug("Copying dataset file %s to output directory" % dataset_fname)
+        with open(os.path.join(config.get_output_dir(), dataset_fname), "w+") as fp:
+            fp.write(dep_files[dataset_fname].decode("utf-8"))
+    else:
+        logger.error("Dataset file %s was not found" % dataset_fname)
+
+def handle_filehash_files(rule, dep_files, fhash):
+    if not rule.enabled:
+        return
+    filehash_fname = rule.get(fhash)
+    filename = [fname for fname, content in dep_files.items() if os.path.join(*(fname.split(os.path.sep)[1:])) == filehash_fname]
+    if filename:
+        logger.debug("Copying %s file %s to output directory" % (fhash, filehash_fname))
+        filepath = os.path.join(config.get_state_dir(), os.path.dirname(filename[0]))
+        logger.debug("filepath: %s" % filepath)
+        try:
+            os.makedirs(filepath)
+        except OSError as oserr:
+            if oserr.errno != errno.EEXIST:
+                logger.error(oserr)
+                sys.exit(1)
+        logger.debug("output fname: %s" % os.path.join(filepath, os.path.basename(filehash_fname)))
+        with open(os.path.join(filepath, os.path.basename(filehash_fname)), "w+") as fp:
+            fp.write(dep_files[os.path.join("rules", filehash_fname)].decode("utf-8"))
+    else:
+        logger.error("%s file %s was not found" % (fhash, filehash_fname))
+
+def write_merged(filename, rulemap, dep_files):
     if not args.quiet:
         # List of rule IDs that have been added.
         added = []
@@ -373,13 +468,14 @@ def write_merged(filename,parse_file, map):
 
         oldset = {}
         if os.path.exists(filename):
-            for item in parse_file(filename):
-                oldset[item.id] = True
-                if not item.id in map:
-                    removed.append(item)
-                elif item.format() != map[item.id].format():
-                    modified.append(map[item.id])
-        for key in map:
+            for rule in rule_mod.parse_file(filename):
+                oldset[rule.id] = True
+                if not rule.id in rulemap:
+                    removed.append(rule)
+                elif rule.format() != rulemap[rule.id].format():
+                    modified.append(rulemap[rule.id])
+
+        for key in rulemap:
             if not key in oldset:
                 added.append(key)
 
@@ -392,12 +488,20 @@ def write_merged(filename,parse_file, map):
                         len(added),
                         len(removed),
                         len(modified)))
-    
-    with io.open(filename, encoding="utf-8", mode="w") as fileobj:
-        for rule in map:
-            print(map[rule].format(), file=fileobj)
+    tmp_filename = ".".join([filename, "tmp"])
+    with io.open(tmp_filename, encoding="utf-8", mode="w") as fileobj:
+        for sid in rulemap:
+            rule = rulemap[sid]
+            for kw in file_kw:
+                if kw in rule:
+                    if "dataset" == kw:
+                        handle_dataset_files(rule, dep_files)
+                    else:
+                        handle_filehash_files(rule, dep_files, kw)
+            print(rule.format(), file=fileobj)
+    os.rename(tmp_filename, filename)
 
-def write_to_directory(directory, files, rulemap):
+def write_to_directory(directory, files, rulemap, dep_files):
     # List of rule IDs that have been added.
     added = []
     # List of rule objects that have been removed.
@@ -445,9 +549,17 @@ def write_to_directory(directory, files, rulemap):
                 if not rule:
                     content.append(line.strip())
                 else:
+                    for kw in file_kw:
+                        if kw in rule:
+                            if "dataset" == kw:
+                                handle_dataset_files(rule, dep_files)
+                            else:
+                                handle_filehash_files(rule, dep_files, kw)
                     content.append(rulemap[rule.id].format())
-            io.open(outpath, encoding="utf-8", mode="w").write(
+            tmp_filename = ".".join([outpath, "tmp"])
+            io.open(tmp_filename, encoding="utf-8", mode="w").write(
                 u"\n".join(content))
+            os.rename(tmp_filename, outpath)
 
 def write_yaml_fragment(filename, files):
     logger.info(
@@ -576,7 +688,7 @@ class ThresholdProcessor:
             if m:
                 return threshold.replace(
                     m.group(1), "gen_id %d, sig_id %d" % (rule.gid, rule.sid))
-        return thresold
+        return threshold
 
     def process(self, filein, fileout, rulemap):
         count = 0
@@ -746,8 +858,6 @@ def copytree(src, dst):
                     dst_path)
 
 def load_sources(suricata_version):
-    files = {}
-
     urls = []
 
     http_header = None
@@ -804,7 +914,14 @@ def load_sources(suricata_version):
                     checksum = True
                 url = (index.resolve_url(name, params), http_header,
                        checksum)
-                logger.debug("Resolved source %s to URL %s.", name, url)
+                if "deprecated" in source_config:
+                    logger.warn("Source has been deprecated: %s: %s" % (
+                        name, source_config["deprecated"]))
+                if "obsolete" in source_config:
+                    logger.warn("Source is obsolete and will not be fetched: %s: %s" % (
+                        name, source_config["obsolete"]))
+                    continue
+                logger.debug("Resolved source %s to URL %s.", name, url[0])
             urls.append(url)
 
     if config.get("sources"):
@@ -828,8 +945,11 @@ def load_sources(suricata_version):
     urls = set(urls)
 
     # Now download each URL.
+    files = []
     for url in urls:
-        Fetch().run(url, files)
+        source_files = Fetch().run(url)
+        for key in source_files:
+            files.append(SourceFile(key, source_files[key]))
 
     # Now load local rules.
     if config.get("local") is not None:
@@ -1049,29 +1169,38 @@ def _main():
 
     load_dist_rules(files)
 
-    # Remove ignored files.
-    for filename in list(files.keys()):
-        if ignore_file(config.get("ignore"), filename):
-            logger.info("Ignoring file %s" % (filename))
-            del(files[filename])
-
     rules = []
     ipreps = []
     categories = []
-    for filename in sorted(files):
+    classification_files = []
+    dep_files = {}
+    for entry in sorted(files, key = lambda e: e.filename):
+        # Classification.config file
+        if "classification.config" in entry.filename:
+            classification_files.append((entry.filename, entry.content))
+            continue
+        # *.rules files
+        if not entry.filename.endswith(".rules"):
+            dep_files.update({entry.filename: entry.content})
+            continue
+        # Ignore files
+        if ignore_file(config.get("ignore"), entry.filename):
+            logger.info("Ignoring file {}".format(entry.filename))
+            continue
+        # IPREP Categories file
         if filename.endswith(DEFAULT_OUTPUT_CATEGORIES_FILENAME):
-            logger.debug("Parsing %s." % (filename))
             categories += category_mod.parse_fileobj(io.BytesIO(files[filename]), filename)
-        elif filename.endswith(".list"):
-            logger.debug("Parsing %s." % (filename))
+            continue
+        # IPREP List files
+        if filename.endswith(".list"):
             ipreps += iprep_mod.parse_fileobj(io.BytesIO(files[filename]), filename)
-        elif filename.endswith(".rules"):
-            logger.debug("Parsing %s." % (filename))
-            rules += rule_mod.parse_fileobj(io.BytesIO(files[filename]), filename)
+            continue
+        logger.debug("Parsing {}".format(entry.filename))
+        rules += rule_mod.parse_fileobj(io.BytesIO(entry.content), entry.filename)
 
-    iprepmap = build_iprep_map(ipreps)
     rulemap = build_rule_map(rules)
     categorymap = build_categories_map(categories)
+    iprepmap = build_iprep_map(ipreps)
     logger.info("Loaded %d rules." % (len(rules)))
     logger.info("Loaded %d iprep directives." % (len(ipreps)))
 
@@ -1159,16 +1288,19 @@ def _main():
         file_tracker.add(output_filename)
         file_tracker.add(iprep_output_filename)
         file_tracker.add(categories_output_filename)
+        
+        write_merged(os.path.join(output_filename), rulemap, dep_files)
+        write_merged(os.path.join(iprep_output_filename), iprepmap)
+        write_merged(os.path.join(categories_output_filename), categorymap)
 
-        write_merged(os.path.join(output_filename), rule_mod.parse_file, rulemap)
-        write_merged(os.path.join(iprep_output_filename), iprep_mod.parse_file, iprepmap)
-        write_merged(os.path.join(categories_output_filename), category_mod.parse_file, categorymap)
     else:
         for filename in files:
             file_tracker.add(
                 os.path.join(
                     config.get_output_dir(), os.path.basename(filename)))
-        write_to_directory(config.get_output_dir(), files, rulemap)
+        write_to_directory(config.get_output_dir(), files, rulemap, dep_files)
+
+    manage_classification(suriconf, classification_files)
 
     if args.yaml_fragment:
         file_tracker.add(args.yaml_fragment)
