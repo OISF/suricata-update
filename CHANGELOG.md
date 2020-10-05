@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.2.0 - 2020-10-05
+- Documentation updates.
+
 ## 1.2.0rc2 - 2020-09-09
 
 ### Features
