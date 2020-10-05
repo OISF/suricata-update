@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.1.3 - unreleased
+## 1.1.3 - 2020-10-05
 - Fix --http-header option. Header was not being sent:
   https://redmine.openinfosecfoundation.org/issues/3731
 
