@@ -21,7 +21,6 @@ import logging
 from suricata.update import config
 from suricata.update import sources
 from suricata.update import util
-from suricata.update.commands.updatesources import update_sources
 from suricata.update import exceptions
 
 logger = logging.getLogger()
@@ -72,11 +71,9 @@ def list_sources():
 
     free_only = config.args().free
     if not sources.source_index_exists(config):
-        logger.info("No source index found, running update-sources")
-        try:
-            update_sources()
-        except exceptions.ApplicationError as err:
-            logger.warning("%s: will use bundled index.", err)
+        logger.warning("Source index does not exist, will use bundled one.")
+        logger.warning("Please run suricata-update update-sources.")
+        
     index = sources.load_source_index(config)
     for name, source in index.get_sources().items():
         is_not_free = source.get("subscribe-url")
