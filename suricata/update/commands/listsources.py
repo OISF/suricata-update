@@ -73,7 +73,6 @@ def list_sources():
     if not sources.source_index_exists(config):
         logger.warning("Source index does not exist, will use bundled one.")
         logger.warning("Please run suricata-update update-sources.")
-        return 1
 
     index = sources.load_source_index(config)
     for name, source in index.get_sources().items():
