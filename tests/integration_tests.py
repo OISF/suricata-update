@@ -84,8 +84,7 @@ assert (os.path.exists(os.path.join(DATA_DIR, "update", "cache",
 # the index.
 delete(os.path.join(DATA_DIR, "update", "cache", "index.yaml"))
 run(common_args + ["list-sources"])
-assert (os.path.exists(os.path.join(DATA_DIR, "update", "cache",
-                                    "index.yaml")))
+assert(not os.path.exists(os.path.join(DATA_DIR, "update", "cache", "index.yaml")))
 
 # Enable a source.
 run(common_args + ["enable-source", "oisf/trafficid"])
