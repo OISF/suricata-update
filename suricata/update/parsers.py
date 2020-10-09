@@ -56,13 +56,7 @@ global_arg = [
       'help': "Override Suricata version"}),
     (("--user-agent",),
      {'metavar': '<user-agent>',
-      'help': "Set custom user-agent string"}),
-    (("--no-check-certificate",),
-     {'action': 'store_true', 'default': None,
-      'help': "Disable server SSL/TLS certificate verification"}),
-    (("-V", "--version"),
-     {'action': 'store_true', 'default': False,
-      'help': "Display version"})
+      'help': "Set custom user-agent string"})
 ]
 
 # Update arguments - command line options for suricata-update
@@ -141,6 +135,9 @@ update_arg = [
     (("--offline",),
      {'action': 'store_true',
       'help': "Run offline using most recent cached rules"}),
+    (("-V", "--version"),
+     {'action': 'store_true', 'default': False,
+      'help': "Display version"}),
 
     # Hidden argument, --now to bypass the timebased bypass of
     # updating a ruleset.
