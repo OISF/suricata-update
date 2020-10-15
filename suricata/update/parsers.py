@@ -31,6 +31,11 @@ except:
 
 default_update_yaml = config.DEFAULT_UPDATE_YAML_PATH
 
+show_advanced = False
+
+if "-s" in sys.argv or "--show-advanced" in sys.argv:
+        show_advanced = True
+
 # Global arguments - command line options for suricata-update
 global_arg = [
     (("-v", "--verbose"),
@@ -56,13 +61,18 @@ global_arg = [
       'help': "Override Suricata version"}),
     (("--user-agent",),
      {'metavar': '<user-agent>',
-      'help': "Set custom user-agent string"}),
+      'help': "Set custom user-agent string" 
+      if show_advanced else argparse.SUPPRESS}),
     (("--no-check-certificate",),
      {'action': 'store_true', 'default': None,
-      'help': "Disable server SSL/TLS certificate verification"}),
+      'help': "Disable server SSL/TLS certificate verification"
+      if show_advanced else argparse.SUPPRESS}),
     (("-V", "--version"),
      {'action': 'store_true', 'default': False,
-      'help': "Display version"})
+      'help': "Display version"}),
+    (("-s","--show-advanced"),
+     {'action': 'store_true',
+      'help': "Show advanced options"}),
 ]
 
 # Update arguments - command line options for suricata-update
@@ -74,22 +84,27 @@ update_arg = [
      {'action': 'store_true', 'default': False,
       'help': "Force operations that might otherwise be skipped"}),
     (("--yaml-fragment",),
-     {'metavar': '<filename>',
-      'help': "Output YAML fragment for rule inclusion"}),
+     {'metavar': '<filename>', 
+     'help': "Output YAML fragment for rule inclusion" 
+     if show_advanced else argparse.SUPPRESS}),
     (("--url",),
      {'metavar': '<url>', 'action': 'append', 'default': [],
       'help': "URL to use instead of auto-generating one "
-              "(can be specified multiple times)"}),
+              "(can be specified multiple times)"
+              if show_advanced else argparse.SUPPRESS}),
     (("--local",),
      {'metavar': '<path>', 'action': 'append', 'default': [],
       'help': "Local rule files or directories "
-              "(can be specified multiple times)"}),
+              "(can be specified multiple times)"
+              if show_advanced else argparse.SUPPRESS}),
     (("--sid-msg-map",),
-     {'metavar': '<filename>',
-      'help': "Generate a sid-msg.map file"}),
+     {'metavar': '<filename>', 
+     'help': "Generate a sid-msg.map file"
+     if show_advanced else argparse.SUPPRESS}),
     (("--sid-msg-map-2",),
      {'metavar': '<filename>',
-      'help': "Generate a v2 sid-msg.map file"}),
+     'help': "Generate a v2 sid-msg.map file"
+     if show_advanced else argparse.SUPPRESS}),
 
     (("--disable-conf",),
      {'metavar': '<filename>',
@@ -107,37 +122,46 @@ update_arg = [
     (("--ignore",),
      {'metavar': '<pattern>', 'action': 'append', 'default': None,
       'help': "Filenames to ignore "
-              "(can be specified multiple times; default: *deleted.rules)"}),
+              "(can be specified multiple times; default: *deleted.rules)"
+              if show_advanced else argparse.SUPPRESS}),
     (("--no-ignore",),
-     {'action': 'store_true', 'default': False,
-      'help': "Disables the ignore option."}),
+     {'action': 'store_true', 'default': False, 
+     'help': "Disables the ignore option."
+     if show_advanced else argparse.SUPPRESS}),
     (("--threshold-in",),
      {'metavar': '<filename>',
-      'help': "Filename of rule thresholding configuration"}),
+     'help': "Filename of rule thresholding configuration"
+     if show_advanced else argparse.SUPPRESS}),
     (("--threshold-out",),
      {'metavar': '<filename>',
-      'help': "Output of processed threshold configuration"}),
+     'help': "Output of processed threshold configuration"
+     if show_advanced else argparse.SUPPRESS}),
     (("--dump-sample-configs",),
      {'action': 'store_true', 'default': False,
-      'help': "Dump sample config files to current directory"}),
+     'help': "Dump sample config files to current directory"
+     if show_advanced else argparse.SUPPRESS}),
     (("--etopen",),
      {'action': 'store_true',
-      'help': "Use ET-Open rules (default)"}),
+      'help': "Use ET-Open rules (default)"
+      if show_advanced else argparse.SUPPRESS}),
     (("--reload-command",),
      {'metavar': '<command>',
-      'help': "Command to run after update if modified"}),
+      'help': "Command to run after update if modified"
+      if show_advanced else argparse.SUPPRESS}),
     (("--no-reload",),
      {'action': 'store_true', 'default': False,
       'help': "Disable reload"}),
     (("-T", "--test-command"),
      {'metavar': '<command>',
-      'help': "Command to test Suricata configuration"}),
+      'help': "Command to test Suricata configuration"
+      if show_advanced else argparse.SUPPRESS}),
     (("--no-test",),
      {'action': 'store_true', 'default': False,
       'help': "Disable testing rules with Suricata"}),
     (("--no-merge",),
      {'action': 'store_true', 'default': False,
-      'help': "Do not merge the rules into a single file"}),
+     'help': "Do not merge the rules into a single file"
+     if show_advanced else argparse.SUPPRESS}),
     (("--offline",),
      {'action': 'store_true',
       'help': "Run offline using most recent cached rules"}),
