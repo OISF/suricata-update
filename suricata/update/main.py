@@ -627,13 +627,15 @@ def dump_sample_configs():
 def resolve_flowbits(rulemap, disabled_rules):
     flowbit_resolver = rule_mod.FlowbitResolver()
     flowbit_enabled = set()
+    pass_ = 1
     while True:
+        logger.debug("Checking flowbits for pass %d of rules.", pass_)
         flowbits = flowbit_resolver.get_required_flowbits(rulemap)
         logger.debug("Found %d required flowbits.", len(flowbits))
         required_rules = flowbit_resolver.get_required_rules(rulemap, flowbits)
         logger.debug(
-            "Found %d rules to enable to for flowbit requirements",
-            len(required_rules))
+            "Found %d rules to enable for flowbit requirements (pass %d)",
+            len(required_rules), pass_)
         if not required_rules:
             logger.debug("All required rules enabled.")
             break
@@ -645,6 +647,7 @@ def resolve_flowbits(rulemap, disabled_rules):
             rule.enabled = True
             rule.noalert = True
             flowbit_enabled.add(rule)
+        pass_ = pass_ + 1
     logger.info("Enabled %d rules for flowbit dependencies." % (
         len(flowbit_enabled)))
 
