@@ -44,3 +44,8 @@
 .. option:: --user-agent <string>
 
    Set a custom user agent string for HTTP requests.
+
+.. option:: -s, --show-advanced
+
+   Show advanced options.
+   
