@@ -1243,7 +1243,7 @@ def _main():
             pass #do no custom sql if not neccessary.
         try:
             connection.close()
-        except:
+        except Exception as err:
             logger.warning("Did not close connection, please check your connection string: %s" % err)
     else: #database was not an option passed in by the user to suricata-update.
         pass
