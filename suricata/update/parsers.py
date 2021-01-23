@@ -141,6 +141,16 @@ update_arg = [
     (("--offline",),
      {'action': 'store_true',
       'help': "Run offline using most recent cached rules"}),
+    #Add database arguments to the optional list of things to do
+    (("--mysqlconf",),
+     {'metavar': '<filename>',
+      'help': "Filename of the mysql database connection parameters."}),
+    (("--database",),
+     {'action': 'store_true', 'default': False,
+      'help': "Load rules into a mysql database."}),
+    (("--database-custom",),
+     {'action': 'store_true', 'default': False,
+      'help': "Run custom sql on database to post process entries."}),
 
     # Hidden argument, --now to bypass the timebased bypass of
     # updating a ruleset.

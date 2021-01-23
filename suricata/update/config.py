@@ -77,6 +77,7 @@ DEFAULT_CONFIG = {
     "enable-conf": "/etc/suricata/enable.conf",
     "drop-conf": "/etc/suricata/drop.conf",
     "modify-conf": "/etc/suricata/modify.conf",
+    "mysql-conf": "/etc/suricata/my.cnf",
     "sources": [],
     LOCAL_CONF_KEY: [],
 

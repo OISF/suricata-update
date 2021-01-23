@@ -51,6 +51,7 @@ from suricata.update import (
     commands,
     config,
     configs,
+    db,
     engine,
     exceptions,
     extract,
@@ -63,6 +64,8 @@ from suricata.update import (
     util,
     matchers as matchers_mod
 )
+
+from suricata.update import db
 
 from suricata.update.version import version
 try:
@@ -1200,6 +1203,50 @@ def _main():
         disable_ja3(suriconf, rulemap, disabled_rules)
     except Exception as err:
         logger.error("Failed to dynamically disable ja3 rules: %s" % (err))
+
+    # Load the msql database connection file.
+
+    if args.mysqlconf:
+        mysql_conf_filename = args.mysqlconf #Specify where the my.cnf file is.
+        if mysql_conf_filename and os.path.exists(mysql_conf_filename):
+            logger.info("Loading %s.", mysql_conf_filename)
+    else:
+        mysql_conf_filename = config.get("mysql-conf") #Assume that there is a my.cnf in the /etc/suricata directory. Does this need to be created ?
+        if mysql_conf_filename and os.path.exists(mysql_conf_filename):
+            logger.info("Loading %s.", mysql_conf_filename)
+
+    # Load rules into database if database argument is passed.
+
+    if args.database:
+        try:
+            connection = create_connection(mysql_conf_filename) #Create connection.
+        except Exception as err:
+            logger.warning("Could not connect to the database: %s" %err)
+        try:
+            create_rule_table(connection)  #Create the table if it doesn't already exist.
+        except Exception as err:
+            logger.warning("Error creating the database table: %s" %err)
+        try:
+            insert_rules(connection, rules) #Insert the rules we collected above into the db.
+        except Exception as err:
+            logger.warning("Issue with inserting rules: %s" %err)
+        try:
+            get_database_stats(connection) #Process some stats.
+        except Exception as err:
+            logger.warning("Could not get database stats: %s" %err)
+        if args.database_custom:
+            try:
+                run_custom_query(connection) #Run any custom sql, in this case, disable modbus and dnp3 protocols not supported.
+            except Exception as err:
+                logger.warning("Could not run custom database: %s" % err)
+        else:
+            pass #do no custom sql if not neccessary.
+        try:
+            connection.close()
+        except:
+            logger.warning("Did not close connection, please check your connection string: %s" % err)
+    else: #database was not an option passed in by the user to suricata-update.
+        pass
 
     # Check rule vars, disabling rules that use unknown vars.
     check_vars(suriconf, rulemap)
