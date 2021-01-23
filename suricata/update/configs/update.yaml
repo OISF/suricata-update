@@ -18,6 +18,9 @@ drop-conf: /etc/suricata/drop.conf
 # - Default: /etc/suricata/modify.conf
 modify-conf: /etc/suricata/modify.conf
 
+#Configuration perameters of mysql database (optional)
+mysql-conf: /etc/suricata/my.conf
+
 # List of files to ignore. Overrided by the --ignore command line option.
 ignore:
   - "*deleted.rules"

@@ -65,7 +65,7 @@ from suricata.update import (
     matchers as matchers_mod
 )
 
-from suricata.update import db
+from suricata.update.db import *
 
 from suricata.update.version import version
 try:
