@@ -54,23 +54,6 @@ jobs:
       - name: Python 3 integration tests
         run: PYTHONPATH=. python3 ./tests/integration_tests.py
 
-  centos-6:
-    name: CentOS 6
-    runs-on: ubuntu-latest
-    container: centos:6
-    steps:
-      - run: yum -y install epel-release
-      - run: |
-          yum -y install \
-            python34-pytest \
-            python34-yaml
-      - uses: actions/checkout@v1
-
-      - name: Python 3 unit tests
-        run: PYTHONPATH=. py.test-3
-      - name: Python 3 integration tests
-        run: PYTHONPATH=. python3 ./tests/integration_tests.py
-
   fedora-31:
     name: Fedora 31
     runs-on: ubuntu-latest
