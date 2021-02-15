@@ -51,6 +51,13 @@ assert(os.path.exists(DATA_DIR))
 assert(os.path.exists(os.path.join(DATA_DIR, "update", "cache")))
 assert(os.path.exists(os.path.join(DATA_DIR, "rules", "suricata.rules")))
 
+# Default run with data directory and --no-merge
+run(common_args + common_update_args + ["--no-merge"])
+assert(os.path.exists(DATA_DIR))
+assert(os.path.exists(os.path.join(DATA_DIR, "update", "cache")))
+assert(os.path.exists(os.path.join(DATA_DIR, "rules", "emerging-deleted.rules")))
+assert(os.path.exists(os.path.join(DATA_DIR, "rules", "emerging-current_events.rules")))
+
 # Still a default run, but set --output to an alternate location."
 run(common_args + common_update_args + ["--output", "./tests/tmp/_rules"])
 assert(os.path.exists(os.path.join(DATA_DIR, "_rules")))

@@ -508,9 +508,9 @@ def write_to_directory(directory, files, rulemap, dep_files):
 
     oldset = {}
     if not args.quiet:
-        for filename in files:
+        for file in files:
             outpath = os.path.join(
-                directory, os.path.basename(filename))
+                directory, os.path.basename(file.filename))
 
             if os.path.exists(outpath):
                 for rule in rule_mod.parse_file(outpath):
@@ -533,15 +533,15 @@ def write_to_directory(directory, files, rulemap, dep_files):
                         len(removed),
                         len(modified)))
 
-    for filename in sorted(files):
+    for file in sorted(files):
         outpath = os.path.join(
-            directory, os.path.basename(filename))
+            directory, os.path.basename(file.filename))
         logger.debug("Writing %s." % outpath)
-        if not filename.endswith(".rules"):
-            open(outpath, "wb").write(files[filename])
+        if not file.filename.endswith(".rules"):
+            open(outpath, "wb").write(file.content)
         else:
             content = []
-            for line in io.StringIO(files[filename].decode("utf-8")):
+            for line in io.StringIO(file.content.decode("utf-8")):
                 rule = rule_mod.parse(line)
                 if not rule:
                     content.append(line.strip())
@@ -552,7 +552,13 @@ def write_to_directory(directory, files, rulemap, dep_files):
                                 handle_dataset_files(rule, dep_files)
                             else:
                                 handle_filehash_files(rule, dep_files, kw)
-                    content.append(rulemap[rule.id].format())
+                    if rule.id in rulemap:
+                        content.append(rulemap[rule.id].format())
+                    else:
+                        # Just pass the input through. Most likey a
+                        # rule from a file that was ignored, but we'll
+                        # still pass it through.
+                        content.append(line.strip())
             tmp_filename = ".".join([outpath, "tmp"])
             io.open(tmp_filename, encoding="utf-8", mode="w").write(
                 u"\n".join(content))
@@ -1234,10 +1240,10 @@ def _main():
         file_tracker.add(output_filename)
         write_merged(os.path.join(output_filename), rulemap, dep_files)
     else:
-        for filename in files:
+        for file in files:
             file_tracker.add(
                 os.path.join(
-                    config.get_output_dir(), os.path.basename(filename)))
+                    config.get_output_dir(), os.path.basename(file.filename)))
         write_to_directory(config.get_output_dir(), files, rulemap, dep_files)
 
     manage_classification(suriconf, classification_files)
