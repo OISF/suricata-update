@@ -1,5 +1,9 @@
 # Change Log
 
+## unreleased
+- Fix --no-merge. Redmine issue
+  https://redmine.openinfosecfoundation.org/issues/4324.
+
 ## 1.2.0 - 2020-10-05
 - Documentation updates.
 
