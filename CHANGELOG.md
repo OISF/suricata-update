@@ -1,6 +1,6 @@
 # Change Log
 
-## unreleased
+## 1.2.1 - 2021-02-23
 - Fix --no-merge. Redmine issue
   https://redmine.openinfosecfoundation.org/issues/4324.
 
