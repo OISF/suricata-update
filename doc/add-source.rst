@@ -25,6 +25,9 @@ Options
 
      add-source --http-header "X-API-Key: 1234"
 
+   HTTP basic login can be achieved by setting the HTTP Basic Authentication header with ``base64(user1:password1)``. Example::
+     add-source --http-header "Authorization: Basic dXNlcjE6cGFzc3dvcmQx"
+
 .. option:: --no-checksum
 
    Skips downloading the checksum URL for the rule source.
