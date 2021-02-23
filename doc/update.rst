@@ -30,11 +30,6 @@ Options
    be due to just recently downloaded, or the remote checksum matching
    the cached copy.
 
-.. option:: --merged=<filename>
-
-   Write a single file containing all rules. This can be used in
-   addition to ``--output`` or instead of ``--output``.
-
 .. option:: --no-merge
 
    Do not merge the rules into a single rule file.
