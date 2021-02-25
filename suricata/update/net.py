@@ -91,7 +91,7 @@ def is_header_clean(header):
     if len(header) != 2:
         return False
     name, val = header[0].strip(), header[1].strip()
-    if re.match( r"^[\w-]+$", name) and re.match(r"^[\w-]+$", val):
+    if re.match( r"^[\w-]+$", name) and re.match(r"^[\w\s-]+$", val):
         return True
     return False
 
