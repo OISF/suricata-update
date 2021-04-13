@@ -1,5 +1,9 @@
 # Change Log
 
+## unreleased
+- Allow spaces in custom HTTP headers. Redmine issue
+  https://redmine.openinfosecfoundation.org/issues/4362
+
 ## 1.2.1 - 2021-02-23
 - Fix --no-merge. Redmine issue
   https://redmine.openinfosecfoundation.org/issues/4324.
