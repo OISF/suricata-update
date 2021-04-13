@@ -91,3 +91,16 @@ run(common_args + ["remove-source", "oisf/trafficid"])
 assert(not os.path.exists(
     os.path.join(
         DATA_DIR, "update", "sources", "oisf-trafficid.yaml.disabled")))
+
+# Add a source with a custom header.
+run(common_args + [
+    "add-source", "--http-header", "Header: NoSpaces",
+    "testing-header-nospaces",
+    "file:///doesnotexist"])
+
+# Add a source with a custom header with spaces in the value
+# (https://redmine.openinfosecfoundation.org/issues/4362)
+run(common_args + [
+    "add-source",
+    "--http-header", "Authorization: Basic dXNlcjE6cGFzc3dvcmQx",
+    "testing-header-with-spaces", "file:///doesnotexist"])
