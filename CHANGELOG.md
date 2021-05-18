@@ -3,6 +3,8 @@
 ## unreleased
 - Allow spaces in custom HTTP headers. Redmine issue
   https://redmine.openinfosecfoundation.org/issues/4362
+- Fix "no-test" when set in configuration file:
+  https://redmine.openinfosecfoundation.org/issues/4493
 
 ## 1.2.1 - 2021-02-23
 - Fix --no-merge. Redmine issue
