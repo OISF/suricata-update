@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.2.2 - unreleased
+## 1.2.2 - 2021-05-18
 - Fix "no-test" when set in configuration file:
   https://redmine.openinfosecfoundation.org/issues/4493
 
