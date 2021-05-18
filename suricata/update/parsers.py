@@ -133,7 +133,7 @@ update_arg = [
      {'metavar': '<command>',
       'help': "Command to test Suricata configuration"}),
     (("--no-test",),
-     {'action': 'store_true', 'default': False,
+     {'action': 'store_true', 'default': None,
       'help': "Disable testing rules with Suricata"}),
     (("--no-merge",),
      {'action': 'store_true', 'default': False,
