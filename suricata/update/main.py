@@ -106,12 +106,13 @@ class Fetch:
 
     def check_checksum(self, tmp_filename, url):
         try:
-            checksum_url = url + ".md5"
+            checksum_url = url[0] + ".md5"
+            net_arg=(checksum_url,url[1])
             local_checksum = hashlib.md5(
                 open(tmp_filename, "rb").read()).hexdigest().strip()
             remote_checksum_buf = io.BytesIO()
             logger.info("Checking %s." % (checksum_url))
-            net.get(checksum_url, remote_checksum_buf)
+            net.get(net_arg, remote_checksum_buf)
             remote_checksum = remote_checksum_buf.getvalue().decode().strip()
             logger.debug("Local checksum=|%s|; remote checksum=|%s|" % (
                 local_checksum, remote_checksum))
@@ -174,7 +175,7 @@ class Fetch:
                     url)
                 return self.extract_files(tmp_filename)
             if checksum:
-                if self.check_checksum(tmp_filename, url):
+                if self.check_checksum(tmp_filename, net_arg):
                     logger.info("Remote checksum has not changed. "
                                 "Not fetching.")
                     return self.extract_files(tmp_filename)
