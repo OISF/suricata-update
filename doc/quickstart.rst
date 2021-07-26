@@ -122,7 +122,8 @@ This command will:
 
 .. note:: Suricata-Update is also capable of triggering a rule reload,
           but doing so requires some extra configuration that will be
-          covered later.
+          covered later. See the documentation of
+          :command:`--reload-command=<command>` for more details.
 
 Configure Suricata to Load Suricata-Update Managed Rules
 ========================================================

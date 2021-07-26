@@ -153,11 +153,25 @@ Options
 .. option:: --reload-command=<command>
 
    A command to run after the rules have been updated; will not run if
-   no change to the output files was made.  For example::
+   no change to the output files was made. For example::
 
-     --reload-command='sudo kill -USR2 $(cat /var/run/suricata.pid)'
+     --reload-command='sudo kill -USR2 $(pidof suricata)'
 
    will tell Suricata to reload its rules.
+
+   Furthermore the reload can be triggered using the Unix socket of Suricata.
+
+   Blocking reload (with Suricata waiting for the reload to finish)::
+
+     --reload-command='sudo suricatasc -c reload-rules'
+
+   Non blocking reload (without restarting Suricata)::
+
+     --reload-command='sudo suricatasc -c ruleset-reload-nonblocking'
+
+   See the Suricata documentation on `Rule Reloads
+   <https://suricata.readthedocs.io/en/latest/rule-management/rule-reload.html>`_
+   for more information.
 
 .. option:: --no-reload
 
