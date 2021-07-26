@@ -27,6 +27,7 @@ Options
 
    HTTP basic authentication can be achieved by setting the HTTP Basic
    Authentication header with ``base64(user1:password1)``. Example::
+
      add-source --http-header "Authorization: Basic dXNlcjE6cGFzc3dvcmQx"
 
 .. option:: --no-checksum
