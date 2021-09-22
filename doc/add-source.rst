@@ -24,6 +24,12 @@ Options
    as a custom API key. Example::
 
      add-source --http-header "X-API-Key: 1234"
+   
+   HTTP Bearer authentication can be used by setting the HTTP Bearer Authentication header 
+   with a OAuth2 token containing printable ASCII characters. Example::
+
+      add-source --http-header "Auhorization: Bearer NjA2MTUOTAx?D+wOm4U/vpXQy0xhl!hSaR7#ENVpK59"
+      
 
 .. option:: --no-checksum
 
