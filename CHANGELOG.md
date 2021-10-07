@@ -5,6 +5,11 @@
   https://redmine.openinfosecfoundation.org/issues/4362
 - Fix "no-test" when set in configuration file:
   https://redmine.openinfosecfoundation.org/issues/4493
+- Allow more custom characters in custom http header to allow for more
+  of the base64 character set:
+  https://redmine.openinfosecfoundation.org/issues/4701
+- Send custom HTTP headers with check for remote checksum file:
+  https://redmine.openinfosecfoundation.org/issues/4001
 
 ## 1.2.1 - 2021-02-23
 - Fix --no-merge. Redmine issue
