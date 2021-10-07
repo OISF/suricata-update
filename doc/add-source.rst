@@ -16,7 +16,6 @@ The ``add-source`` adds a source to the set of enabled sources by
 URL. It is useful to add a source that is not provided in the index.
 
 Options
-=======
 
 .. option:: --http-header "Header: Value"
 
@@ -25,7 +24,8 @@ Options
 
      add-source --http-header "X-API-Key: 1234"
    
-   HTTP basic authentication can be achieved by setting the HTTP Basic Authentication header with base64(user1:password1). Example::
+   HTTP basic authentication can be achieved by setting the HTTP Basic
+   Authentication header with ``base64(user1:password1)``. Example::
 
       add-source --http-header "Authorization: Basic dXNlcjE6cGFzc3dvcmQx"
    
@@ -33,7 +33,6 @@ Options
    with a OAuth2 token containing printable ASCII characters. Example::
 
       add-source --http-header "Auhorization: Bearer NjA2MTUOTAx?D+wOm4U/vpXQy0xhl!hSaR7#ENVpK59"
-      
 
 .. option:: --no-checksum
 
