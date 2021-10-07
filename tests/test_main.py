@@ -62,7 +62,12 @@ class TestFetch(unittest.TestCase):
             os.path.dirname(os.path.realpath(__file__)))
         local_file = "%s/emerging.rules.tar.gz" % (
             os.path.dirname(os.path.realpath(__file__)))
-        r = fetch.check_checksum(local_file, url)
+
+        # The URL passed to check_checksum is actually a tuple:
+        #    (url, custom-header, has checksum url)
+        net_arg = (url, None, True)
+
+        r = fetch.check_checksum(local_file, net_arg)
         self.assertTrue(r)
 
 class ThresholdProcessorTestCase(unittest.TestCase):
