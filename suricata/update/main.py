@@ -105,6 +105,7 @@ class Fetch:
         self.istty = os.isatty(sys.stdout.fileno())
 
     def check_checksum(self, tmp_filename, url):
+        print(url)
         try:
             checksum_url = url[0] + ".md5"
             net_arg=(checksum_url,url[1])
