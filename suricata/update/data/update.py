@@ -15,6 +15,7 @@
 # 02110-1301, USA.
 
 import os.path
+import sys
 
 try:
     from urllib2 import urlopen
@@ -23,11 +24,16 @@ except:
 
 import yaml
 
+DEFAULT_URL = "https://raw.githubusercontent.com/oisf/suricata-intel-index/master/index.yaml"
+
 def embed_index():
     """Embed a copy of the index as a Python source file. We can't use a
     datafile yet as there is no easy way to do with distutils."""
+    if len(sys.argv) > 1:
+        url = sys.argv[1]
+    else:
+        url = DEFAULT_URL
     dist_filename = os.path.join(os.path.dirname(__file__), "index.py")
-    url = "https://raw.githubusercontent.com/oisf/suricata-intel-index/master/index.yaml"
     response = urlopen(url)
     index = yaml.safe_load(response.read())
 
