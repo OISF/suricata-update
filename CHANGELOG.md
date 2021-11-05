@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.2.3 - 2021-11-05
+- Allow more custom characters in custom http header to allow for more
+  of the base64 character set:
+  https://redmine.openinfosecfoundation.org/issues/4701
+- Send custom HTTP headers with check for remote checksum file:
+  https://redmine.openinfosecfoundation.org/issues/4001
+
 ## 1.2.2 - 2021-05-18
 - Fix "no-test" when set in configuration file:
   https://redmine.openinfosecfoundation.org/issues/4493
