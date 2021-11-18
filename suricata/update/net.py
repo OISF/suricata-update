@@ -98,7 +98,7 @@ def is_header_clean(header):
 
 def get(url, fileobj, progress_hook=None):
     """ Perform a GET request against a URL writing the contents into
-    the provideded file like object.
+    the provided file-like object.
 
     :param url: The URL to fetch
     :param fileobj: The fileobj to write the content to
