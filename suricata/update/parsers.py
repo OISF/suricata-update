@@ -165,6 +165,9 @@ update_arg = [
     (("--offline",),
      {'action': 'store_true',
       'help': "Run offline using most recent cached rules"}),
+    (("--fail",),
+     {'action': 'store_true',
+      'help': "Strictly fail and exit in case of an error"}),
 
     # Hidden argument, --now to bypass the timebased bypass of
     # updating a ruleset.
