@@ -165,7 +165,7 @@ class Fetch:
             logger.info("Using latest cached version of rule file: %s", url)
             if not os.path.exists(tmp_filename):
                 logger.error("Can't proceed offline, "
-                             "source %s has not yet been downloaded.", url)
+                             "source {} has not yet been downloaded.".format(url))
                 sys.exit(1)
             return self.extract_files(tmp_filename)
         if not config.args().force and os.path.exists(tmp_filename):
@@ -200,7 +200,7 @@ class Fetch:
             raise err
         except IOError as err:
             self.progress_hook_finish()
-            logger.error("Failed to copy file: %s", err)
+            logger.error("Failed to copy file: {}".format(err))
             sys.exit(1)
         except Exception as err:
             raise err
@@ -216,7 +216,7 @@ class Fetch:
                 files.update(fetched)
             except URLError as err:
                 url = url[0] if isinstance(url, tuple) else url
-                logger.error("Failed to fetch %s: %s", url, err)
+                logger.error("Failed to fetch {}: {}".format(url, err))
         else:
             for url in self.args.url:
                 files.update(self.fetch(url))
@@ -306,7 +306,7 @@ def load_local(local, files):
                 with open(filename, "rb") as fileobj:
                     files.append(SourceFile(filename, fileobj.read()))
             except Exception as err:
-                logger.error("Failed to open %s: %s" % (filename, err))
+                logger.error("Failed to open {}: {}".format(filename, err))
 
 def load_dist_rules(files):
     """Load the rule files provided by the Suricata distribution."""
@@ -361,7 +361,7 @@ def load_dist_rules(files):
                 with open(path, "rb") as fileobj:
                     files.append(SourceFile(path, fileobj.read()))
             except Exception as err:
-                logger.error("Failed to open %s: %s" % (path, err))
+                logger.error("Failed to open {}: {}".format(path, err))
                 sys.exit(1)
 
 def load_classification(suriconf, files):
@@ -432,7 +432,7 @@ def handle_dataset_files(rule, dep_files):
         with open(os.path.join(config.get_output_dir(), dataset_fname), "w+") as fp:
             fp.write(dep_files[dataset_fname].decode("utf-8"))
     else:
-        logger.error("Dataset file %s was not found" % dataset_fname)
+        logger.error("Dataset file {} was not found".format(dataset_fname))
 
 def handle_filehash_files(rule, dep_files, fhash):
     if not rule.enabled:
@@ -453,7 +453,7 @@ def handle_filehash_files(rule, dep_files, fhash):
         with open(os.path.join(filepath, os.path.basename(filehash_fname)), "w+") as fp:
             fp.write(dep_files[os.path.join("rules", filehash_fname)].decode("utf-8"))
     else:
-        logger.error("%s file %s was not found" % (fhash, filehash_fname))
+        logger.error("{} file {} was not found".format(fhash, filehash_fname))
 
 def write_merged(filename, rulemap, dep_files):
 
@@ -1025,7 +1025,7 @@ def _main():
     ]
     for arg in unimplemented_args:
         if hasattr(args, arg) and getattr(args, arg):
-            logger.error("--%s not implemented", arg)
+            logger.error("--{} not implemented".format(arg))
             return 1
 
     suricata_path = config.get("suricata")
@@ -1036,7 +1036,7 @@ def _main():
         # The Suricata version was passed on the command line, parse it.
         suricata_version = engine.parse_version(args.suricata_version)
         if not suricata_version:
-            logger.error("Failed to parse provided Suricata version: %s" % (
+            logger.error("Failed to parse provided Suricata version: {}".format(
                 args.suricata_version))
             return 1
         logger.info("Forcing Suricata version to %s." % (suricata_version.full))
@@ -1063,7 +1063,7 @@ def _main():
         elif hasattr(args, "func"):
             return args.func()
         elif args.subcommand != "update":
-            logger.error("Unknown command: %s", args.subcommand)
+            logger.error("Unknown command: {}".format(args.subcommand))
             return 1
 
     if args.dump_sample_configs:
@@ -1207,7 +1207,7 @@ def _main():
     try:
         disable_ja3(suriconf, rulemap, disabled_rules)
     except Exception as err:
-        logger.error("Failed to dynamically disable ja3 rules: %s" % (err))
+        logger.error("Failed to dynamically disable ja3 rules: {}".format(err))
 
     # Check rule vars, disabling rules that use unknown vars.
     check_vars(suriconf, rulemap)
@@ -1226,7 +1226,7 @@ def _main():
     # Check that output directory is writable.
     if not os.access(config.get_output_dir(), os.W_OK):
         logger.error(
-            "Output directory is not writable: %s", config.get_output_dir())
+            "Output directory is not writable: {}".format(config.get_output_dir()))
         return 1
 
     # Backup the output directory.
@@ -1289,7 +1289,7 @@ def _main():
         logger.info("Running %s." % (config.get("reload-command")))
         rc = subprocess.Popen(config.get("reload-command"), shell=True).wait()
         if rc != 0:
-            logger.error("Reload command exited with error: %d", rc)
+            logger.error("Reload command exited with error: {}".format(rc))
 
     logger.info("Done.")
 
