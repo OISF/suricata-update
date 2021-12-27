@@ -99,6 +99,11 @@ INDEX_EXPIRATION_TIME = 60 * 60 * 24 * 14
 # Rule keywords that come with files
 file_kw = ["filemd5", "filesha1", "filesha256", "dataset"]
 
+def strict_error(msg):
+    logger.error(msg)
+    if config.args().fail:
+        sys.exit(1)
+
 class Fetch:
 
     def __init__(self):
@@ -193,7 +198,7 @@ class Fetch:
             tmp_fileobj.close()
         except URLError as err:
             if os.path.exists(tmp_filename):
-                logger.warning(
+                strict_error(
                     "Failed to fetch %s, "
                     "will use latest cached version: %s", url, err)
                 return self.extract_files(tmp_filename)
