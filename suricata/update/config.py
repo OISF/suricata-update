@@ -17,6 +17,7 @@
 
 import os.path
 import logging
+from collections import defaultdict
 
 import yaml
 
@@ -73,10 +74,10 @@ else:
     ]
 
 DEFAULT_CONFIG = {
-    "disable-conf": "/etc/suricata/disable.conf",
-    "enable-conf": "/etc/suricata/enable.conf",
-    "drop-conf": "/etc/suricata/drop.conf",
-    "modify-conf": "/etc/suricata/modify.conf",
+    "disable-conf": ["/etc/suricata/disable.conf", ],
+    "enable-conf": ["/etc/suricata/enable.conf", ],
+    "drop-conf": ["/etc/suricata/drop.conf", ],
+    "modify-conf": ["/etc/suricata/modify.conf", ],
     "sources": [],
     LOCAL_CONF_KEY: [],
 
@@ -153,7 +154,8 @@ def init(args):
     global filename
 
     _args = args
-    _config.update(DEFAULT_CONFIG)
+    su_conf_dir = defaultdict(list)
+    su_conf_dir.update(DEFAULT_CONFIG)
 
     if args.config:
         logger.info("Loading %s", args.config)
@@ -214,6 +216,10 @@ def init(args):
         if "sysconfdir" in build_info:
             DEFAULT_DIST_RULE_PATH.insert(
                 0, os.path.join(build_info["sysconfdir"], "suricata/rules"))
+            for k, _ in su_conf_dir.items():
+                su_conf_dir[k].append(os.path.join(build_info["sysconfdir"],
+                    "suricata/{}".format(k.replace("-", "."))))
+
         if "datarootdir" in build_info:
             DEFAULT_DIST_RULE_PATH.insert(
                 0, os.path.join(build_info["datarootdir"], "suricata/rules"))
@@ -241,3 +247,14 @@ def init(args):
                 logger.info("Using %s for Suricata provided rules.", path)
                 _config[DIST_RULE_DIRECTORY_KEY] = path
                 break
+
+    confs = ["disable", "enable", "modify", "drop"]
+    for conf in confs:
+        conf_key = "{}-conf".format(conf)
+        if conf_key not in _config:
+            for path in su_conf_dir[conf_key]:
+                if os.path.exists(path):
+                    logger.info("Using {} for Suricata "
+                            "Update {} file.".format(path, conf_key.replace("-", ".")))
+                    _config[conf_key] = path
+                    break
