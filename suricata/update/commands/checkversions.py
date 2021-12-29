@@ -21,6 +21,26 @@ from suricata.update import sources, engine
 logger = logging.getLogger()
 
 
+def is_gt(v1, v2):
+    if v1.full == v2.full:
+        return False
+
+    if v1.major < v2.major:
+        return False
+    elif v1.major > v2.major:
+        return True
+
+    if v1.minor < v2.minor:
+        return False
+    elif v1.minor > v2.minor:
+        return True
+
+    if v1.patch < v2.patch:
+        return False
+
+    return True
+
+
 def register(parser):
     parser.set_defaults(func=check_version)
 
@@ -42,7 +62,7 @@ def check_version(suricata_version):
         logger.error("Recommended version was not parsed properly")
         sys.exit(1)
     # In case index is out of date
-    if float(suricata_version.short) > float(recommended.short):
+    if is_gt(suricata_version, recommended):
         return
     # Evaluate if the installed version is present in index
     upgrade_version = version["suricata"].get(suricata_version.short)
