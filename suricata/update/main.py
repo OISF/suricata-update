@@ -1462,15 +1462,15 @@ def _main():
 
         for fltr in drop_filters:
             if fltr.match(rule):
-                rulemap[rule.id] = fltr.run(rule)
+                rule = fltr.run(rule)
                 drop_count += 1
 
         for fltr in modify_filters:
             if fltr.match(rule):
-                new_rule = fltr.run(rule)
-                if new_rule:
-                    rulemap[rule.id] = new_rule
-                    modify_count += 1
+                rule = fltr.run(rule)
+                modify_count += 1
+
+        rulemap[key] = rule
 
     # Check if we should disable ja3 rules.
     try:
