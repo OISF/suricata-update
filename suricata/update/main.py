@@ -1179,6 +1179,12 @@ def _main():
 
     for key, rule in rulemap.items():
 
+        # To avoid duplicate counts when a rule has more than one modification
+        # to it, we track the actions here then update the counts at the end.
+        enabled = False
+        modified = False
+        dropped = False
+
         for matcher in disable_matchers:
             if rule.enabled and matcher.match(rule):
                 logger.debug("Disabling: %s" % (rule.brief()))
@@ -1189,17 +1195,24 @@ def _main():
             if not rule.enabled and matcher.match(rule):
                 logger.debug("Enabling: %s" % (rule.brief()))
                 rule.enabled = True
-                enable_count += 1
+                enabled = True
 
         for fltr in drop_filters:
             if fltr.match(rule):
                 rule = fltr.run(rule)
-                drop_count += 1
+                dropped = True
 
         for fltr in modify_filters:
             if fltr.match(rule):
                 rule = fltr.run(rule)
-                modify_count += 1
+                modified = True
+
+        if enabled:
+            enable_count += 1
+        if modified:
+            modify_count += 1
+        if dropped:
+            drop_count += 1
 
         rulemap[key] = rule
 
