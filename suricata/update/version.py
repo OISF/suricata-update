@@ -4,4 +4,4 @@
 # Alpha: 1.0.0a1
 # Development: 1.0.0dev0
 # Release candidate: 1.0.0rc1
-version = "1.2.3"
+version = "1.2.4dev0"
