@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.1.4 - unreleased
+- Fix multiple modifications to a rule:
+  https://redmine.openinfosecfoundation.org/issues/4259
+
 ## 1.1.3 - 2020-10-05
 - Fix --http-header option. Header was not being sent:
   https://redmine.openinfosecfoundation.org/issues/3731
