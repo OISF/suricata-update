@@ -1,6 +1,8 @@
 # Change Log
 
 ## unreleased
+- Fix multiple modifications to a rule:
+  https://redmine.openinfosecfoundation.org/issues/4259
 - Allow spaces in custom HTTP headers. Redmine issue
   https://redmine.openinfosecfoundation.org/issues/4362
 - Fix "no-test" when set in configuration file:
