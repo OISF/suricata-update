@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.2.4 - unreleased
+- Fix multiple modifications to a rule:
+  https://redmine.openinfosecfoundation.org/issues/4259
+
 ## 1.2.3 - 2021-11-05
 - Allow more custom characters in custom http header to allow for more
   of the base64 character set:
