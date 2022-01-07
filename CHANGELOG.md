@@ -1,6 +1,13 @@
 # Change Log
 
 ## unreleased
+- Be consistent about warning about old index. The index won't be automatically
+  updated now in some cases and not in others. Instead opt to never
+  auto-update: https://redmine.openinfosecfoundation.org/issues/3249
+- Better flowbit resolution logging in verbose mode
+  https://redmine.openinfosecfoundation.org/issues/3205
+- Hide advanced command line options from help output:
+  https://redmine.openinfosecfoundation.org/issues/3974
 - Fix multiple modifications to a rule:
   https://redmine.openinfosecfoundation.org/issues/4259
 - Allow spaces in custom HTTP headers. Redmine issue
