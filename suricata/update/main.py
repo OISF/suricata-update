@@ -424,14 +424,25 @@ def manage_classification(suriconf, files):
 def handle_dataset_files(rule, dep_files):
     if not rule.enabled:
         return
-    load_attr = [el.strip() for el in rule.dataset.split(",") if "load" in el][0]
-    dataset_fname = os.path.basename(load_attr.split(" ")[1])
+    load_attr = [el.strip() for el in rule.dataset.split(",") if "load" in el]
+    state_attr = [el.strip() for el in rule.dataset.split(",") if "state" in el]
+    if load_attr and state_attr:
+        logger.error("Invalid dataset rule")
+        return
+    elif not load_attr and not state_attr:
+        return
+    elif load_attr:
+        ds_attr = load_attr[0]
+    elif state_attr:
+        ds_attr = state_attr[0]
+
+    dataset_fname = os.path.basename(ds_attr.split(" ")[1])
     filename = [fname for fname, content in dep_files.items() if fname == dataset_fname]
     if filename:
         logger.debug("Copying dataset file %s to output directory" % dataset_fname)
         with open(os.path.join(config.get_output_dir(), dataset_fname), "w+") as fp:
             fp.write(dep_files[dataset_fname].decode("utf-8"))
-    else:
+    elif load_attr:
         logger.error("Dataset file %s was not found" % dataset_fname)
 
 def handle_filehash_files(rule, dep_files, fhash):
