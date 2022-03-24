@@ -509,6 +509,13 @@ def write_to_directory(directory, files, rulemap, dep_files):
     modified = []
 
     oldset = {}
+
+    cookie_path = os.path.join(directory, ".suricata-update")
+    if os.path.exists(directory):
+        if not os.path.exists(cookie_path) and os.listdir(directory):
+            logger.error("{} -- doesn't look like a suricata-update rule directory".format(directory))
+            sys.exit(1)
+
     if not args.quiet:
         for file in files:
             outpath = os.path.join(
@@ -535,6 +542,7 @@ def write_to_directory(directory, files, rulemap, dep_files):
                         len(removed),
                         len(modified)))
 
+    open(cookie_path).close()
     for file in sorted(files):
         outpath = os.path.join(
             directory, os.path.basename(file.filename))
