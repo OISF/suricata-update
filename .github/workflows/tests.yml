@@ -6,10 +6,10 @@ on:
 
 jobs:
 
-  centos-8:
-    name: CentOS 8
+  alma-8:
+    name: AlmaLinux 8
     runs-on: ubuntu-latest
-    container: centos:8
+    container: almalinux:8
     steps:
       - run: |
           yum -y install \
