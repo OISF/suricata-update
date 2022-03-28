@@ -3,6 +3,8 @@
 ## 1.2.4 - unreleased
 - Fix multiple modifications to a rule:
   https://redmine.openinfosecfoundation.org/issues/4259
+- Fix "check-versions" where the running Suricata is newer than what the index
+  knows about: https://redmine.openinfosecfoundation.org/issues/4373
 
 ## 1.2.3 - 2021-11-05
 - Allow more custom characters in custom http header to allow for more
