@@ -19,6 +19,8 @@
   https://redmine.openinfosecfoundation.org/issues/4701
 - Send custom HTTP headers with check for remote checksum file:
   https://redmine.openinfosecfoundation.org/issues/4001
+- Fix "check-versions" where the running Suricata is newer than what the index
+  knows about: https://redmine.openinfosecfoundation.org/issues/4373
 
 ## 1.2.1 - 2021-02-23
 - Fix --no-merge. Redmine issue
