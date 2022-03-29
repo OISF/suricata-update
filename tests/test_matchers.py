@@ -107,3 +107,15 @@ class IdRuleMatcherTestCase(unittest.TestCase):
 
         matcher = matchers_mod.IdRuleMatcher.parse("1:a")
         self.assertIsNone(matcher)
+
+class MetadataAddTestCase(unittest.TestCase):
+
+    def test_metadata_add(self):
+        rule_string = 'alert tcp any any -> any any (msg:"SURICATA STREAM Packet is retransmission"; stream-event:pkt_retransmission; flowint:tcp.retransmission.count,+,1; noalert; classtype:protocol-command-decode; sid:2210053; rev:1;)'
+        rule = suricata.update.rule.parse(rule_string)
+        text = 'metadata-add re:"SURICATA STREAM" "evebox.action" "archive"'
+        metadata_filter = matchers_mod.AddMetadataFilter.parse(text)
+        self.assertTrue(metadata_filter.match(rule))
+        new_rule = metadata_filter.run(rule)
+        self.assertIsNotNone(new_rule)
+        self.assertTrue(new_rule.format().find("evebox.action") > -1)
