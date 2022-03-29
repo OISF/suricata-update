@@ -242,12 +242,16 @@ def load_filters(filename):
             line = line.strip()
             if not line or line.startswith("#"):
                 continue
-            line = line.rsplit(" #")[0]
+            line = line.rsplit(" #")[0].strip()
 
-            line = re.sub(r'\\\$', '$', line)  # needed to escape $ in pp
             try:
-                rule_filter = matchers_mod.ModifyRuleFilter.parse(line)
-                filters.append(rule_filter)
+                if line.startswith("metadata-add"):
+                    rule_filter = matchers_mod.AddMetadataFilter.parse(line)
+                    filters.append(rule_filter)
+                else:
+                    line = re.sub(r'\\\$', '$', line)  # needed to escape $ in pp
+                    rule_filter = matchers_mod.ModifyRuleFilter.parse(line)
+                    filters.append(rule_filter)
             except Exception as err:
                 raise exceptions.ApplicationError(
                     "Failed to parse modify filter: {}".format(line))
