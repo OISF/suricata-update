@@ -257,9 +257,6 @@ def parse_arg():
 
     # Merge global args into args.
     for arg in vars(global_args):
-        if not hasattr(args, arg):
+        if not hasattr(args, arg) or getattr(args, arg) is None:
             setattr(args, arg, getattr(global_args, arg))
-        elif hasattr(args, arg) and getattr(args, arg) is None:
-            setattr(args, arg, getattr(global_args, arg))
-
     return args
