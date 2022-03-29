@@ -245,6 +245,35 @@ class DropRuleFilter(object):
         drop_rule.enabled = rule.enabled
         return drop_rule
 
+class AddMetadataFilter(object):
+
+    def __init__(self, matcher, key, val):
+        self.matcher = matcher
+        self.key = key
+        self.val = val
+
+    def match(self, rule):
+        return self.matcher.match(rule)
+
+    def run(self, rule):
+        new_rule_string = re.sub(";\s*\)$", "; metadata: {} {};)".format(self.key, self.val), rule.format())
+        new_rule = suricata.update.rule.parse(new_rule_string, rule.group)
+        if not new_rule:
+            logger.error("Rule is not valid after adding metadata: [{}]: {}".format(rule.idstr, new_rule_string))
+            return rule
+        return new_rule
+
+    @classmethod
+    def parse(cls, buf):
+        try:
+            command, match_string, key, val = shlex.split(buf)
+        except:
+            raise Exception("metadata-add: invalid number of arguments")
+        matcher = parse_rule_match(match_string)
+        if not matcher:
+            raise Exception("Bad match string: %s" % (matchstring))
+        return cls(matcher, key, val)
+
 
 def parse_rule_match(match):
     matcher = AllRuleMatcher.parse(match)
