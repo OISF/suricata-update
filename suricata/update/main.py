@@ -424,26 +424,32 @@ def manage_classification(suriconf, files):
 def handle_dataset_files(rule, dep_files):
     if not rule.enabled:
         return
-    load_attr = [el.strip() for el in rule.dataset.split(",") if el.startswith("load")]
-    state_attr = [el.strip() for el in rule.dataset.split(",") if el.startswith("state")]
-    if not load_attr and not state_attr:
-        return
-    if load_attr and state_attr:
-        logger.error("Invalid dataset rule")
-        return
-    elif load_attr:
-        ds_attr = load_attr[0]
-    elif state_attr:
-        ds_attr = state_attr[0]
 
-    dataset_fname = os.path.basename(ds_attr.split(" ")[1])
-    filename = [fname for fname, content in dep_files.items() if fname == dataset_fname]
-    if filename:
-        logger.debug("Copying dataset file %s to output directory" % dataset_fname)
-        with open(os.path.join(config.get_output_dir(), dataset_fname), "w+") as fp:
-            fp.write(dep_files[dataset_fname].decode("utf-8"))
+    dataset_load = [el.strip() for el in rule.dataset.split(",") if el.startswith("load")]
+    if not dataset_load:
+        # No dataset load found.
+        return
+    dataset_filename = dataset_load[0].split(maxsplit=1)[1].strip()
+
+    # Get the directory name the rule is from.
+    prefix = os.path.dirname(rule.group)
+
+    # Construct the source filename.
+    source_filename = "{}/{}".format(prefix, dataset_filename)
+
+    if source_filename in dep_files:
+        dest_filename = os.path.join(config.get_output_dir(), dataset_filename)
+        dest_dir = os.path.dirname(dest_filename)
+        logger.debug("Copying dataset file {} to {}".format(dataset_filename, dest_filename))
+        try:
+            os.makedirs(dest_dir, exist_ok=True)
+        except Exception as err:
+            logger.error("Failed to create directory {}: {}".format(dest_dir, err))
+            return
+        with open(dest_filename, "w") as fp:
+            fp.write(dep_files[source_filename].decode("utf-8"))
     else:
-        logger.error("Dataset file %s was not found" % dataset_fname)
+        logger.error("Dataset file '{}' was not found".format(dataset_filename))
 
 def handle_filehash_files(rule, dep_files, fhash):
     if not rule.enabled:
