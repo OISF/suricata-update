@@ -438,7 +438,9 @@ def handle_dataset_files(rule, dep_files):
     source_filename = "{}/{}".format(prefix, dataset_filename)
 
     if source_filename in dep_files:
-        dest_filename = os.path.join(config.get_output_dir(), dataset_filename)
+        content_hash = hashlib.md5(dep_files[source_filename]).hexdigest()
+        new_rule = re.sub("(dataset.*?load\s+){}".format(dataset_filename), "\g<1>datasets/{}".format(content_hash), rule.format())
+        dest_filename = os.path.join(config.get_output_dir(), "datasets", content_hash)
         dest_dir = os.path.dirname(dest_filename)
         logger.debug("Copying dataset file {} to {}".format(dataset_filename, dest_filename))
         try:
@@ -448,6 +450,7 @@ def handle_dataset_files(rule, dep_files):
             return
         with open(dest_filename, "w") as fp:
             fp.write(dep_files[source_filename].decode("utf-8"))
+        return new_rule
     else:
         logger.error("Dataset file '{}' was not found".format(dataset_filename))
 
@@ -508,13 +511,17 @@ def write_merged(filename, rulemap, dep_files):
     with io.open(tmp_filename, encoding="utf-8", mode="w") as fileobj:
         for sid in rulemap:
             rule = rulemap[sid]
+            reformatted = None
             for kw in file_kw:
                 if kw in rule:
                     if "dataset" == kw:
-                        handle_dataset_files(rule, dep_files)
+                        reformatted = handle_dataset_files(rule, dep_files)
                     else:
                         handle_filehash_files(rule, dep_files, kw)
-            print(rule.format(), file=fileobj)
+            if reformatted:
+                print(reformatted, file=fileobj)
+            else:
+                print(rule.format(), file=fileobj)
     os.rename(tmp_filename, filename)
 
 def write_to_directory(directory, files, rulemap, dep_files):
