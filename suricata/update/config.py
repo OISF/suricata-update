@@ -226,6 +226,24 @@ def init(args):
             logger.info("Using data-directory %s.", data_directory)
             _config[DATA_DIRECTORY_KEY] = data_directory
 
+        # Fixup the default locations for Suricata-Update configuration files, but only if
+        # they exist, otherwise keep the defaults.
+        if "sysconfdir" in build_info:
+            configs = (
+                ("disable-conf", "disable.conf"),
+                ("enable-conf", "enable.conf"),
+                ("drop-conf", "drop.conf"),
+                ("modify-conf", "modify.conf"),
+            )
+            sysconfdir = build_info["sysconfdir"]
+            for key, filename in configs:
+                config_path = os.path.join(sysconfdir, "suricata", filename)
+                if os.path.exists(config_path):
+                    is_arg = getattr(args, key.replace("-", "_"))
+                    if is_arg is None:
+                        logger.debug("Changing default for {} to {}".format(key, config_path))
+                        _config[key] = config_path
+
     # If suricata-conf not provided on the command line or in the
     # configuration file, look for it.
     if not "suricata-conf" in _config:
