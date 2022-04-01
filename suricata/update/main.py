@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Open Information Security Foundation
+# Copyright (C) 2017-2022 Open Information Security Foundation
 # Copyright (c) 2015-2017 Jason Ish
 #
 # You can copy, redistribute or modify this Program under the terms of
@@ -456,7 +456,8 @@ def handle_dataset_files(rule, dep_files):
             fp.write(dep_files[source_filename].decode("utf-8"))
         return new_rule
     else:
-        logger.error("Dataset file '{}' was not found".format(dataset_filename))
+        logger.warn("Dataset file '{}' was not found for rule {}, rule will be disabled".format(dataset_filename, rule.idstr))
+        rule.enabled = False
 
 def handle_filehash_files(rule, dep_files, fhash):
     if not rule.enabled:
