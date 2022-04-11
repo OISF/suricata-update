@@ -301,6 +301,7 @@ def load_local(local, files):
         if len(local_files) == 0:
             local_files.append(local)
         for filename in local_files:
+            filename = os.path.realpath(filename)
             logger.info("Loading local file %s" % (filename))
             if filename in files:
                 logger.warn(
@@ -441,23 +442,35 @@ def handle_dataset_files(rule, dep_files):
     # Construct the source filename.
     source_filename = "{}/{}".format(prefix, dataset_filename)
 
-    if source_filename in dep_files:
-        content_hash = hashlib.md5(dep_files[source_filename]).hexdigest()
-        new_rule = re.sub("(dataset.*?load\s+){}".format(dataset_filename), "\g<1>datasets/{}".format(content_hash), rule.format())
-        dest_filename = os.path.join(config.get_output_dir(), "datasets", content_hash)
-        dest_dir = os.path.dirname(dest_filename)
-        logger.debug("Copying dataset file {} to {}".format(dataset_filename, dest_filename))
-        try:
-            os.makedirs(dest_dir, exist_ok=True)
-        except Exception as err:
-            logger.error("Failed to create directory {}: {}".format(dest_dir, err))
+    # If a source filename starts with a "/", look for it on the filesystem. The archive
+    # unpackers will take care of removing a leading / so this shouldn't happen for
+    # downloaded rulesets.
+    if source_filename.startswith("/"):
+        if not os.path.exists(source_filename):
+            logger.warn("Local dataset file '{}' was not found for rule {}, rule will be disabled".format(source_filename, rule.idstr))
+            rule.enabled = False
             return
-        with open(dest_filename, "w") as fp:
-            fp.write(dep_files[source_filename].decode("utf-8"))
-        return new_rule
+        dataset_contents = open(source_filename, "rb").read()
     else:
-        logger.warn("Dataset file '{}' was not found for rule {}, rule will be disabled".format(dataset_filename, rule.idstr))
-        rule.enabled = False
+        if not source_filename in dep_files:
+            logger.warn("Dataset file '{}' was not found for rule {}, rule will be disabled".format(dataset_filename, rule.idstr))
+            rule.enabled = False
+            return
+        dataset_contents = dep_files[source_filename]
+
+    content_hash = hashlib.md5(dataset_contents).hexdigest()
+    new_rule = re.sub("(dataset.*?load\s+){}".format(dataset_filename), "\g<1>datasets/{}".format(content_hash), rule.format())
+    dest_filename = os.path.join(config.get_output_dir(), "datasets", content_hash)
+    dest_dir = os.path.dirname(dest_filename)
+    logger.debug("Copying dataset file {} to {}".format(dataset_filename, dest_filename))
+    try:
+        os.makedirs(dest_dir, exist_ok=True)
+    except Exception as err:
+        logger.error("Failed to create directory {}: {}".format(dest_dir, err))
+        return
+    with open(dest_filename, "w") as fp:
+        fp.write(dataset_contents.decode("utf-8"))
+    return new_rule
 
 def handle_filehash_files(rule, dep_files, fhash):
     if not rule.enabled:
@@ -574,22 +587,20 @@ def write_to_directory(directory, files, rulemap, dep_files):
             content = []
             for line in io.StringIO(file.content.decode("utf-8")):
                 rule = rule_mod.parse(line)
-                if not rule:
+                if not rule or rule.id not in rulemap:
                     content.append(line.strip())
                 else:
+                    reformatted = None
                     for kw in file_kw:
                         if kw in rule:
                             if "dataset" == kw:
-                                handle_dataset_files(rule, dep_files)
+                                reformatted = handle_dataset_files(rulemap[rule.id], dep_files)
                             else:
-                                handle_filehash_files(rule, dep_files, kw)
-                    if rule.id in rulemap:
-                        content.append(rulemap[rule.id].format())
+                                handle_filehash_files(rulemap[rule.id], dep_files, kw)
+                    if reformatted:
+                        content.append(reformatted)
                     else:
-                        # Just pass the input through. Most likey a
-                        # rule from a file that was ignored, but we'll
-                        # still pass it through.
-                        content.append(line.strip())
+                        content.append(rulemap[rule.id].format())
             tmp_filename = ".".join([outpath, "tmp"])
             io.open(tmp_filename, encoding="utf-8", mode="w").write(
                 u"\n".join(content))
