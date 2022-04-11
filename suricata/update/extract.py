@@ -34,7 +34,9 @@ def extract_tar(filename):
                 continue
             fileobj = tf.extractfile(member)
             if fileobj:
-                files[member.name] = fileobj.read()
+                # Remove leading /.
+                member_name = member.name.lstrip("/")
+                files[member_name] = fileobj.read()
     finally:
         tf.close()
 
@@ -47,7 +49,8 @@ def extract_zip(filename):
         for name in reader.namelist():
             if name.endswith("/"):
                 continue
-            files[name] = reader.read(name)
+            fixed_name = name.lstrip("/")
+            files[fixed_name] = reader.read(name)
     
     return files
 
