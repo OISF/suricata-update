@@ -936,6 +936,9 @@ def load_sources(suricata_version):
                         "Source index is required for source %s; "
                         "run suricata-update update-sources" % (source["source"]))
                 source_config = index.get_source_by_name(name)
+                if source_config is None:
+                    logger.warn("Source no longer exists in index and will not be fetched: {}".format(name))
+                    continue
                 try:
                     checksum = source_config["checksum"]
                 except:
