@@ -5,6 +5,16 @@
   https://redmine.openinfosecfoundation.org/issues/4259
 - Fix "check-versions" where the running Suricata is newer than what the index
   knows about: https://redmine.openinfosecfoundation.org/issues/4373
+- Fix issue with dataset handling. Also adds file renaming to avoid conflicts:
+  https://redmine.openinfosecfoundation.org/issues/5010.
+- New modify option to add metadata:
+  https://redmine.openinfosecfoundation.org/issues/5221.
+- Respect Suricata's sysconfdir when loading configuration files:
+  https://redmine.openinfosecfoundation.org/issues/4374.
+- Modify rule to add metadata:
+  https://redmine.openinfosecfoundation.org/issues/5221
+- Don't fail when source removed from index:
+  https://redmine.openinfosecfoundation.org/issues/5269
 
 ## 1.2.3 - 2021-11-05
 - Allow more custom characters in custom http header to allow for more
