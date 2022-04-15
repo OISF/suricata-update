@@ -198,10 +198,10 @@ class Fetch:
             tmp_fileobj.close()
         except URLError as err:
             if os.path.exists(tmp_filename):
-                msg = "Failed to fetch {}, will use latest cached version: {}".format(url, err)
-                if conf.args().fail:
-                    strict_error(msg)
-                logger.warning(msg)
+                if config.args().fail:
+                    strict_error("Failed to fetch {}: {}".format(url, err))
+                else:
+                    logger.error("Failed to fetch {}, will use latest cached version: {}".format(url, err))
                 return self.extract_files(tmp_filename)
             raise err
         except IOError as err:
