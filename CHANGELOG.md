@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.2.4 - unreleased
+## 1.2.4 - 2022-04-19
 - Fix multiple modifications to a rule:
   https://redmine.openinfosecfoundation.org/issues/4259
 - Fix "check-versions" where the running Suricata is newer than what the index
