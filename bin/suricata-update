@@ -20,12 +20,15 @@ import sys
 import os
 
 exec_dir = os.path.dirname(__file__)
-version_info = sys.version_info
-pyver = "%d.%d" % (version_info.major, version_info.minor)
-site_path = "%s/../lib/python%s/site-packages" % (exec_dir, pyver)
 
-if os.path.exists("%s/suricata/update" % (site_path)):
-    sys.path.insert(0, site_path)
+# Check if we were installed along with Suricata, and setup the path if so.
+libpath = os.path.realpath(
+    os.path.join(exec_dir, os.pardir, "lib/suricata/python"))
+if os.path.exists(os.path.join(libpath, "suricata", "update")):
+    sys.path.insert(0, libpath)
+
+# If running out of the source directory, make sure we pick up the
+# library from the current directory.
 sys.path.insert(
     0, os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 
