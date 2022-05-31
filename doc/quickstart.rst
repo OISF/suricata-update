@@ -125,6 +125,13 @@ This command will:
           covered later. See the documentation of
           :command:`--reload-command=<command>` for more details.
 
+.. note:: When using a ruleset referencing auxiliary files, such as
+          MD5 / SHA1 / SHA256 file hash lists (see `File keywords
+          <https://suricata.readthedocs.io/en/latest/rules/file-keywords.html>`_)
+          or datasets (see `Datasets
+          <https://suricata.readthedocs.io/en/latest/rules/datasets.html>`_),
+          these files will also be updated by Suricata-Update.
+
 Configure Suricata to Load Suricata-Update Managed Rules
 ========================================================
 
