@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.2.5 - unreleased
+- Update entrypoint search path when not installed with distutils. This is
+  required for installation when bundled with Suricata 6.0.7 or newer:
+  https://redmine.openinfosecfoundation.org/issues/5313
+
 ## 1.2.4 - 2022-04-19
 - Fix multiple modifications to a rule:
   https://redmine.openinfosecfoundation.org/issues/4259
