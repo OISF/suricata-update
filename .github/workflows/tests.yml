@@ -103,6 +103,22 @@ jobs:
       - name: Python 3 integration tests
         run: PYTHONPATH=. python3 ./tests/integration_tests.py
 
+  ubuntu-2204:
+    name: Ubuntu 22.04
+    runs-on: ubuntu-latest
+    container: ubuntu:22.04
+    steps:
+      - run: apt update
+      - run: |
+          apt -y install \
+            python3-pytest \
+            python3-yaml
+      - uses: actions/checkout@v1
+      - name: Python 3 unit tests
+        run: PYTHONPATH=. pytest-3
+      - name: Python 3 integration tests
+        run: PYTHONPATH=. python3 ./tests/integration_tests.py
+
   ubuntu-2004:
     name: Ubuntu 20.04
     runs-on: ubuntu-latest
