@@ -6,6 +6,22 @@ on:
 
 jobs:
 
+  alma-9:
+    # At the time of adding this test, tox and pytest don't install
+    # cleanly using system packages, so just run the integration tests
+    # for now.
+    name: AlmaLinux 9
+    runs-on: ubuntu-latest
+    container: almalinux:9
+    steps:
+      - run: |
+          dnf -y install \
+            python3 \
+            python3-pyyaml
+      - uses: actions/checkout@v1
+      - name: Python 3 integration tests
+        run: PYTHONPATH=. python3 ./tests/integration_tests.py
+
   alma-8:
     name: AlmaLinux 8
     runs-on: ubuntu-latest
