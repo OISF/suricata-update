@@ -119,3 +119,17 @@ class MetadataAddTestCase(unittest.TestCase):
         new_rule = metadata_filter.run(rule)
         self.assertIsNotNone(new_rule)
         self.assertTrue(new_rule.format().find("evebox.action") > -1)
+
+class MetadataMatchTestCase(unittest.TestCase):
+
+    def test_match_metadata(self):
+        """
+        Looking for: deployment Perimeter
+        """
+        rule_string = b"""alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB_SPECIFIC_APPS PHPStudy Remote Code Execution Backdoor"; flow:established,to_server; http.method; content:"GET"; http.header; content:"Accept-Charset|3a 20|"; fast_pattern; nocase; pcre:"/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})\\x0d\\x0a/R"; reference:url,www.cnblogs.com/-qing-/p/11575622.html; reference:url,www.uedbox.com/post/59265/; classtype:attempted-admin; sid:2028629; rev:1; metadata:affected_product Web_Server_Applications, attack_target Server, created_at 2019_09_25, deployment Perimeter, former_category WEB_SPECIFIC_APPS, performance_impact Significant, signature_severity Major, updated_at 2019_09_25;)"""
+        rule = suricata.update.rule.parse(rule_string)
+        self.assertIsNotNone(rule)
+        filter_string = "metadata: deployment  perimeter"
+        metadata_filter = matchers_mod.MetadataRuleMatch.parse(filter_string)
+        self.assertIsNotNone(metadata_filter)
+        self.assertTrue(metadata_filter.match(rule))

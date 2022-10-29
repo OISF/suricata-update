@@ -241,6 +241,24 @@ are allowed::
   filename:rules/*deleted*
   filename:*/emerging-dos.rules
 
+Metadata Matching
+-----------------
+
+Rules can be enabled or disabled based on the metadata fields
+contained in the rule, for example::
+
+  metadata: deployment perimeter
+
+Will match rules that have a metadata field of "deployment" with the
+value of "perimeter" (case insensitive). This will match on a rule
+with the provided metadata::
+
+  metadata:affected_product Any, attack_target Any, deployment Perimeter
+
+.. note:: Metadata matching can only be used to enable, disable or
+          convert rules to drop. It is not available for rule
+          modification.
+
 Modifying Rules
 ---------------
 

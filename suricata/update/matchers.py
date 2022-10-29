@@ -184,6 +184,34 @@ class ReRuleMatcher(object):
         return None
 
 
+class MetadataRuleMatch(object):
+    """ Matcher that matches on key/value style metadata fields. Case insensitive. """
+
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+
+    def match(self, rule):
+        for entry in rule.metadata:
+            parts = entry.strip().split(" ", 1)
+            if parts[0].strip().lower() == self.key and parts[1].strip().lower() == self.value:
+                print(rule)
+                return True
+        return False
+
+    @classmethod
+    def parse(cls, buf):
+        print(buf)
+        if buf.startswith("metadata:"):
+            buf = buf.split(":", 1)[1].strip()
+            parts = buf.split(" ", 1)
+            if len(parts) == 2:
+                key = parts[0].strip().lower()
+                val = parts[1].strip().lower()
+                return cls(key, val)
+        return None
+
+
 class ModifyRuleFilter(object):
     """Filter to modify an idstools rule object.
 
@@ -293,6 +321,10 @@ def parse_rule_match(match):
         return matcher
 
     matcher = GroupMatcher.parse(match)
+    if matcher:
+        return matcher
+
+    matcher = MetadataRuleMatch.parse(match)
     if matcher:
         return matcher
 

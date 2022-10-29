@@ -3,6 +3,8 @@
 ## unreleased
 - Allow checksum URL to be specified by the index:
   https://redmine.openinfosecfoundation.org/issues/5684
+- Metadata rule matching for disable, enable and drop:
+  https://redmine.openinfosecfoundation.org/issues/5561
 
 ## 1.2.5 - 2022-09-22
 - Update entrypoint search path when not installed with distutils. This is
