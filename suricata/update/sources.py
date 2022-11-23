@@ -158,7 +158,14 @@ def get_enabled_sources():
         for filename in filenames:
             if filename.endswith(".yaml"):
                 path = os.path.join(dirpath, filename)
+                logger.debug("Loading source specification file {}".format(path))
                 source = yaml.safe_load(open(path, "rb"))
+
+                if not "source" in source:
+                    logger.error("Source specification file missing field \"source\": filename: {}".format(
+                        path))
+                    continue
+
                 sources[source["source"]] = source
 
                 if "params" in source:
