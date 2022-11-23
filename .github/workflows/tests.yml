@@ -247,5 +247,5 @@ jobs:
       - run: pip3 install PyYAML
       - run: pip3 install pytest
       - uses: actions/checkout@v1
-      - run: PYTHONPATH=. pytest
+      - run: PYTHONPATH=. python3 -m pytest
       - run: PYTHONPATH=. python3 ./tests/integration_tests.py
