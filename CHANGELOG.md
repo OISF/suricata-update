@@ -1,24 +1,25 @@
 # Change Log
 
 ## unreleased
-- Be consistent about warning about old index. The index won't be automatically
-  updated now in some cases and not in others. Instead opt to never
-  auto-update: https://redmine.openinfosecfoundation.org/issues/3249
+- Be consistent about warning about old index. The index won't be
+  automatically updated now in some cases and not in others. Instead
+  opt to never auto-update:
+  https://redmine.openinfosecfoundation.org/issues/3249
 - Better flowbit resolution logging in verbose mode
   https://redmine.openinfosecfoundation.org/issues/3205
 - Hide advanced command line options from help output:
   https://redmine.openinfosecfoundation.org/issues/3974
-- Fix multiple modifications to a rule:
-  https://redmine.openinfosecfoundation.org/issues/4259
 - Allow spaces in custom HTTP headers. Redmine issue
   https://redmine.openinfosecfoundation.org/issues/4362
-- Fix "no-test" when set in configuration file:
-  https://redmine.openinfosecfoundation.org/issues/4493
-- Allow more custom characters in custom http header to allow for more
-  of the base64 character set:
-  https://redmine.openinfosecfoundation.org/issues/4701
-- Send custom HTTP headers with check for remote checksum file:
-  https://redmine.openinfosecfoundation.org/issues/4001
+
+## 1.2.5 - 2022-09-22
+- Update entrypoint search path when not installed with distutils. This is
+  required for installation when bundled with Suricata 6.0.7 or newer:
+  https://redmine.openinfosecfoundation.org/issues/5313
+
+## 1.2.4 - 2022-04-19
+- Fix multiple modifications to a rule:
+  https://redmine.openinfosecfoundation.org/issues/4259
 - Fix "check-versions" where the running Suricata is newer than what the index
   knows about: https://redmine.openinfosecfoundation.org/issues/4373
 - Fix issue with dataset handling. Also adds file renaming to avoid conflicts:
@@ -33,6 +34,17 @@
   https://redmine.openinfosecfoundation.org/issues/5269
 - Option fail on download error:
   https://redmine.openinfosecfoundation.org/issues/4579
+
+## 1.2.3 - 2021-11-05
+- Allow more custom characters in custom http header to allow for more
+  of the base64 character set:
+  https://redmine.openinfosecfoundation.org/issues/4701
+- Send custom HTTP headers with check for remote checksum file:
+  https://redmine.openinfosecfoundation.org/issues/4001
+
+## 1.2.2 - 2021-05-18
+- Fix "no-test" when set in configuration file:
+  https://redmine.openinfosecfoundation.org/issues/4493
 
 ## 1.2.1 - 2021-02-23
 - Fix --no-merge. Redmine issue
