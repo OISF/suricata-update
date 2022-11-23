@@ -109,9 +109,10 @@ class Fetch:
     def __init__(self):
         self.istty = os.isatty(sys.stdout.fileno())
 
-    def check_checksum(self, tmp_filename, url):
+    def check_checksum(self, tmp_filename, url, checksum_url=None):
         try:
-            checksum_url = url[0] + ".md5"
+            if not isinstance(checksum_url, str):
+                checksum_url = url[0] + ".md5"
             net_arg=(checksum_url,url[1])
             local_checksum = hashlib.md5(
                 open(tmp_filename, "rb").read()).hexdigest().strip()
@@ -180,7 +181,7 @@ class Fetch:
                     url)
                 return self.extract_files(tmp_filename)
             if checksum:
-                if self.check_checksum(tmp_filename, net_arg):
+                if self.check_checksum(tmp_filename, net_arg, checksum):
                     logger.info("Remote checksum has not changed. "
                                 "Not fetching.")
                     return self.extract_files(tmp_filename)

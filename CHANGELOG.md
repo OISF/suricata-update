@@ -1,5 +1,9 @@
 # Change Log
 
+## unreleased
+- Allow checksum URL to be specified by the index:
+  https://redmine.openinfosecfoundation.org/issues/5684
+
 ## 1.2.5 - 2022-09-22
 - Update entrypoint search path when not installed with distutils. This is
   required for installation when bundled with Suricata 6.0.7 or newer:
