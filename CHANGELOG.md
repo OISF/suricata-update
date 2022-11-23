@@ -11,6 +11,8 @@
   https://redmine.openinfosecfoundation.org/issues/3974
 - Allow spaces in custom HTTP headers. Redmine issue
   https://redmine.openinfosecfoundation.org/issues/4362
+- Better error message on invalid source specification:
+  https://redmine.openinfosecfoundation.org/issues/5141
 
 ## 1.2.5 - 2022-09-22
 - Update entrypoint search path when not installed with distutils. This is
