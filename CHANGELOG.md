@@ -1,6 +1,6 @@
 # Change Log
 
-## unreleased
+## 1.2.6 - 2022-11-25
 - Allow checksum URL to be specified by the index:
   https://redmine.openinfosecfoundation.org/issues/5684
 - Metadata rule matching for disable, enable and drop:
