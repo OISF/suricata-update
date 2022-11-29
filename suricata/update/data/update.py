@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Open Information Security Foundation
+# Copyright (C) 2018-2022 Open Information Security Foundation
 #
 # You can copy, redistribute or modify this Program under the terms of
 # the GNU General Public License version 2 as published by the Free
@@ -16,6 +16,7 @@
 
 import os.path
 import sys
+import pprint
 
 try:
     from urllib2 import urlopen
@@ -43,8 +44,10 @@ def embed_index():
     # sources to run the version check.
     del(index["versions"])
 
+    pp = pprint.PrettyPrinter(indent=4)
+
     with open(dist_filename, "w") as fileobj:
-        fileobj.write("index = %s" % (str(index)))
+        fileobj.write("index = {}".format(pp.pformat(index)))
     
 if __name__ == "__main__":
     embed_index()
