@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.2.7 - unreleased
+- Embed an index that has been formatted so diffs are more readable.
+
 ## 1.2.6 - 2022-11-25
 - Allow checksum URL to be specified by the index:
   https://redmine.openinfosecfoundation.org/issues/5684
