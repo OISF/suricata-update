@@ -1,7 +1,9 @@
 # Change Log
 
-## 1.2.7 - unreleased
+## 1.2.7 - 2022-01-30
 - Embed an index that has been formatted so diffs are more readable.
+- Documentation update with respect to how Suricata-Update is bundled
+  with all versions of Suricata now.
 
 ## 1.2.6 - 2022-11-25
 - Allow checksum URL to be specified by the index:
