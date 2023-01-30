@@ -1,6 +1,6 @@
 # Change Log
 
-## unreleased
+## 1.3.0-rc1 - 2022-01-30
 - Be consistent about warning about old index. The index won't be
   automatically updated now in some cases and not in others. Instead
   opt to never auto-update:
@@ -13,6 +13,11 @@
   https://redmine.openinfosecfoundation.org/issues/4362
 - Better error message on invalid source specification:
   https://redmine.openinfosecfoundation.org/issues/5141
+
+## 1.2.7 - 2022-01-30
+- Embed an index that has been formatted so diffs are more readable.
+- Documentation update with respect to how Suricata-Update is bundled
+  with all versions of Suricata now.
 
 ## 1.2.6 - 2022-11-25
 - Allow checksum URL to be specified by the index:
