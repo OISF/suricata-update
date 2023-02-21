@@ -22,6 +22,7 @@ import io
 import unittest
 
 import suricata.update.rule
+import suricata.update.iprep
 from suricata.update import main
 import suricata.update.extract
 from suricata.update import matchers as matchers_mod
@@ -124,6 +125,7 @@ class ThresholdProcessorTestCase(unittest.TestCase):
 class ModifyRuleFilterTestCase(unittest.TestCase):
 
     rule_string = """alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET MALWARE Windows executable sent when remote host claims to send an image 2"; flow: established,from_server; content:"|0d 0a|Content-Type|3a| image/jpeg|0d 0a 0d 0a|MZ"; fast_pattern:12,20; classtype:trojan-activity; sid:2020757; rev:2;)"""
+    iprep_string = """52.0.161.90,3,120"""
 
     def test_id_match(self):
         rule0 = suricata.update.rule.parse(self.rule_string)

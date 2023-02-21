@@ -24,6 +24,7 @@ import tempfile
 
 import suricata.update.rule
 import suricata.update.main
+import suricata.update.fileparser
 
 class RuleTestCase(unittest.TestCase):
 
@@ -79,7 +80,7 @@ class RuleTestCase(unittest.TestCase):
         for i in range(2):
             fileobj.write(u"%s\n" % rule_buf)
         fileobj.seek(0)
-        rules = suricata.update.rule.parse_fileobj(fileobj)
+        rules = suricata.update.fileparser.parse_fileobj(fileobj, suricata.update.rule.parse)
         self.assertEqual(2, len(rules))
 
     def test_parse_file(self):
@@ -90,11 +91,11 @@ class RuleTestCase(unittest.TestCase):
         for i in range(2):
             tmp.write(("%s\n" % rule_buf).encode())
         tmp.flush()
-        rules = suricata.update.rule.parse_file(tmp.name)
+        rules = suricata.update.fileparser.parse_file(tmp.name, suricata.update.rule.parse)
         self.assertEqual(2, len(rules))
 
     def test_parse_file_with_unicode(self):
-        rules = suricata.update.rule.parse_file("./tests/rule-with-unicode.rules")
+        rules = suricata.update.fileparser.parse_file("./tests/rule-with-unicode.rules", suricata.update.rule.parse)
 
     def test_parse_decoder_rule(self):
         rule_string = """alert ( msg:"DECODE_NOT_IPV4_DGRAM"; sid:1; gid:116; rev:1; metadata:rule-type decode; classtype:protocol-command-decode;)"""
@@ -106,7 +107,7 @@ class RuleTestCase(unittest.TestCase):
 alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
       app-layer-event:dnp3.flooded; sid:2200104; rev:1;)
 """
-        rules = suricata.update.rule.parse_fileobj(io.StringIO(rule_string))
+        rules = suricata.update.fileparser.parse_fileobj(io.StringIO(rule_string), suricata.update.rule.parse)
         self.assertEqual(len(rules), 1)
 
     def test_parse_nomsg(self):

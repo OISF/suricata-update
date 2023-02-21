@@ -37,6 +37,8 @@ def register(parser):
                         help="Additional HTTP header to add to requests")
     parser.add_argument("--no-checksum", action="store_false",
                         help="Skips downloading the checksum URL")
+    parser.add_argument("--iprep", action="store_true",
+                        help="Identifies source as an IPRep Source")
     parser.set_defaults(func=add_source)
 
 
@@ -67,6 +69,8 @@ def add_source():
 
     header = args.http_header if args.http_header else None
 
+    is_iprep = args.iprep
+
     source_config = sources.SourceConfiguration(
-        name, header=header, url=url, checksum=checksum)
+        name, header=header, url=url, checksum=checksum, is_iprep=is_iprep)
     sources.save_source_config(source_config)
