@@ -166,30 +166,6 @@ jobs:
       - name: Python 3 integration tests
         run: PYTHONPATH=. python3 ./tests/integration_tests.py
 
-  ubuntu-1604:
-    name: Ubuntu 16.04
-    runs-on: ubuntu-latest
-    container: ubuntu:16.04
-    steps:
-      - run: apt update
-      - run: |
-          apt -y install \
-            python-pytest \
-            python-yaml \
-            python3-pytest \
-            python3-yaml
-      - uses: actions/checkout@v1
-
-      - name: Python 2 unit tests
-        run: PYTHONPATH=. py.test
-      - name: Python 2 integration tests
-        run: PYTHONPATH=. python2 ./tests/integration_tests.py
-
-      - name: Python 3 unit tests
-        run: PYTHONPATH=. py.test-3
-      - name: Python 3 integration tests
-        run: PYTHONPATH=. python3 ./tests/integration_tests.py
-
   debian-10:
     name: Debian 10
     runs-on: ubuntu-latest
