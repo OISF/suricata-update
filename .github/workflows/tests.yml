@@ -166,34 +166,44 @@ jobs:
       - name: Python 3 integration tests
         run: PYTHONPATH=. python3 ./tests/integration_tests.py
 
-  debian-10:
-    name: Debian 10
+  debian-12:
+    name: Debian 12
     runs-on: ubuntu-latest
-    container: debian:10
+    container: debian:12
     steps:
       - run: apt update
       - run: |
           apt -y install \
-            python-pytest \
-            python-yaml \
             python3-pytest \
             python3-yaml
       - uses: actions/checkout@v1
-
-      - name: Python 2 unit tests
-        run: PYTHONPATH=. pytest
-      - name: Python 2 integration tests
-        run: PYTHONPATH=. python2 ./tests/integration_tests.py
 
       - name: Python 3 unit tests
         run: PYTHONPATH=. pytest-3
       - name: Python 3 integration tests
         run: PYTHONPATH=. python3 ./tests/integration_tests.py
 
-  debian-9:
-    name: Debian 9
+  debian-11:
+    name: Debian 11
     runs-on: ubuntu-latest
-    container: debian:9
+    container: debian:11
+    steps:
+      - run: apt update
+      - run: |
+          apt -y install \
+            python3-pytest \
+            python3-yaml
+      - uses: actions/checkout@v1
+
+      - name: Python 3 unit tests
+        run: PYTHONPATH=. pytest-3
+      - name: Python 3 integration tests
+        run: PYTHONPATH=. python3 ./tests/integration_tests.py
+
+  debian-10:
+    name: Debian 10
+    runs-on: ubuntu-latest
+    container: debian:10
     steps:
       - run: apt update
       - run: |
