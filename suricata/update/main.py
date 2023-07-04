@@ -1132,27 +1132,39 @@ def _main():
 
     # Load user provided disable filters.
     disable_conf_filename = config.get("disable-conf")
-    if disable_conf_filename and os.path.exists(disable_conf_filename):
-        logger.info("Loading %s.", disable_conf_filename)
-        disable_matchers += load_matchers(disable_conf_filename)
+    if disable_conf_filename:
+        if os.path.exists(disable_conf_filename):
+            logger.info("Loading %s.", disable_conf_filename)
+            disable_matchers += load_matchers(disable_conf_filename)
+        else:
+            logger.warn("disable-conf file does not exist: {}".format(disable_conf_filename))
 
     # Load user provided enable filters.
     enable_conf_filename = config.get("enable-conf")
-    if enable_conf_filename and os.path.exists(enable_conf_filename):
-        logger.info("Loading %s.", enable_conf_filename)
-        enable_matchers += load_matchers(enable_conf_filename)
+    if enable_conf_filename:
+        if os.path.exists(enable_conf_filename):
+            logger.info("Loading %s.", enable_conf_filename)
+            enable_matchers += load_matchers(enable_conf_filename)
+        else:
+            logger.warn("enable-conf file does not exist: {}".format(enable_conf_filename))
 
     # Load user provided modify filters.
     modify_conf_filename = config.get("modify-conf")
-    if modify_conf_filename and os.path.exists(modify_conf_filename):
-        logger.info("Loading %s.", modify_conf_filename)
-        modify_filters += load_filters(modify_conf_filename)
+    if modify_conf_filename:
+        if os.path.exists(modify_conf_filename):
+            logger.info("Loading %s.", modify_conf_filename)
+            modify_filters += load_filters(modify_conf_filename)
+        else:
+            logger.warn("modify-conf file does not exist: {}".format(modify_conf_filename))
 
     # Load user provided drop filters.
     drop_conf_filename = config.get("drop-conf")
-    if drop_conf_filename and os.path.exists(drop_conf_filename):
-        logger.info("Loading %s.", drop_conf_filename)
-        drop_filters += load_drop_filters(drop_conf_filename)
+    if drop_conf_filename:
+        if os.path.exists(drop_conf_filename):
+            logger.info("Loading %s.", drop_conf_filename)
+            drop_filters += load_drop_filters(drop_conf_filename)
+        else:
+            logger.warn("drop-conf file does not exist: {}".format(drop_conf_filename))
 
     # Load the Suricata configuration if we can.
     suriconf = None

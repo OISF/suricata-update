@@ -73,10 +73,6 @@ else:
     ]
 
 DEFAULT_CONFIG = {
-    "disable-conf": "/etc/suricata/disable.conf",
-    "enable-conf": "/etc/suricata/enable.conf",
-    "drop-conf": "/etc/suricata/drop.conf",
-    "modify-conf": "/etc/suricata/modify.conf",
     "sources": [],
     LOCAL_CONF_KEY: [],
 
@@ -228,23 +224,30 @@ def init(args):
 
         # Fixup the default locations for Suricata-Update configuration files, but only if
         # they exist, otherwise keep the defaults.
+        conf_search_path = ["/etc"]
         if "sysconfdir" in build_info:
-            configs = (
-                ("disable-conf", "disable.conf"),
-                ("enable-conf", "enable.conf"),
-                ("drop-conf", "drop.conf"),
-                ("modify-conf", "modify.conf"),
-            )
             sysconfdir = build_info["sysconfdir"]
-            for key, filename in configs:
-                config_path = os.path.join(sysconfdir, "suricata", filename)
+            if not sysconfdir in conf_search_path:
+                conf_search_path.insert(0, sysconfdir)
+        configs = (
+            ("disable-conf", "disable.conf"),
+            ("enable-conf", "enable.conf"),
+            ("drop-conf", "drop.conf"),
+            ("modify-conf", "modify.conf"),
+        )
+        for key, filename in configs:
+            if getattr(args, key.replace("-", "_"), None) is not None:
+                continue
+            if _config.get(key) is not None:
+                continue
+            for conf_dir in conf_search_path:
+                config_path = os.path.join(conf_dir, "suricata", filename)
                 logger.debug("Looking for {}".format(config_path))
                 if os.path.exists(config_path):
                     logger.debug("Found {}".format(config_path))
-                    val = getattr(args, key.replace("-", "_"), None)
-                    if val is None:
-                        logger.debug("Changing default for {} to {}".format(key, config_path))
-                        _config[key] = config_path
+                    logger.debug("Using {} for {}".format(config_path, key))
+                    _config[key] = config_path
+                    break
 
     # If suricata-conf not provided on the command line or in the
     # configuration file, look for it.
