@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.2.8 - 2023-07-07
+- Fix loading of configuration files specified in update.yaml:
+  https://redmine.openinfosecfoundation.org/issues/6172
+
 ## 1.2.7 - 2022-01-30
 - Embed an index that has been formatted so diffs are more readable.
 - Documentation update with respect to how Suricata-Update is bundled
