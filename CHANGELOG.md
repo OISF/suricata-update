@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.3.0 - 2023-07-07
+
+- Fix loading of configuration files specified in update.yaml:
+  https://redmine.openinfosecfoundation.org/issues/6172
+
 ## 1.3.0-rc1 - 2022-01-30
 - Be consistent about warning about old index. The index won't be
   automatically updated now in some cases and not in others. Instead
