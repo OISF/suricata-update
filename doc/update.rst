@@ -259,6 +259,15 @@ with the provided metadata::
           convert rules to drop. It is not available for rule
           modification.
 
+Multi Matching
+--------------
+
+The above matching methods can also be combined. It's logical AND, so all combined matcher need to match a given rule::
+
+  multi:filename:*/emerging-scan.rule;re:nmap;
+  multi:group:emerging-web_specific_apps;re:wordpress;re:cve[-,]201[6-9];
+  multi:re:cve[-_]202[23];metadata: deployment perimeter;
+
 Modifying Rules
 ---------------
 
