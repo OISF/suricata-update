@@ -499,6 +499,28 @@ def handle_filehash_files(rule, dep_files, fhash):
     else:
         logger.error("{} file {} was not found".format(fhash, filehash_fname))
 
+def handle_lua_rule_files(rule, dep_files, kw):
+    if not rule.enabled:
+        return
+    lua_rule_fname = rule.get(kw)
+    filename = [fname for fname, content in dep_files.items() if fname == lua_rule_fname]
+    if filename:
+        logger.debug("Copying lua file %s to output directory" % (lua_rule_fname))
+        filepath = os.path.join(config.get_state_dir(), "rules", os.path.dirname(filename[0]))
+        logger.debug("filepath: %s" % filepath)
+        try:
+            os.makedirs(filepath)
+        except OSError as oserr:
+            if oserr.errno != errno.EEXIST:
+                logger.error(oserr)
+                sys.exit(1)
+        logger.debug("output fname: %s" % os.path.join(filepath, os.path.basename(lua_rule_fname)))
+        with open(os.path.join(filepath, os.path.basename(lua_rule_fname)), "w+") as fp:
+            fp.write(dep_files[lua_rule_fname].decode("utf-8"))
+    else:
+        logger.error("lua file {} was not found".format(lua_rule_fname))
+
+
 def write_merged(filename, rulemap, dep_files):
 
     if not args.quiet:
