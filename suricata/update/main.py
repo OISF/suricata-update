@@ -97,7 +97,7 @@ DEFAULT_OUTPUT_RULE_FILENAME = "suricata.rules"
 INDEX_EXPIRATION_TIME = 60 * 60 * 24 * 14
 
 # Rule keywords that come with files
-file_kw = ["filemd5", "filesha1", "filesha256", "dataset"]
+file_kw = ["filemd5", "filesha1", "filesha256", "dataset", "lua", "luajit"]
 
 def strict_error(msg):
     logger.error(msg)
@@ -562,6 +562,8 @@ def write_merged(filename, rulemap, dep_files):
                 if kw in rule:
                     if "dataset" == kw:
                         reformatted = handle_dataset_files(rule, dep_files)
+                    elif kw in ["lua", "luajit"]:
+                        handle_lua_rule_files(rule, dep_files, kw)
                     else:
                         handle_filehash_files(rule, dep_files, kw)
             if reformatted:
@@ -623,6 +625,8 @@ def write_to_directory(directory, files, rulemap, dep_files):
                         if kw in rule:
                             if "dataset" == kw:
                                 reformatted = handle_dataset_files(rulemap[rule.id], dep_files)
+                            elif kw in ["lua", "luajit"]:
+                                handle_lua_rule_files(rulemap[rule.id], dep_files, kw)
                             else:
                                 handle_filehash_files(rulemap[rule.id], dep_files, kw)
                     if reformatted:
