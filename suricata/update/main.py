@@ -88,7 +88,7 @@ else:
     logger = logging.getLogger()
 
 # If Suricata is not found, default to this version.
-DEFAULT_SURICATA_VERSION = "4.0.0"
+DEFAULT_SURICATA_VERSION = "6.0.0"
 
 # The default filename to use for the output rule file. This is a
 # single file concatenating all input rule files together.
