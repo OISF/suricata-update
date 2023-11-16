@@ -120,7 +120,7 @@ This command will:
   and do not need to exist.
 
 * Download the Emerging Threats Open ruleset for your version of
-  Suricata, defaulting to 4.0.0 if not found.
+  Suricata, defaulting to 6.0.0 if not found.
 
 * Apply enable, disable, drop and modify filters as loaded above.
 
