@@ -464,7 +464,7 @@ def handle_dataset_files(rule, dep_files):
         dataset_contents = dep_files[source_filename]
 
     content_hash = hashlib.md5(dataset_contents).hexdigest()
-    new_rule = re.sub("(dataset.*?load\s+){}".format(dataset_filename), "\g<1>datasets/{}".format(content_hash), rule.format())
+    new_rule = re.sub(r"(dataset.*?load\s+){}".format(dataset_filename), r"\g<1>datasets/{}".format(content_hash), rule.format())
     dest_filename = os.path.join(config.get_output_dir(), "datasets", content_hash)
     dest_dir = os.path.dirname(dest_filename)
     logger.debug("Copying dataset file {} to {}".format(dataset_filename, dest_filename))
@@ -696,9 +696,9 @@ def resolve_flowbits(rulemap, disabled_rules):
 class ThresholdProcessor:
 
     patterns = [
-        re.compile("\s+(re:\"(.*)\")"),
-        re.compile("\s+(re:(.*?)),.*"),
-        re.compile("\s+(re:(.*))"),
+        re.compile(r"\s+(re:\"(.*)\")"),
+        re.compile(r"\s+(re:(.*?)),.*"),
+        re.compile(r"\s+(re:(.*))"),
     ]
 
     def extract_regex(self, buf):
@@ -1180,7 +1180,7 @@ def _main():
     # Disable rule that are for app-layers that are not enabled.
     if suriconf:
         for key in suriconf.keys():
-            m = re.match("app-layer\.protocols\.([^\.]+)\.enabled", key)
+            m = re.match(r"app-layer\.protocols\.([^\.]+)\.enabled", key)
             if m:
                 proto = m.group(1)
                 if not suriconf.is_true(key, ["detection-only"]):
