@@ -127,7 +127,7 @@ class ModifyRuleFilterTestCase(unittest.TestCase):
 
     def test_id_match(self):
         rule0 = suricata.update.rule.parse(self.rule_string)
-        line = '2020757 "\|0d 0a\|" "|ff ff|"'
+        line = r'2020757 "\|0d 0a\|" "|ff ff|"'
         rule_filter = matchers_mod.ModifyRuleFilter.parse(line)
         self.assertTrue(rule_filter != None)
         self.assertTrue(rule_filter.match(rule0))
@@ -138,7 +138,7 @@ class ModifyRuleFilterTestCase(unittest.TestCase):
 
     def test_re_match(self):
         rule0 = suricata.update.rule.parse(self.rule_string)
-        line = 're:classtype:trojan-activity "\|0d 0a\|" "|ff ff|"'
+        line = r're:classtype:trojan-activity "\|0d 0a\|" "|ff ff|"'
         rule_filter = matchers_mod.ModifyRuleFilter.parse(line)
         self.assertTrue(rule_filter != None)
         self.assertTrue(rule_filter.match(rule0))
