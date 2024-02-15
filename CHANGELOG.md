@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.3.1 - unreleased
+- Fix detecting dataset "load" when preceded by a space:
+  https://redmine.openinfosecfoundation.org/issues/6777
+
 ## 1.3.0 - 2023-07-07
 
 - Fix loading of configuration files specified in update.yaml:

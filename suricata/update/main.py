@@ -435,8 +435,7 @@ def manage_classification(suriconf, files):
 def handle_dataset_files(rule, dep_files):
     if not rule.enabled:
         return
-
-    dataset_load = [el.strip() for el in rule.dataset.split(",") if el.startswith("load")]
+    dataset_load = [el for el in (el.strip() for el in rule.dataset.split(",")) if el.startswith("load")]
     if not dataset_load:
         # No dataset load found.
         return
