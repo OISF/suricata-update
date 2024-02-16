@@ -436,4 +436,4 @@ def parse_var_names(var):
     """ Parse out the variable names from a string. """
     if var is None:
         return []
-    return re.findall("\$([\w_]+)", var)
+    return re.findall(r"\$([\w_]+)", var)

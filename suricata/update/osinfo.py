@@ -27,7 +27,7 @@ def parse_os_release(filename="/etc/os-release"):
     with open(filename) as fileobj:
         for line in fileobj:
             line = line.strip()
-            m = re.match("^(\w+)=\"?(.*?)\"?$", line)
+            m = re.match(r"^(\w+)=\"?(.*?)\"?$", line)
             if m:
                 os_release[m.group(1)] = m.group(2)
     return os_release

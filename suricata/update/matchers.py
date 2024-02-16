@@ -251,7 +251,7 @@ class ModifyRuleFilter(object):
         pattern = re.compile(a)
 
         # Convert Oinkmaster backticks to Python.
-        b = re.sub("\$\{(\d+)\}", "\\\\\\1", b)
+        b = re.sub(r"\$\{(\d+)\}", "\\\\\\1", b)
 
         return cls(matcher, pattern, b)
 
@@ -269,7 +269,7 @@ class DropRuleFilter(object):
 
     def run(self, rule):
         drop_rule = suricata.update.rule.parse(re.sub(
-            "^\w+", "drop", rule.raw))
+            r"^\w+", "drop", rule.raw))
         drop_rule.enabled = rule.enabled
         return drop_rule
 
@@ -284,7 +284,7 @@ class AddMetadataFilter(object):
         return self.matcher.match(rule)
 
     def run(self, rule):
-        new_rule_string = re.sub(";\s*\)$", "; metadata: {} {};)".format(self.key, self.val), rule.format())
+        new_rule_string = re.sub(r";\s*\)$", "; metadata: {} {};)".format(self.key, self.val), rule.format())
         new_rule = suricata.update.rule.parse(new_rule_string, rule.group)
         if not new_rule:
             logger.error("Rule is not valid after adding metadata: [{}]: {}".format(rule.idstr, new_rule_string))

@@ -135,7 +135,7 @@ def get_path(program="suricata"):
     return None
 
 def parse_version(buf):
-    m = re.search("((\d+)\.(\d+)(\.(\d+))?([\w\-]+)?)", str(buf).strip())
+    m = re.search(r"((\d+)\.(\d+)(\.(\d+))?([\w\-]+)?)", str(buf).strip())
     if m:
         full = m.group(1)
         major = int(m.group(2))
