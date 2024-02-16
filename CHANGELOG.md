@@ -3,6 +3,8 @@
 ## 1.3.1 - unreleased
 - Fix detecting dataset "load" when preceded by a space:
   https://redmine.openinfosecfoundation.org/issues/6777
+- If no Suricata is found, Suricata-Update will assume version 6.0.0
+  instead of 4.0.0.
 
 ## 1.3.0 - 2023-07-07
 
