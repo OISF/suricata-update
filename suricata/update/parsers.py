@@ -63,6 +63,8 @@ global_arg = [
      {'metavar': '<user-agent>',
       'help': "Set custom user-agent string" 
       if show_advanced else argparse.SUPPRESS}),
+     (("--report",), {'metavar': '<filename>',
+      'help': "Filename of the report for rules"}),
     (("--no-check-certificate",),
      {'action': 'store_true', 'default': None,
       'help': "Disable server SSL/TLS certificate verification"
