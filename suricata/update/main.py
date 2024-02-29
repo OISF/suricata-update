@@ -235,6 +235,8 @@ class Fetch:
 
         # The file is not an archive, treat it as an individual file.
         basename = os.path.basename(filename).split("-", 1)[1]
+        if not basename.endswith(".rules"):
+            basename = "{}.rules".format(basename)
         files = {}
         files[basename] = open(filename, "rb").read()
         return files
