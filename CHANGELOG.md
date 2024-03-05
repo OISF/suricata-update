@@ -10,6 +10,10 @@
 - Don't base dataset filenames on the contents of the file, but
   instead the filename path:
   https://redmine.openinfosecfoundation.org/issues/6763
+- Give each file in a source a unique filename by prefixing the files
+  with a hash of the URL to prevent duplicate filenames from
+  cloberring each other, in particular dataset files:
+  https://redmine.openinfosecfoundation.org/issues/6833
 
 ## 1.3.0 - 2023-07-07
 

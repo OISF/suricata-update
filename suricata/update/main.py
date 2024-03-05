@@ -985,9 +985,14 @@ def load_sources(suricata_version):
     # Now download each URL.
     files = []
     for url in urls:
+
+        # To de-duplicate filenames, add a prefix that is a hash of the URL.
+        prefix = hashlib.md5(url[0].encode()).hexdigest()
         source_files = Fetch().run(url)
         for key in source_files:
-            files.append(SourceFile(key, source_files[key]))
+            content = source_files[key]
+            key = format("{}/{}".format(prefix, key))
+            files.append(SourceFile(key, content))
 
     # Now load local rules.
     if config.get("local") is not None:
