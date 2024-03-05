@@ -465,9 +465,9 @@ def handle_dataset_files(rule, dep_files):
             return
         dataset_contents = dep_files[source_filename]
 
-    content_hash = hashlib.md5(dataset_contents).hexdigest()
-    new_rule = re.sub(r"(dataset.*?load\s+){}".format(dataset_filename), r"\g<1>datasets/{}".format(content_hash), rule.format())
-    dest_filename = os.path.join(config.get_output_dir(), "datasets", content_hash)
+    source_filename_hash = hashlib.md5(source_filename.encode()).hexdigest()
+    new_rule = re.sub(r"(dataset.*?load\s+){}".format(dataset_filename), r"\g<1>datasets/{}".format(source_filename_hash), rule.format())
+    dest_filename = os.path.join(config.get_output_dir(), "datasets", source_filename_hash)
     dest_dir = os.path.dirname(dest_filename)
     logger.debug("Copying dataset file {} to {}".format(dataset_filename, dest_filename))
     try:

@@ -7,6 +7,9 @@
   instead of 4.0.0.
 - Handle URLs of bare files that don't end in .rules:
   https://redmine.openinfosecfoundation.org/issues/3664
+- Don't base dataset filenames on the contents of the file, but
+  instead the filename path:
+  https://redmine.openinfosecfoundation.org/issues/6763
 
 ## 1.3.0 - 2023-07-07
 
