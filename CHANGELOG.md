@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.3.2 - unreleased
+- Fix copying of file hash lists which was broken in the dataset fix
+  as part of ticket #6833:
+  https://redmine.openinfosecfoundation.org/issues/6854
+
 ## 1.3.1 - 2024-03-11
 - Fix detecting dataset "load" when preceded by a space:
   https://redmine.openinfosecfoundation.org/issues/6777
