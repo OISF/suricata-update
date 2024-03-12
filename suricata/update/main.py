@@ -447,7 +447,7 @@ def handle_dataset_files(rule, dep_files):
     prefix = os.path.dirname(rule.group)
 
     # Construct the source filename.
-    source_filename = "{}/{}".format(prefix, dataset_filename)
+    source_filename = os.path.join(prefix, dataset_filename)
 
     # If a source filename starts with a "/", look for it on the filesystem. The archive
     # unpackers will take care of removing a leading / so this shouldn't happen for
@@ -483,10 +483,19 @@ def handle_filehash_files(rule, dep_files, fhash):
     if not rule.enabled:
         return
     filehash_fname = rule.get(fhash)
-    filename = [fname for fname, content in dep_files.items() if os.path.join(*(fname.split(os.path.sep)[1:])) == filehash_fname]
-    if filename:
+
+    # Get the directory name the rule is from.
+    prefix = os.path.dirname(rule.group)
+
+    source_filename = os.path.join(prefix, filehash_fname)
+    dest_filename = source_filename[len(prefix) + len(os.path.sep):]
+    logger.debug("dest_filename={}".format(dest_filename))
+
+    if source_filename not in dep_files:
+        logger.error("{} file {} was not found".format(fhash, filehash_fname))
+    else:
         logger.debug("Copying %s file %s to output directory" % (fhash, filehash_fname))
-        filepath = os.path.join(config.get_state_dir(), os.path.dirname(filename[0]))
+        filepath = os.path.join(config.get_output_dir(), os.path.dirname(dest_filename))
         logger.debug("filepath: %s" % filepath)
         try:
             os.makedirs(filepath)
@@ -494,11 +503,10 @@ def handle_filehash_files(rule, dep_files, fhash):
             if oserr.errno != errno.EEXIST:
                 logger.error(oserr)
                 sys.exit(1)
-        logger.debug("output fname: %s" % os.path.join(filepath, os.path.basename(filehash_fname)))
-        with open(os.path.join(filepath, os.path.basename(filehash_fname)), "w+") as fp:
-            fp.write(dep_files[os.path.join("rules", filehash_fname)].decode("utf-8"))
-    else:
-        logger.error("{} file {} was not found".format(fhash, filehash_fname))
+        output_filename = os.path.join(filepath, os.path.basename(filehash_fname))
+        logger.debug("output fname: %s" % output_filename)
+        with open(output_filename, "w") as fp:
+            fp.write(dep_files[source_filename].decode("utf-8"))
 
 def write_merged(filename, rulemap, dep_files):
 
@@ -991,7 +999,7 @@ def load_sources(suricata_version):
         source_files = Fetch().run(url)
         for key in source_files:
             content = source_files[key]
-            key = format("{}/{}".format(prefix, key))
+            key = os.path.join(prefix, key)
             files.append(SourceFile(key, content))
 
     # Now load local rules.
