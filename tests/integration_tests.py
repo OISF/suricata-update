@@ -118,6 +118,15 @@ run(common_args + [
     "testing-header-with-spaces", "file:///doesnotexist"
 ])
 
+run(common_args + [
+    "add-source",
+    "suricata-test-rules",
+    "file://{}/tests/suricata-test-rules.zip".format(os.getcwd()),
+])
+run(common_args)
+assert(os.path.exists(os.path.join(DATA_DIR, "rules/testmyids.md5")))
+assert(os.path.exists(os.path.join(DATA_DIR, "rules/testmyids.sha1")))
+assert(os.path.exists(os.path.join(DATA_DIR, "rules/testmyids.sha256")))
 
 class IntegrationTest:
     def __init__(self, configs={}):
