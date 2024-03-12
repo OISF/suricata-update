@@ -51,6 +51,28 @@ index = {   'sources': {   'et/open': {   'description': 'Proofpoint ET Open is 
                                          'support-url': 'https://redmine.openinfosecfoundation.org/',
                                          'url': 'https://openinfosecfoundation.org/rules/trafficid/trafficid.rules',
                                          'vendor': 'OISF'},
+                   'pawpatrules': {   'checksum': False,
+                                      'description': 'PAW Patrules ruleset '
+                                                     'permit to detect many '
+                                                     'events on\n'
+                                                     'network. Suspicious '
+                                                     'flow, malicious tool, '
+                                                     'unsuported and\n'
+                                                     'vulnerable system, known '
+                                                     'threat actors with '
+                                                     'various IOCs,\n'
+                                                     'lateral movement, bad '
+                                                     'practice, shadow IT... '
+                                                     'Rules are\n'
+                                                     'frequently updated.\n',
+                                      'homepage': 'https://pawpatrules.fr/',
+                                      'license': 'CC-BY-SA-4.0',
+                                      'min-version': '6.0.0',
+                                      'summary': 'PAW Patrules is a collection '
+                                                 'of rules for IDPS / NSM '
+                                                 'Suricata engine',
+                                      'url': 'https://rules.pawpatrules.fr/suricata/paw-patrules.tar.gz',
+                                      'vendor': 'pawpatrules'},
                    'ptresearch/attackdetection': {   'description': 'The '
                                                                     'Attack '
                                                                     'Detection '
@@ -261,6 +283,184 @@ index = {   'sources': {   'et/open': {   'description': 'Proofpoint ET Open is 
                                          'support-url': 'https://discord.com/channels/911231224448712714/911238451842666546',
                                          'url': 'https://ti.stamus-networks.io/open/stamus-lateral-rules.tar.gz',
                                          'vendor': 'Stamus Networks'},
+                   'stamus/nrd-14-open': {   'description': 'Newly Registered '
+                                                            'Domains list '
+                                                            '(last 14 days) to '
+                                                            'match on DNS, TLS '
+                                                            'and HTTP '
+                                                            'communication.\n'
+                                                            'Produced by '
+                                                            'Stamus Labs '
+                                                            'research team.\n',
+                                             'license': 'Commercial',
+                                             'min-version': '6.0.0',
+                                             'parameters': {   'secret-code': {   'prompt': 'Stamus '
+                                                                                            'Networks '
+                                                                                            'License '
+                                                                                            'code'}},
+                                             'subscribe-url': 'https://www.stamus-networks.com/stamus-labs/subscribe-to-threat-intel-feed',
+                                             'summary': 'Newly Registered '
+                                                        'Domains Open only - '
+                                                        '14 day list, complete',
+                                             'url': 'https://ti.stamus-networks.io/%(secret-code)s/sti-domains-nrd-14.tar.gz',
+                                             'vendor': 'Stamus Networks'},
+                   'stamus/nrd-30-open': {   'description': 'Newly Registered '
+                                                            'Domains list '
+                                                            '(last 30 days) to '
+                                                            'match on DNS, TLS '
+                                                            'and HTTP '
+                                                            'communication.\n'
+                                                            'Produced by '
+                                                            'Stamus Labs '
+                                                            'research team.\n',
+                                             'license': 'Commercial',
+                                             'min-version': '6.0.0',
+                                             'parameters': {   'secret-code': {   'prompt': 'Stamus '
+                                                                                            'Networks '
+                                                                                            'License '
+                                                                                            'code'}},
+                                             'subscribe-url': 'https://www.stamus-networks.com/stamus-labs/subscribe-to-threat-intel-feed',
+                                             'summary': 'Newly Registered '
+                                                        'Domains Open only - '
+                                                        '30 day list, complete',
+                                             'url': 'https://ti.stamus-networks.io/%(secret-code)s/sti-domains-nrd-30.tar.gz',
+                                             'vendor': 'Stamus Networks'},
+                   'stamus/nrd-entropy-14-open': {   'description': 'Suspicious '
+                                                                    'Newly '
+                                                                    'Registered '
+                                                                    'Domains '
+                                                                    'list with '
+                                                                    'high '
+                                                                    'entropy '
+                                                                    '(last 14 '
+                                                                    'days) to '
+                                                                    'match on '
+                                                                    'DNS, TLS '
+                                                                    'and HTTP '
+                                                                    'communication.\n'
+                                                                    'Produced '
+                                                                    'by Stamus '
+                                                                    'Labs '
+                                                                    'research '
+                                                                    'team.\n',
+                                                     'license': 'Commercial',
+                                                     'min-version': '6.0.0',
+                                                     'parameters': {   'secret-code': {   'prompt': 'Stamus '
+                                                                                                    'Networks '
+                                                                                                    'License '
+                                                                                                    'code'}},
+                                                     'subscribe-url': 'https://www.stamus-networks.com/stamus-labs/subscribe-to-threat-intel-feed',
+                                                     'summary': 'Newly '
+                                                                'Registered '
+                                                                'Domains Open '
+                                                                'only - 14 day '
+                                                                'list, high '
+                                                                'entropy',
+                                                     'url': 'https://ti.stamus-networks.io/%(secret-code)s/sti-domains-entropy-14.tar.gz',
+                                                     'vendor': 'Stamus '
+                                                               'Networks'},
+                   'stamus/nrd-entropy-30-open': {   'description': 'Suspicious '
+                                                                    'Newly '
+                                                                    'Registered '
+                                                                    'Domains '
+                                                                    'list with '
+                                                                    'high '
+                                                                    'entropy '
+                                                                    '(last 30 '
+                                                                    'days) to '
+                                                                    'match on '
+                                                                    'DNS, TLS '
+                                                                    'and HTTP '
+                                                                    'communication.\n'
+                                                                    'Produced '
+                                                                    'by Stamus '
+                                                                    'Labs '
+                                                                    'research '
+                                                                    'team.\n',
+                                                     'license': 'Commercial',
+                                                     'min-version': '6.0.0',
+                                                     'parameters': {   'secret-code': {   'prompt': 'Stamus '
+                                                                                                    'Networks '
+                                                                                                    'License '
+                                                                                                    'code'}},
+                                                     'subscribe-url': 'https://www.stamus-networks.com/stamus-labs/subscribe-to-threat-intel-feed',
+                                                     'summary': 'Newly '
+                                                                'Registered '
+                                                                'Domains Open '
+                                                                'only - 30 day '
+                                                                'list, high '
+                                                                'entropy',
+                                                     'url': 'https://ti.stamus-networks.io/%(secret-code)s/sti-domains-entropy-30.tar.gz',
+                                                     'vendor': 'Stamus '
+                                                               'Networks'},
+                   'stamus/nrd-phishing-14-open': {   'description': 'Suspicious '
+                                                                     'Newly '
+                                                                     'Registered '
+                                                                     'Domains '
+                                                                     'Phishing '
+                                                                     'list '
+                                                                     '(last 14 '
+                                                                     'days) to '
+                                                                     'match on '
+                                                                     'DNS, TLS '
+                                                                     'and HTTP '
+                                                                     'communication.\n'
+                                                                     'Produced '
+                                                                     'by '
+                                                                     'Stamus '
+                                                                     'Labs '
+                                                                     'research '
+                                                                     'team.\n',
+                                                      'license': 'Commercial',
+                                                      'min-version': '6.0.0',
+                                                      'parameters': {   'secret-code': {   'prompt': 'Stamus '
+                                                                                                     'Networks '
+                                                                                                     'License '
+                                                                                                     'code'}},
+                                                      'subscribe-url': 'https://www.stamus-networks.com/stamus-labs/subscribe-to-threat-intel-feed',
+                                                      'summary': 'Newly '
+                                                                 'Registered '
+                                                                 'Domains Open '
+                                                                 'only - 14 '
+                                                                 'day list, '
+                                                                 'phishing',
+                                                      'url': 'https://ti.stamus-networks.io/%(secret-code)s/sti-domains-phishing-14.tar.gz',
+                                                      'vendor': 'Stamus '
+                                                                'Networks'},
+                   'stamus/nrd-phishing-30-open': {   'description': 'Suspicious '
+                                                                     'Newly '
+                                                                     'Registered '
+                                                                     'Domains '
+                                                                     'Phishing '
+                                                                     'list '
+                                                                     '(last 30 '
+                                                                     'days) to '
+                                                                     'match on '
+                                                                     'DNS, TLS '
+                                                                     'and HTTP '
+                                                                     'communication.\n'
+                                                                     'Produced '
+                                                                     'by '
+                                                                     'Stamus '
+                                                                     'Labs '
+                                                                     'research '
+                                                                     'team.\n',
+                                                      'license': 'Commercial',
+                                                      'min-version': '6.0.0',
+                                                      'parameters': {   'secret-code': {   'prompt': 'Stamus '
+                                                                                                     'Networks '
+                                                                                                     'License '
+                                                                                                     'code'}},
+                                                      'subscribe-url': 'https://www.stamus-networks.com/stamus-labs/subscribe-to-threat-intel-feed',
+                                                      'summary': 'Newly '
+                                                                 'Registered '
+                                                                 'Domains Open '
+                                                                 'only - 30 '
+                                                                 'day list, '
+                                                                 'phishing',
+                                                      'url': 'https://ti.stamus-networks.io/%(secret-code)s/sti-domains-phishing-30.tar.gz',
+                                                      'vendor': 'Stamus '
+                                                                'Networks'},
                    'tgreen/hunting': {   'checksum': False,
                                          'description': 'Heuristic ruleset for '
                                                         'hunting. Focus on '
