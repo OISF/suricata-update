@@ -227,7 +227,7 @@ index = {   'sources': {   'et/open': {   'description': 'Proofpoint ET Open is 
                                                                 'the JA3 '
                                                                 'fingerprint '
                                                                 'ruleset.\n',
-                                                 'license': 'Non-Commercial',
+                                                 'license': 'CC0',
                                                  'min-version': '4.1.0',
                                                  'summary': 'Abuse.ch Suricata '
                                                             'JA3 Fingerprint '
@@ -266,7 +266,7 @@ index = {   'sources': {   'et/open': {   'description': 'Proofpoint ET Open is 
                                                                 'communication '
                                                                 'on the TCP '
                                                                 'layer.\n',
-                                                 'license': 'Non-Commercial',
+                                                 'license': 'CC0',
                                                  'summary': 'Abuse.ch SSL '
                                                             'Blacklist',
                                                  'url': 'https://sslbl.abuse.ch/blacklist/sslblacklist.rules',
