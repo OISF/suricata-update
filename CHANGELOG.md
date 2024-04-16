@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.3.3 - 2024-04-16
+- Add missing engine provided rules:
+  https://redmine.openinfosecfoundation.org/issues/6932
+
 ## 1.3.2 - 2024-03-14
 - Fix copying of file hash lists which was broken in the dataset fix
   as part of ticket #6833:
