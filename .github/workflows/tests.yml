@@ -226,9 +226,10 @@ jobs:
     name: MacOS Latest
     runs-on: macos-latest
     steps:
+      - run: PATH="/usr/local/opt/python/libexec/bin:$PATH" >> $GITHUB_ENV
       - run: brew install python
-      - run: pip3 install PyYAML
-      - run: pip3 install pytest
+      - run: brew install PyYAML
+      - run: pip3 install --break-system-packages pytest
       - uses: actions/checkout@v1
       - run: PYTHONPATH=. python3 -m pytest
       - run: PYTHONPATH=. python3 ./tests/integration_tests.py
