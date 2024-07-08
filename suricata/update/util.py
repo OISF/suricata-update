@@ -22,15 +22,18 @@ import tempfile
 import atexit
 import shutil
 import zipfile
+import sys
 
-def md5_hexdigest(filename):
-    """ Compute the MD5 checksum for the contents of the provided filename.
 
-    :param filename: Filename to computer MD5 checksum of.
+def md5_hexdigest(buf):
+    """ Compute the MD5 checksum for the provided buffer.
 
     :returns: A string representing the hex value of the computed MD5.
     """
-    return hashlib.md5(open(filename).read().encode()).hexdigest()
+    if sys.version_info.major < 3 or (sys.version_info.major == 3 and sys.version_info.minor < 9):
+        return hashlib.md5(buf).hexdigest().strip()
+    else:
+        return hashlib.md5(buf, usedforsecurity=False).hexdigest().strip()
 
 def mktempdir(delete_on_exit=True):
     """ Create a temporary directory that is removed on exit. """

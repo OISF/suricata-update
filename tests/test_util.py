@@ -30,4 +30,4 @@ class Md5TestCase(unittest.TestCase):
         test_file.flush()
         self.assertEqual(
             "120ea8a25e5d487bf68b5f7096440019",
-            util.md5_hexdigest(test_file.name))
+            util.md5_hexdigest(open(test_file.name).read().encode()))
