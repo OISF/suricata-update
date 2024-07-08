@@ -114,8 +114,7 @@ class Fetch:
             if not isinstance(checksum_url, str):
                 checksum_url = url[0] + ".md5"
             net_arg=(checksum_url,url[1])
-            local_checksum = hashlib.md5(
-                open(tmp_filename, "rb").read()).hexdigest().strip()
+            local_checksum = util.md5_hexdigest(open(tmp_filename, "rb").read())
             remote_checksum_buf = io.BytesIO()
             logger.info("Checking %s." % (checksum_url))
             net.get(net_arg, remote_checksum_buf)
@@ -154,7 +153,7 @@ class Fetch:
         return filename
 
     def get_tmp_filename(self, url):
-        url_hash = hashlib.md5(url.encode("utf-8")).hexdigest()
+        url_hash = util.md5_hexdigest(url.encode("utf-8"))
         return os.path.join(
             config.get_cache_dir(),
             "%s-%s" % (url_hash, self.url_basename(url)))
@@ -481,7 +480,7 @@ def handle_dataset_files(rule, dep_files):
             return
         dataset_contents = dep_files[source_filename]
 
-    source_filename_hash = hashlib.md5(source_filename.encode()).hexdigest()
+    source_filename_hash = util.md5_hexdigest(source_filename.encode())
     new_rule = re.sub(r"(dataset.*?load\s+){}".format(dataset_filename), r"\g<1>datasets/{}".format(source_filename_hash), rule.format())
     dest_filename = os.path.join(config.get_output_dir(), "datasets", source_filename_hash)
     dest_dir = os.path.dirname(dest_filename)
@@ -794,7 +793,7 @@ class FileTracker:
         if not os.path.exists(filename):
             return ""
         else:
-            return hashlib.md5(open(filename, "rb").read()).hexdigest()
+            return util.md5_hexdigest(open(filename, "rb").read())
 
     def any_modified(self):
         for filename in self.hashes:
@@ -1011,7 +1010,7 @@ def load_sources(suricata_version):
     for url in urls:
 
         # To de-duplicate filenames, add a prefix that is a hash of the URL.
-        prefix = hashlib.md5(url[0].encode()).hexdigest()
+        prefix = util.md5_hexdigest(url[0].encode())
         source_files = Fetch().run(url)
         for key in source_files:
             content = source_files[key]
