@@ -211,8 +211,17 @@ jobs:
     runs-on: macos-latest
     steps:
       - run: brew install python
-      - run: pip3 install PyYAML
-      - run: pip3 install pytest
+      - run: brew install pytest
       - uses: actions/checkout@v1
-      - run: PYTHONPATH=. python3 -m pytest
-      - run: PYTHONPATH=. python3 ./tests/integration_tests.py
+      - name: Create Python virtual environment
+        run: python3 -m venv ./testenv
+      - name: Install PyYAML
+        run: |
+          . ./testenv/bin/activate
+          pip install pyyaml
+      - run: |
+          . ./testenv/bin/activate
+          PYTHONPATH=. pytest
+      - run: |
+          . ./testenv/bin/activate
+          PYTHONPATH=. python3 ./tests/integration_tests.py
