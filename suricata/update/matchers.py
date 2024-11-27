@@ -51,6 +51,25 @@ class ProtoRuleMatcher:
         return rule.proto == self.proto
 
 
+class IdSetRuleMatcher(object):
+    """Matcher object that matches on a set of rule SIDs.
+
+    This matcher is not directly parsed, but instead constructed after
+    loading individual IdRuleMatchers and consolidated into one
+    matcher that is much faster.
+
+    """
+    def __init__(self):
+        self.sids = {}
+
+    def add(self, generatorId, signatureId):
+        self.sids[(generatorId, signatureId)] = True
+
+    def match(self, rule):
+        key = (rule.gid, rule.sid)
+        return key in self.sids
+
+
 class IdRuleMatcher(object):
     """Matcher object to match an idstools rule object by its signature
     ID."""

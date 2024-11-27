@@ -66,7 +66,7 @@ re:.# This is a comment*
         self.assertEqual(
             matchers[1].__class__, matchers_mod.ReRuleMatcher)
         self.assertEqual(
-            matchers[2].__class__, matchers_mod.IdRuleMatcher)
+            matchers[2].__class__, matchers_mod.IdSetRuleMatcher)
 
 class IdRuleMatcherTestCase(unittest.TestCase):
 

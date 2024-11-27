@@ -278,6 +278,8 @@ def load_drop_filters(filename):
 def parse_matchers(fileobj):
     matchers = []
 
+    id_set_matcher = matchers_mod.IdSetRuleMatcher()
+
     for line in fileobj:
         line = line.strip()
         if not line or line.startswith("#"):
@@ -287,9 +289,18 @@ def parse_matchers(fileobj):
         if not matcher:
             logger.warn("Failed to parse: \"%s\"" % (line))
         else:
-            matchers.append(matcher)
+            # If matcher is an IdRuleMatcher
+            if isinstance(matcher, matchers_mod.IdRuleMatcher):
+                for (gid, sid) in matcher.signatureIds:
+                    id_set_matcher.add(gid, sid)
+            else:
+                matchers.append(matcher)
+
+    if len(id_set_matcher.sids) > 0:
+        matchers.append(id_set_matcher)
 
     return matchers
+
 
 def load_matchers(filename):
     with open(filename) as fileobj:
