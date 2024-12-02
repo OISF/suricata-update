@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.3.4 - unreleased
+- Consolidate SID matches to a set:
+  https://redmine.openinfosecfoundation.org/issues/7415
+
 ## 1.3.3 - 2024-04-16
 - Add missing engine provided rules:
   https://redmine.openinfosecfoundation.org/issues/6932
