@@ -3,6 +3,8 @@
 ## 1.3.4 - unreleased
 - Consolidate SID matches to a set:
   https://redmine.openinfosecfoundation.org/issues/7415
+- Support FIPs restricted systems:
+  https://redmine.openinfosecfoundation.org/issues/4479
 
 ## 1.3.3 - 2024-04-16
 - Add missing engine provided rules:
