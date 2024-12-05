@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.3.4 - unreleased
+## 1.3.4 - 2024-12-09
 - Consolidate SID matches to a set:
   https://redmine.openinfosecfoundation.org/issues/7415
 - Support FIPs restricted systems:
