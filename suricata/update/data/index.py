@@ -1,4 +1,158 @@
-index = {   'sources': {   'et/open': {   'description': 'Proofpoint ET Open is a '
+index = {   'sources': {   'abuse.ch/feodotracker': {   'checksum': False,
+                                                'description': 'The Suricata '
+                                                               'Botnet C2 IP '
+                                                               'Ruleset '
+                                                               'contains '
+                                                               'botnet C2s '
+                                                               'tracked by\n'
+                                                               'Feodo Tracker '
+                                                               'and can be '
+                                                               'used for both, '
+                                                               'Suricata and '
+                                                               'Snort open\n'
+                                                               'source '
+                                                               'IDS/IPS. If '
+                                                               'you are '
+                                                               'running '
+                                                               'Suricata or '
+                                                               'Snort, you '
+                                                               'can\n'
+                                                               'use this '
+                                                               'ruleset to '
+                                                               'detect and/or '
+                                                               'block network '
+                                                               'connections\n'
+                                                               'towards '
+                                                               'hostline '
+                                                               'servers (IP '
+                                                               'address:port '
+                                                               'combination).\n',
+                                                'license': 'CC0-1.0',
+                                                'summary': 'Abuse.ch Feodo '
+                                                           'Tracker Botnet C2 '
+                                                           'IP ruleset',
+                                                'url': 'https://feodotracker.abuse.ch/downloads/feodotracker.tar.gz',
+                                                'vendor': 'Abuse.ch'},
+                   'abuse.ch/sslbl-blacklist': {   'checksum': False,
+                                                   'description': 'The SSL '
+                                                                  'Blacklist '
+                                                                  '(SSLBL) is '
+                                                                  'a project '
+                                                                  'of abuse.ch '
+                                                                  'with the '
+                                                                  'goal\n'
+                                                                  'of '
+                                                                  'detecting '
+                                                                  'malicious '
+                                                                  'SSL '
+                                                                  'connections, '
+                                                                  'by '
+                                                                  'identifying '
+                                                                  'and\n'
+                                                                  'blacklisting '
+                                                                  'SSL '
+                                                                  'certificates '
+                                                                  'used by '
+                                                                  'botnet C&C '
+                                                                  'servers. '
+                                                                  'In\n'
+                                                                  'addition, '
+                                                                  'SSLBL '
+                                                                  'identifies '
+                                                                  'JA3 '
+                                                                  'fingerprints '
+                                                                  'that helps '
+                                                                  'you to\n'
+                                                                  'detect & '
+                                                                  'block '
+                                                                  'malware '
+                                                                  'botnet C&C '
+                                                                  'communication '
+                                                                  'on the TCP\n'
+                                                                  'layer.\n',
+                                                   'license': 'CC0-1.0',
+                                                   'replaces': [   'sslbl/ssl-fp-blacklist'],
+                                                   'summary': 'Abuse.ch SSL '
+                                                              'Blacklist',
+                                                   'url': 'https://sslbl.abuse.ch/blacklist/sslblacklist_tls_cert.tar.gz',
+                                                   'vendor': 'Abuse.ch'},
+                   'abuse.ch/sslbl-c2': {   'checksum': False,
+                                            'description': 'This ruleset '
+                                                           'contains all '
+                                                           'botnet '
+                                                           'Command&Control '
+                                                           'servers (C&Cs)\n'
+                                                           'identified by '
+                                                           'SSLBL to be '
+                                                           'associated with a '
+                                                           'blacklisted SSL\n'
+                                                           'certificate.\n',
+                                            'license': 'CC0-1.0',
+                                            'summary': 'Abuse.ch Suricata '
+                                                       'Botnet C2 IP Ruleset',
+                                            'url': 'https://sslbl.abuse.ch/blacklist/sslipblacklist.tar.gz',
+                                            'vendor': 'Abuse.ch'},
+                   'abuse.ch/sslbl-ja3': {   'checksum': False,
+                                             'description': 'If you are '
+                                                            'running Suricata, '
+                                                            'you can use the '
+                                                            "SSLBL's Suricata\n"
+                                                            'JA3 fingerprint '
+                                                            'ruleset to detect '
+                                                            'and/or block '
+                                                            'malicious SSL\n'
+                                                            'connections in '
+                                                            'your network '
+                                                            'based on the JA3 '
+                                                            'fingerprint. '
+                                                            'Please\n'
+                                                            'note that your '
+                                                            'need Suricata '
+                                                            '4.1.0 or newer in '
+                                                            'order to use the\n'
+                                                            'JA3 fingerprint '
+                                                            'ruleset.\n',
+                                             'license': 'CC0-1.0',
+                                             'min-version': '4.1.0',
+                                             'replaces': [   'sslbl/ja3-fingerprints'],
+                                             'summary': 'Abuse.ch Suricata JA3 '
+                                                        'Fingerprint Ruleset',
+                                             'url': 'https://sslbl.abuse.ch/blacklist/ja3_fingerprints.tar.gz',
+                                             'vendor': 'Abuse.ch'},
+                   'abuse.ch/urlhaus': {   'checksum': False,
+                                           'description': 'URLhaus is a '
+                                                          'project from '
+                                                          'abuse.ch with the '
+                                                          'goal of sharing\n'
+                                                          'malicious URLs that '
+                                                          'are being used for '
+                                                          'malware '
+                                                          'distribution.\n',
+                                           'license': 'CC0-1.0',
+                                           'summary': 'Abuse.ch URLhaus '
+                                                      'Suricata Rules',
+                                           'url': 'https://urlhaus.abuse.ch/downloads/urlhaus_suricata.tar.gz',
+                                           'vendor': 'abuse.ch'},
+                   'aleksibovellan/nmap': {   'checksum': False,
+                                              'description': 'These detection '
+                                                             'rules work by '
+                                                             'looking for '
+                                                             'specific NMAP\n'
+                                                             'packet window '
+                                                             'sizes, flags, '
+                                                             'port numbers, '
+                                                             'and known NMAP\n'
+                                                             'timing '
+                                                             'intervals.\n',
+                                              'homepage': 'https://github.com/aleksibovellan/opnsense-suricata-nmaps',
+                                              'license': 'MIT',
+                                              'min-version': '7.0.4',
+                                              'summary': 'Suricata IDS/IPS '
+                                                         'Detection Rules '
+                                                         'Against NMAP Scans',
+                                              'url': 'https://raw.githubusercontent.com/aleksibovellan/opnsense-suricata-nmaps/main/local.rules',
+                                              'vendor': 'aleksibovellan'},
+                   'et/open': {   'description': 'Proofpoint ET Open is a '
                                                  'timely and accurate rule set '
                                                  'for detecting and blocking '
                                                  'advanced threats\n',
@@ -39,6 +193,7 @@ index = {   'sources': {   'et/open': {   'description': 'Proofpoint ET Open is 
                                               'homepage': 'https://raw-data.gitlab.io/post/malsilo_2.1/',
                                               'license': 'MIT',
                                               'min-version': '4.1.0',
+                                              'obsolete': 'unmaintained',
                                               'summary': 'Commodity malware '
                                                          'rules',
                                               'url': 'https://malsilo.gitlab.io/feeds/dumps/malsilo.rules.tar.gz',
@@ -67,7 +222,7 @@ index = {   'sources': {   'et/open': {   'description': 'Proofpoint ET Open is 
                                                      'frequently updated.\n',
                                       'homepage': 'https://pawpatrules.fr/',
                                       'license': 'CC-BY-SA-4.0',
-                                      'min-version': '6.0.0',
+                                      'min-version': '7.0.3',
                                       'summary': 'PAW Patrules is a collection '
                                                  'of rules for IDPS / NSM '
                                                  'Suricata engine',
@@ -129,6 +284,30 @@ index = {   'sources': {   'et/open': {   'description': 'Proofpoint ET Open is 
                                                      'url': 'https://raw.githubusercontent.com/ptresearch/AttackDetection/master/pt.rules.tar.gz',
                                                      'vendor': 'Positive '
                                                                'Technologies'},
+                   'ptrules/open': {   'description': 'PT\xa0Rules, an\xa0'
+                                                      'open-source project '
+                                                      'focused on\xa0enhancing '
+                                                      'network security '
+                                                      'through proactive '
+                                                      'threat detection. As\xa0'
+                                                      'the PT\xa0Expert '
+                                                      'Security Center attack '
+                                                      'detection team, we\xa0'
+                                                      'are a\xa0dedicated '
+                                                      'group of\xa0'
+                                                      'cybersecurity experts '
+                                                      'committed to\xa0improve '
+                                                      'network security '
+                                                      'through open-source '
+                                                      'initiatives.\n',
+                                       'homepage': 'https://rules.ptsecurity.com',
+                                       'license': 'Custom',
+                                       'license-url': 'https://rules.ptsecurity.com/files/LICENSE.txt',
+                                       'min-version': '5.0.0',
+                                       'summary': 'Positive Technologies Open '
+                                                  'Ruleset',
+                                       'url': 'https://rules.ptsecurity.com/files/ptopen.rules.tar.gz',
+                                       'vendor': 'Positive Technologies'},
                    'scwx/enhanced': {   'description': 'Broad ruleset composed '
                                                        'of malware rules and '
                                                        'other security-related '
@@ -203,73 +382,82 @@ index = {   'sources': {   'et/open': {   'description': 'Proofpoint ET Open is 
                                         'url': 'https://ws.secureworks.com/ti/ruleset/%(secret-code)s/Suricata_suricata-security_latest.tgz',
                                         'vendor': 'Secureworks'},
                    'sslbl/ja3-fingerprints': {   'checksum': False,
+                                                 'deprecated': 'Renamed to '
+                                                               'abuse.ch/sslbl-ja3',
                                                  'description': 'If you are '
                                                                 'running '
                                                                 'Suricata, you '
                                                                 'can use the '
                                                                 "SSLBL's "
-                                                                'Suricata JA3 '
-                                                                'FingerprintRuleset '
-                                                                'to detect '
-                                                                'and/or block '
-                                                                'malicious SSL '
+                                                                'Suricata\n'
+                                                                'JA3 '
+                                                                'fingerprint '
+                                                                'ruleset to '
+                                                                'detect and/or '
+                                                                'block '
+                                                                'malicious '
+                                                                'SSL\n'
                                                                 'connections '
                                                                 'in your '
                                                                 'network based '
                                                                 'on the JA3 '
                                                                 'fingerprint. '
-                                                                'Please note '
-                                                                'that your '
-                                                                'need Suricata '
+                                                                'Please\n'
+                                                                'note that '
+                                                                'your need '
+                                                                'Suricata '
                                                                 '4.1.0 or '
                                                                 'newer in '
                                                                 'order to use '
-                                                                'the JA3 '
+                                                                'the\n'
+                                                                'JA3 '
                                                                 'fingerprint '
                                                                 'ruleset.\n',
-                                                 'license': 'Non-Commercial',
+                                                 'license': 'CC0-1.0',
                                                  'min-version': '4.1.0',
                                                  'summary': 'Abuse.ch Suricata '
                                                             'JA3 Fingerprint '
                                                             'Ruleset',
-                                                 'url': 'https://sslbl.abuse.ch/blacklist/ja3_fingerprints.rules',
+                                                 'url': 'https://sslbl.abuse.ch/blacklist/ja3_fingerprints.tar.gz',
                                                  'vendor': 'Abuse.ch'},
                    'sslbl/ssl-fp-blacklist': {   'checksum': False,
+                                                 'deprecated': 'Renamed to '
+                                                               'abuse.ch/sslbl-blacklist',
                                                  'description': 'The SSL '
                                                                 'Blacklist '
                                                                 '(SSLBL) is a '
                                                                 'project of '
                                                                 'abuse.ch with '
-                                                                'the goal of '
-                                                                'detecting '
+                                                                'the goal\n'
+                                                                'of detecting '
                                                                 'malicious SSL '
                                                                 'connections, '
                                                                 'by '
                                                                 'identifying '
-                                                                'and '
+                                                                'and\n'
                                                                 'blacklisting '
                                                                 'SSL '
                                                                 'certificates '
                                                                 'used by '
                                                                 'botnet C&C '
-                                                                'servers. In '
+                                                                'servers. In\n'
                                                                 'addition, '
                                                                 'SSLBL '
                                                                 'identifies '
                                                                 'JA3 '
                                                                 'fingerprints '
                                                                 'that helps '
-                                                                'you to detect '
-                                                                '& block '
-                                                                'malware '
+                                                                'you to\n'
+                                                                'detect & '
+                                                                'block malware '
                                                                 'botnet C&C '
                                                                 'communication '
-                                                                'on the TCP '
+                                                                'on the TCP\n'
                                                                 'layer.\n',
-                                                 'license': 'Non-Commercial',
+                                                 'license': 'CC0-1.0',
                                                  'summary': 'Abuse.ch SSL '
                                                             'Blacklist',
-                                                 'url': 'https://sslbl.abuse.ch/blacklist/sslblacklist.rules',
+                                                 'url': 'https://sslbl.abuse.ch/blacklist/sslblacklist_tls_cert.tar.gz',
                                                  'vendor': 'Abuse.ch'},
                    'stamus/lateral': {   'description': 'Suricata ruleset '
                                                         'specifically focused '
@@ -471,6 +659,6 @@ index = {   'sources': {   'et/open': {   'description': 'Proofpoint ET Open is 
                                          'license': 'GPLv3',
                                          'min-version': '4.1.0',
                                          'summary': 'Threat hunting rules',
-                                         'url': 'https://raw.githubusercontent.com/travisbgreen/hunting-rules/master/hunting.rules',
+                                         'url': 'https://github.com/travisbgreen/hunting-rules/raw/master/hunting.rules.tar.gz',
                                          'vendor': 'tgreen'}},
     'version': 1}
