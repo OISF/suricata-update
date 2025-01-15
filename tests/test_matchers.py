@@ -108,6 +108,13 @@ class IdRuleMatcherTestCase(unittest.TestCase):
         matcher = matchers_mod.IdRuleMatcher.parse("1:a")
         self.assertIsNone(matcher)
 
+    def test_parse_gid_sid_rev(self):
+        matcher = matchers_mod.IdRuleMatcher.parse("1:234:5")
+        self.assertIsNotNone(matcher)
+        self.assertEqual(1, len(matcher.signatureIds))
+        self.assertEqual(matcher.signatureIds[0], (1, 234, 5))
+
+
 class MetadataAddTestCase(unittest.TestCase):
 
     def test_metadata_add(self):

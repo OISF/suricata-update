@@ -74,15 +74,21 @@ class IdRuleMatcher(object):
     """Matcher object to match an idstools rule object by its signature
     ID."""
 
-    def __init__(self, generatorId=None, signatureId=None):
+    def __init__(self, generatorId=None, signatureId=None, rev=None):
         self.signatureIds = []
-        if generatorId and signatureId:
+        if generatorId and signatureId and rev:
+            self.signatureIds.append((generatorId, signatureId, rev))
+        elif generatorId and signatureId:
             self.signatureIds.append((generatorId, signatureId))
 
     def match(self, rule):
-        for (generatorId, signatureId) in self.signatureIds:
-            if generatorId == rule.gid and signatureId == rule.sid:
-                return True
+        for sig in self.signatureIds:
+            if len(sig) == 3:
+                if sig[0] == rule.gid and sig[1] == rule.sid and sig[2] == rule.rev:
+                    return True
+            elif len(sig) == 2:
+                if sig[0] == rule.gid and sig[1] == rule.sid:
+                    return True
         return False
 
     @classmethod
@@ -92,7 +98,7 @@ class IdRuleMatcher(object):
         for entry in buf.split(","):
             entry = entry.strip()
 
-            parts = entry.split(":", 1)
+            parts = entry.split(":")
             if not parts:
                 return None
             if len(parts) == 1:
@@ -101,11 +107,19 @@ class IdRuleMatcher(object):
                     matcher.signatureIds.append((1, signatureId))
                 except:
                     return None
-            else:
+            elif len(parts) == 2:
                 try:
                     generatorId = int(parts[0])
                     signatureId = int(parts[1])
                     matcher.signatureIds.append((generatorId, signatureId))
+                except:
+                    return None
+            elif len(parts) == 3:
+                try:
+                    generatorId = int(parts[0])
+                    signatureId = int(parts[1])
+                    rev = int(parts[2])
+                    matcher.signatureIds.append((generatorId, signatureId, rev))
                 except:
                     return None
 
