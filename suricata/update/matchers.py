@@ -220,7 +220,6 @@ class MetadataRuleMatch(object):
 
     @classmethod
     def parse(cls, buf):
-        print(buf)
         if buf.startswith("metadata:"):
             buf = buf.split(":", 1)[1].strip()
             parts = buf.split(" ", 1)
