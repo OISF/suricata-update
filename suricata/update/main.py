@@ -290,8 +290,15 @@ def parse_matchers(fileobj):
         else:
             # If matcher is an IdRuleMatcher
             if isinstance(matcher, matchers_mod.IdRuleMatcher):
-                for (gid, sid) in matcher.signatureIds:
-                    id_set_matcher.add(gid, sid)
+                for sig in matcher.signatureIds:
+                    if len(sig) == 2:
+                        # The "set" matcher only supports gid:sid.
+                        id_set_matcher.add(sig[0], sig[1])
+                    elif len(sig) == 3:
+                        # This must also have a rev, don't add to set,
+                        # but add as its own IdSetRuleMatcher.
+                        matchers.append(
+                            matchers_mod.IdRuleMatcher(sig[0], sig[1], sig[2]))
             else:
                 matchers.append(matcher)
 
