@@ -95,7 +95,8 @@ class Configuration:
     @classmethod
     def load(cls, config_filename, suricata_path=None):
         env = build_env()
-        env["SC_LOG_LEVEL"] = "Error"
+        if "SC_LOG_LEVEL" not in env:
+            env["SC_LOG_LEVEL"] = "Error"
         if not suricata_path:
             suricata_path = get_path()
         if not suricata_path:
@@ -163,8 +164,29 @@ def get_version(path):
         return parse_version(output)
     return None
 
+
 def test_configuration(suricata_path, suricata_conf=None, rule_filename=None):
     """Test the Suricata configuration with -T."""
+
+    env = build_env()
+
+    # Choose a good Suricata log level, respecting SC_LOG_LEVEL if set.
+    if "SC_LOG_LEVEL" not in env:
+        try:
+            level = logging.getLevelName(logger.getEffectiveLevel())
+            if level == "WARNING":
+                # Suricata-Update was called with "-q", only output
+                # Suricata errors.
+                env["SC_LOG_LEVEL"] = "Error"
+            elif level == "DEBUG":
+                # Suricata-Update was called with "-v", increase
+                # Suricata logging to info.
+                env["SC_LOG_LEVEL"] = "Info"
+        finally:
+            # Default to warning.
+            if "SC_LOG_LEVEL" not in env:
+                env["SC_LOG_LEVEL"] = "Warning"
+
     tempdir = tempfile.mkdtemp()
     test_command = [
         suricata_path,
@@ -175,9 +197,6 @@ def test_configuration(suricata_path, suricata_conf=None, rule_filename=None):
         test_command += ["-c", suricata_conf]
     if rule_filename:
         test_command += ["-S", rule_filename]
-
-    env = build_env()
-    env["SC_LOG_LEVEL"] = "Warning"
 
     logger.debug("Running %s; env=%s", " ".join(test_command), str(env))
     rc = subprocess.Popen(test_command, env=env).wait()
@@ -191,6 +210,5 @@ def test_configuration(suricata_path, suricata_conf=None, rule_filename=None):
 def build_env():
     env = os.environ.copy()
     env["SC_LOG_FORMAT"] = "%t - <%d> -- "
-    env["SC_LOG_LEVEL"] = "Error"
     env["ASAN_OPTIONS"] = "detect_leaks=0"
     return env
