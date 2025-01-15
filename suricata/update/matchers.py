@@ -317,7 +317,7 @@ class AddMetadataFilter(object):
             raise Exception("metadata-add: invalid number of arguments")
         matcher = parse_rule_match(match_string)
         if not matcher:
-            raise Exception("Bad match string: %s" % (matchstring))
+            raise Exception("Bad match string: %s" % (match_string))
         return cls(matcher, key, val)
 
 
