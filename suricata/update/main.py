@@ -1399,10 +1399,17 @@ def _main():
         return 1
 
     if not config.args().no_reload and config.get("reload-command"):
-        logger.info("Running %s." % (config.get("reload-command")))
-        rc = subprocess.Popen(config.get("reload-command"), shell=True).wait()
-        if rc != 0:
-            logger.error("Reload command exited with error: {}".format(rc))
+        reload_command = config.get("reload-command")
+        logger.info("Running {}.".format(reload_command))
+        try:
+            output = subprocess.check_output(
+                reload_command, shell=True, stderr=subprocess.STDOUT)
+            if reload_command.find("suricatasc") > -1 and output.decode("utf-8").find("NOK") > -1:
+                logger.error("Reload command was not successful: {}".format(output))
+            else:
+                logger.info("Reload command returned: {}".format(output.decode("utf-8")))
+        except Exception as err:
+            logger.error("Reload command failed: {}".format(err.output))
 
     logger.info("Done.")
 
