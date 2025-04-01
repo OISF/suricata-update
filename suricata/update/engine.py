@@ -108,8 +108,8 @@ class Configuration:
         conf = {}
         for line in configuration_dump.splitlines():
             try:
-                key, val = line.decode().split(" = ")
-                conf[key] = val
+                parsed_line = re.match(r'(.*?) = (.*)', line.decode())
+                conf[parsed_line.group(1)] = parsed_line.group(2)
             except:
                 logger.warning("Failed to parse: %s", line)
         build_info = get_build_info(suricata_path)
