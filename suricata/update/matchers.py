@@ -76,7 +76,7 @@ class IdRuleMatcher(object):
 
     def __init__(self, generatorId=None, signatureId=None, rev=None):
         self.signatureIds = []
-        if generatorId and signatureId and rev:
+        if generatorId and signatureId and rev is not None:
             self.signatureIds.append((generatorId, signatureId, rev))
         elif generatorId and signatureId:
             self.signatureIds.append((generatorId, signatureId))
