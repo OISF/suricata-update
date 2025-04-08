@@ -30,10 +30,10 @@ def md5_hexdigest(buf):
 
     :returns: A string representing the hex value of the computed MD5.
     """
-    if sys.version_info.major < 3 or (sys.version_info.major == 3 and sys.version_info.minor < 9):
-        return hashlib.md5(buf).hexdigest().strip()
-    else:
+    try:
         return hashlib.md5(buf, usedforsecurity=False).hexdigest().strip()
+    except:
+        return hashlib.md5(buf).hexdigest().strip()
 
 def mktempdir(delete_on_exit=True):
     """ Create a temporary directory that is removed on exit. """
