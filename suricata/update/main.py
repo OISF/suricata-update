@@ -1409,7 +1409,8 @@ def _main():
             else:
                 logger.info("Reload command returned: {}".format(output.decode("utf-8")))
         except Exception as err:
-            logger.error("Reload command failed: {}".format(err.output))
+            logger.error("Reload command failed: {}".format(
+                getattr(err, 'output', str(err))))
 
     logger.info("Done.")
 

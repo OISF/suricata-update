@@ -113,6 +113,7 @@ class IdRuleMatcherTestCase(unittest.TestCase):
         self.assertIsNotNone(matcher)
         self.assertEqual(1, len(matcher.signatureIds))
         self.assertEqual(matcher.signatureIds[0], (1, 234, 5))
+        self.assertNotEqual(matcher.signatureIds[0], (1, 234, 0))
 
 
 class MetadataAddTestCase(unittest.TestCase):
