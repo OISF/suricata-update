@@ -52,7 +52,7 @@ jobs:
       - name: Python 3 integration tests
         run: PYTHONPATH=. python3 ./tests/integration_tests.py
 
-  fedora-41:
+  fedora-42:
     name: Fedora 41
     runs-on: ubuntu-latest
     container: fedora:41
@@ -68,7 +68,7 @@ jobs:
       - name: Python 3 integration tests
         run: PYTHONPATH=. python3 ./tests/integration_tests.py
 
-  fedora-40:
+  fedora-41:
     name: Fedora 40
     runs-on: ubuntu-latest
     container: fedora:40
