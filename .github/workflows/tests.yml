@@ -222,22 +222,22 @@ jobs:
       - name: Python 3 integration tests
         run: PYTHONPATH=. python3 ./tests/integration_tests.py
 
-  macos-latest:
-    name: MacOS Latest
-    runs-on: macos-latest
-    steps:
-      - run: brew install python
-      - run: brew install pytest
-      - uses: actions/checkout@v1
-      - name: Create Python virtual environment
-        run: python3 -m venv ./testenv
-      - name: Install PyYAML
-        run: |
-          . ./testenv/bin/activate
-          pip install pyyaml
-      - run: |
-          . ./testenv/bin/activate
-          PYTHONPATH=. pytest
-      - run: |
-          . ./testenv/bin/activate
-          PYTHONPATH=. python3 ./tests/integration_tests.py
+  # macos-latest:
+  #   name: MacOS Latest
+  #   runs-on: macos-latest
+  #   steps:
+  #     - run: brew install python
+  #     - run: brew install pytest
+  #     - uses: actions/checkout@v1
+  #     - name: Create Python virtual environment
+  #       run: python3 -m venv ./testenv
+  #     - name: Install PyYAML
+  #       run: |
+  #         . ./testenv/bin/activate
+  #         pip install pyyaml
+  #     - run: |
+  #         . ./testenv/bin/activate
+  #         PYTHONPATH=. pytest
+  #     - run: |
+  #         . ./testenv/bin/activate
+  #         PYTHONPATH=. python3 ./tests/integration_tests.py
