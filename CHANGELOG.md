@@ -1,5 +1,16 @@
 # Change Log
 
+## 1.3.5 - 2025-06-06
+
+- Handle '=' in Suricata --dump-config:
+  https://redmine.openinfosecfoundation.org/issues/7637
+- Better handling on FIPS compliant systems:
+  https://redmine.openinfosecfoundation.org/issues/7255
+- Allow a rule revision number to be matched:
+  https://redmine.openinfosecfoundation.org/issues/7425
+- Be more quiet with -q for better use with cron:
+  https://redmine.openinfosecfoundation.org/issues/7494
+
 ## 1.3.4 - 2024-12-09
 - Consolidate SID matches to a set:
   https://redmine.openinfosecfoundation.org/issues/7415
