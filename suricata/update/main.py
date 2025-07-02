@@ -97,7 +97,7 @@ DEFAULT_OUTPUT_RULE_FILENAME = "suricata.rules"
 INDEX_EXPIRATION_TIME = 60 * 60 * 24 * 14
 
 # Rule keywords that come with files
-file_kw = ["filemd5", "filesha1", "filesha256", "dataset"]
+file_kw = ["filemd5", "filesha1", "filesha256", "dataset", "lua"]
 
 def strict_error(msg):
     logger.error(msg)
@@ -501,22 +501,22 @@ def handle_dataset_files(rule, dep_files):
         fp.write(dataset_contents.decode("utf-8"))
     return new_rule
 
-def handle_filehash_files(rule, dep_files, fhash):
+def handle_embedded_file(rule, dep_files, kw):
     if not rule.enabled:
         return
-    filehash_fname = rule.get(fhash)
+    embedded_filename = rule.get(kw)
 
     # Get the directory name the rule is from.
     prefix = os.path.dirname(rule.group)
 
-    source_filename = os.path.join(prefix, filehash_fname)
+    source_filename = os.path.join(prefix, embedded_filename)
     dest_filename = source_filename[len(prefix) + len(os.path.sep):]
     logger.debug("dest_filename={}".format(dest_filename))
 
     if source_filename not in dep_files:
-        logger.error("{} file {} was not found".format(fhash, filehash_fname))
+        logger.error("{} file {} was not found".format(kw, embedded_filename))
     else:
-        logger.debug("Copying %s file %s to output directory" % (fhash, filehash_fname))
+        logger.debug("Copying %s file %s to output directory" % (kw, embedded_filename))
         filepath = os.path.join(config.get_output_dir(), os.path.dirname(dest_filename))
         logger.debug("filepath: %s" % filepath)
         try:
@@ -525,7 +525,7 @@ def handle_filehash_files(rule, dep_files, fhash):
             if oserr.errno != errno.EEXIST:
                 logger.error(oserr)
                 sys.exit(1)
-        output_filename = os.path.join(filepath, os.path.basename(filehash_fname))
+        output_filename = os.path.join(filepath, os.path.basename(embedded_filename))
         logger.debug("output fname: %s" % output_filename)
         with open(output_filename, "w") as fp:
             fp.write(dep_files[source_filename].decode("utf-8"))
@@ -572,7 +572,7 @@ def write_merged(filename, rulemap, dep_files):
                     if "dataset" == kw:
                         reformatted = handle_dataset_files(rule, dep_files)
                     else:
-                        handle_filehash_files(rule, dep_files, kw)
+                        handle_embedded_file(rule, dep_files, kw)
             if reformatted:
                 print(reformatted, file=fileobj)
             else:
@@ -633,7 +633,7 @@ def write_to_directory(directory, files, rulemap, dep_files):
                             if "dataset" == kw:
                                 reformatted = handle_dataset_files(rulemap[rule.id], dep_files)
                             else:
-                                handle_filehash_files(rulemap[rule.id], dep_files, kw)
+                                handle_embedded_file(rulemap[rule.id], dep_files, kw)
                     if reformatted:
                         content.append(reformatted)
                     else:
