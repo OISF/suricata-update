@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.3.6 - 2025-07-02
+- Copy Lua scripts for rules over to output directory:
+  https://redmine.openinfosecfoundation.org/issues/6395
+- Fix parsing of nested lists in address and ports:
+  https://redmine.openinfosecfoundation.org/issues/7799
+
 ## 1.3.5 - 2025-06-06
 
 - Handle '=' in Suricata --dump-config:
