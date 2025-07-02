@@ -254,3 +254,11 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
         rule = suricata.update.rule.parse(rule_string)
         self.assertIsNotNone(rule)
         self.assertTrue("ja3" in rule["features"])
+
+    def test_parse_var_lists(self):
+        rule_string = u"""alert http [any,![$EXTERNAL_IP,$REVERSE_PROXY_HOSTS,$ODD_HTTP_HOSTS]] any -> [any,![$EXTERNAL_IP,$REVERSE_PROXY_HOSTS,$ODD_HTTP_HOSTS]] 80 (msg:"TEST Unknown var"; sid: 99000003; rev: 1;)"""
+        rule = suricata.update.rule.parse(rule_string)
+        self.assertEqual(rule["source_addr"], "[any,![$EXTERNAL_IP,$REVERSE_PROXY_HOSTS,$ODD_HTTP_HOSTS]]")
+        self.assertEqual(rule["source_port"], "any")
+        self.assertEqual(rule["dest_addr"], "[any,![$EXTERNAL_IP,$REVERSE_PROXY_HOSTS,$ODD_HTTP_HOSTS]]")
+        self.assertEqual(rule["dest_port"], "80")

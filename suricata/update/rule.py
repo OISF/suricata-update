@@ -212,9 +212,16 @@ def parse(buf, group=None):
             if not rem:
                 return None
             if rem[0] == "[":
-                end = rem.find("]")
-                if end < 0:
-                    return
+                depth = 1
+                end = 0
+                while depth > 0:
+                    end += 1
+                    if end >= len(rem):
+                        return
+                    if rem[end] == "[":
+                        depth += 1
+                    elif rem[end] == "]":
+                        depth -= 1
                 end += 1
                 token = rem[:end].strip()
                 rem = rem[end:].strip()
