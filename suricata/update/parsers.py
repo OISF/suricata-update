@@ -247,6 +247,7 @@ def parse_arg():
     update_parser.epilog = r"""other commands:
     update-sources             Update the source index
     list-sources               List available sources
+    list-enabled-sources       List enabled sources
     enable-source              Enable a source from the index
     disable-source             Disable an enabled source
     remove-source              Remove an enabled or disabled source
