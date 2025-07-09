@@ -301,7 +301,7 @@ class DropRuleFilter(object):
 
     def run(self, rule):
         drop_rule = suricata.update.rule.parse(re.sub(
-            r"^\w+", "drop", rule.raw))
+            r"^\w+", "drop", rule.raw), rule.group)
         drop_rule.enabled = rule.enabled
         return drop_rule
 
