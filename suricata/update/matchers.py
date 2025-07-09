@@ -228,7 +228,6 @@ class MetadataRuleMatch(object):
         for entry in rule.metadata:
             parts = entry.strip().split(" ", 1)
             if parts[0].strip().lower() == self.key and parts[1].strip().lower() == self.value:
-                print(rule)
                 return True
         return False
 
