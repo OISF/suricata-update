@@ -53,9 +53,9 @@ jobs:
         run: PYTHONPATH=. python3 ./tests/integration_tests.py
 
   fedora-42:
-    name: Fedora 41
+    name: Fedora 42
     runs-on: ubuntu-latest
-    container: fedora:41
+    container: fedora:42
     steps:
       - run: |
           dnf -y install \
@@ -69,9 +69,9 @@ jobs:
         run: PYTHONPATH=. python3 ./tests/integration_tests.py
 
   fedora-41:
-    name: Fedora 40
+    name: Fedora 41
     runs-on: ubuntu-latest
-    container: fedora:40
+    container: fedora:41
     steps:
       - run: |
           dnf -y install \
