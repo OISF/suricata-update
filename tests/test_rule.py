@@ -262,3 +262,30 @@ alert dnp3 any any -> any any (msg:"SURICATA DNP3 Request flood detected"; \
         self.assertEqual(rule["source_port"], "any")
         self.assertEqual(rule["dest_addr"], "[any,![$EXTERNAL_IP,$REVERSE_PROXY_HOSTS,$ODD_HTTP_HOSTS]]")
         self.assertEqual(rule["dest_port"], "80")
+
+    def test_rule_with_encoding_issues(self):
+        """Test that rules with encoding issues are skipped (Issue #7812)"""
+        # Parse the file with encoding issues
+        with open('tests/rules-with-encoding-issues.rules', 'rb') as fileobj:
+            rules = suricata.update.rule.parse_fileobj(fileobj)
+
+        # Should have parsed:
+        # - Valid single-line rules (1001 and 1004)
+        # - Valid multiline rule (2001)
+        # - Valid rule after bad multiline (2003)
+        # Should have skipped:
+        # - Rules with bad encoding (1002, 1003)
+        # - Bad multiline rule (2002)
+        self.assertEqual(len(rules), 4)
+
+        # Check single-line rules
+        self.assertEqual(rules[0].sid, 1001)
+        self.assertEqual(rules[0].msg, "Valid rule 1")
+        self.assertEqual(rules[1].sid, 1004)
+        self.assertEqual(rules[1].msg, "Valid rule 2")
+
+        # Check multiline rules
+        self.assertEqual(rules[2].sid, 2001)
+        self.assertEqual(rules[2].msg, "Valid multiline")
+        self.assertEqual(rules[3].sid, 2003)
+        self.assertEqual(rules[3].msg, "Valid after bad")
