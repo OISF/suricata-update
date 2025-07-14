@@ -1,0 +1,11 @@
+alert tcp any any -> any any (msg:"Valid rule 1"; sid:1001; rev:1;)
+alert tcp any any -> any any (msg:"Bad encoding ÿş"; sid:1002; rev:1;)
+alert tcp any any -> any any (msg:"Latin1 éè"; sid:1003; rev:1;)
+alert tcp any any -> any any (msg:"Valid rule 2"; sid:1004; rev:1;)
+alert tcp any any -> any any (msg:"Valid multiline"; \
+    content:"test"; \
+    sid:2001; rev:1;)
+alert tcp any any -> any any (msg:"Bad multiline"; \
+    content:"badÿş"; \
+    sid:2002; rev:1;)
+alert tcp any any -> any any (msg:"Valid after bad"; sid:2003; rev:1;)

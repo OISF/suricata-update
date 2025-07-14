@@ -321,11 +321,16 @@ def parse_fileobj(fileobj, group=None):
     rules = []
     buf = ""
     for line in fileobj:
-        try:
-            if type(line) == type(b""):
-                line = line.decode()
-        except:
-            pass
+        if type(line) == type(b""):
+            try:
+                line = line.decode("utf-8", "strict")
+            except UnicodeDecodeError:
+                logger.warning("Skipping rule due to encoding issue: %s", repr(line))
+                # Skip this line and reset buffer if we were accumulating a multi-line rule
+                if buf:
+                    logger.warning("Discarding incomplete multi-line rule due to encoding issue")
+                    buf = ""
+                continue
         if line.rstrip().endswith("\\"):
             buf = "%s%s " % (buf, line.rstrip()[0:-1])
             continue
