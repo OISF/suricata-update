@@ -278,6 +278,11 @@ Example converting all drop rules with noalert back to alert::
 
   re:. "^drop(.*)noalert(.*)" "alert\\1noalert\\2"  
 
+.. note:: ``suricata-update`` uses the python regular expression
+          engine. It is necessary to escape special characters
+          (e.g. . ``$ ^ * + ?``) with a ``\`` if they are desired
+          to be interpreted literally in the configuration files.
+
 Order of application of configuration files
 ===========================================
 1. disable.conf
