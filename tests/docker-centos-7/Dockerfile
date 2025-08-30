@@ -1,7 +1,7 @@
 FROM centos:7
 
-RUN yum -y install epel-release
-RUN yum -y install \
+RUN yum -y install epel-release \
+    && yum -y install \
     git \
     python-yaml \
     python-pip \
