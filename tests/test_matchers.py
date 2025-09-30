@@ -141,3 +141,13 @@ class MetadataMatchTestCase(unittest.TestCase):
         metadata_filter = matchers_mod.MetadataRuleMatch.parse(filter_string)
         self.assertIsNotNone(metadata_filter)
         self.assertTrue(metadata_filter.match(rule))
+
+class ReRuleMatcherTestCase(unittest.TestCase):
+
+    def test_parse_enable_conf_expression(self):
+        """Test regular expression matcher with multiple ':'.
+        Ticket: https://redmine.openinfosecfoundation.org/issues/7922
+        """
+        expression = r're:^.+\(msg:\"(ET|ETPRO)\s+(CURRENT|MALWARE|MOBILE_MALWARE|TROJAN|CNC|ACTIVEX|WORM|NETBIOS|USER_AGENTS).+\s+sid:\s?(?!(2026850|2809199);).*$'
+        matcher = matchers_mod.parse_rule_match(expression)
+        self.assertEqual(matcher.__class__, matchers_mod.ReRuleMatcher)

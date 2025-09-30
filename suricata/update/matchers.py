@@ -101,6 +101,14 @@ class IdRuleMatcher(object):
             parts = entry.split(":")
             if not parts:
                 return None
+
+            # The first part musth parse as a number, if not, its
+            # not a signature ID expression.
+            try:
+                int(parts[0])
+            except:
+                return None
+
             if len(parts) == 1:
                 try:
                     signatureId = int(parts[0])
@@ -122,6 +130,10 @@ class IdRuleMatcher(object):
                     matcher.signatureIds.append((generatorId, signatureId, rev))
                 except:
                     return None
+
+        # If no valid signature IDs were parsed, return None
+        if not matcher.signatureIds:
+            return None
 
         return matcher
 
