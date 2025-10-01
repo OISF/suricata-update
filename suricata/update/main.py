@@ -1304,8 +1304,10 @@ def _main():
 
         for fltr in modify_filters:
             if fltr.match(rule):
-                rule = fltr.run(rule)
-                modified = True
+                new_rule = fltr.run(rule)
+                if new_rule != rule:
+                    rule = new_rule
+                    modified = True
 
         if enabled:
             enable_count += 1
