@@ -1,5 +1,15 @@
 # Change Log
 
+## 1.3.7 - unreleased
+- Retain rule filename after converting to a drop rule:
+  https://redmine.openinfosecfoundation.org/issues/7805
+- Handle rules with UTF-8 decoding errors:
+  https://redmine.openinfosecfoundation.org/issues/7812
+- Fix some regular expressions from being parsed as a signature ID matcher:
+  https://redmine.openinfosecfoundation.org/issues/7922
+- Display count for number of rules actually modified and not those that are
+  candidates for modification: https://redmine.openinfosecfoundation.org/issues/7967
+
 ## 1.3.6 - 2025-07-03
 - Copy Lua scripts for rules over to output directory:
   https://redmine.openinfosecfoundation.org/issues/6395
