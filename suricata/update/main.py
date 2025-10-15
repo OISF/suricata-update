@@ -319,7 +319,7 @@ def load_local(local, files):
         for dirpath, dirnames, filenames in os.walk(local):
             for filename in filenames:
                 if filename.endswith(".rules"):
-                    path = os.path.join(local, filename)
+                    path = os.path.join(dirpath, filename)
                     load_local(path, files)
     else:
         local_files = glob.glob(local)
