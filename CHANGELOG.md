@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.3.7 - unreleased
+## 1.3.7 - 2025-10-31
 - Retain rule filename after converting to a drop rule:
   https://redmine.openinfosecfoundation.org/issues/7805
 - Handle rules with UTF-8 decoding errors:
