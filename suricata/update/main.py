@@ -378,26 +378,26 @@ def load_dist_rules(files):
                        dist_rule_path)
         return
 
-    if os.path.exists(dist_rule_path):
-        if not os.access(dist_rule_path, os.R_OK):
-            logger.warning("Distribution rule path not readable: %s",
-                           dist_rule_path)
-            return
-        for filename in filenames:
-            path = os.path.join(dist_rule_path, filename)
-            if not os.path.exists(path):
-                continue
-            if not os.access(path, os.R_OK):
-                logger.warning("Distribution rule file not readable: %s",
-                               path)
-                continue
-            logger.info("Loading distribution rule file %s", path)
-            try:
-                with open(path, "rb") as fileobj:
-                    files.append(SourceFile(path, fileobj.read()))
-            except Exception as err:
-                logger.error("Failed to open {}: {}".format(path, err))
-                sys.exit(1)
+    if not os.access(dist_rule_path, os.R_OK):
+        logger.warning("Distribution rule path not readable: %s",
+                       dist_rule_path)
+        return
+
+    for filename in filenames:
+        path = os.path.join(dist_rule_path, filename)
+        if not os.path.exists(path):
+            continue
+        if not os.access(path, os.R_OK):
+            logger.warning("Distribution rule file not readable: %s",
+                           path)
+            continue
+        logger.info("Loading distribution rule file %s", path)
+        try:
+            with open(path, "rb") as fileobj:
+                files.append(SourceFile(path, fileobj.read()))
+        except Exception as err:
+            logger.error("Failed to open {}: {}".format(path, err))
+            sys.exit(1)
 
 def load_classification(suriconf, files):
     filename = os.path.join("suricata", "classification.config")
