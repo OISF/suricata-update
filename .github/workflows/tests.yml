@@ -52,33 +52,33 @@ jobs:
       - name: Python 3 integration tests
         run: PYTHONPATH=. python3 ./tests/integration_tests.py
 
-  fedora-42:
-    name: Fedora 42
+  fedora-45:
+    name: Fedora 45
     runs-on: ubuntu-latest
-    container: fedora:42
+    container: fedora:45
     steps:
       - run: |
           dnf -y install \
             python3 \
             python3-pytest \
             python3-pyyaml
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Python 3 unit tests
         run: PYTHONPATH=. pytest-3
       - name: Python 3 integration tests
         run: PYTHONPATH=. python3 ./tests/integration_tests.py
 
-  fedora-41:
-    name: Fedora 41
+  fedora-44:
+    name: Fedora 44
     runs-on: ubuntu-latest
-    container: fedora:41
+    container: fedora:44
     steps:
       - run: |
           dnf -y install \
             python3 \
             python3-pytest \
             python3-pyyaml
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Python 3 unit tests
         run: PYTHONPATH=. pytest-3
       - name: Python 3 integration tests
