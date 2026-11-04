@@ -164,10 +164,10 @@ jobs:
       - name: Python 3 integration tests
         run: PYTHONPATH=. python3 ./tests/integration_tests.py
 
-  debian-12:
-    name: Debian 12
+  debian-13:
+    name: Debian 13
     runs-on: ubuntu-latest
-    container: debian:12
+    container: debian:13
     steps:
       - run: apt update
       - run: |
@@ -181,10 +181,10 @@ jobs:
       - name: Python 3 integration tests
         run: PYTHONPATH=. python3 ./tests/integration_tests.py
 
-  debian-11:
-    name: Debian 11
+  debian-12:
+    name: Debian 12
     runs-on: ubuntu-latest
-    container: debian:11
+    container: debian:12
     steps:
       - run: apt update
       - run: |
