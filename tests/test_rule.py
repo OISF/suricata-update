@@ -45,6 +45,15 @@ class RuleTestCase(unittest.TestCase):
         self.assertEqual(rule.flowbits[1], "unset,otherbit")
         self.assertEqual(rule.classtype, "trojan-activity")
 
+    def test_parse_reject_actions(self):
+        for action in ["reject", "rejectsrc", "rejectdst", "rejectboth"]:
+            rule = suricata.update.rule.parse(
+                """%s tcp any any -> any any (msg:"some message"; sid:1; rev:1;)""" % (
+                    action))
+            self.assertIsNotNone(rule, action)
+            self.assertEqual(rule.action, action)
+            self.assertEqual(rule.sid, 1)
+
     def test_disable_rule(self):
         rule_buf = """# alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"some message"; sid:1;)"""
         rule = suricata.update.rule.parse(rule_buf)

@@ -1,5 +1,10 @@
 # Change Log
 
+## Unreleased
+
+- Don't skip rules with the rejectsrc, rejectdst and rejectboth actions:
+  https://redmine.openinfosecfoundation.org/issues/9370
+
 ## 1.3.8 - 2026-06-30
 - Fix arbitrary file write in rule archive path traversal:
   https://redmine.openinfosecfoundation.org/issues/8633

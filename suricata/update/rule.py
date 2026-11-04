@@ -45,7 +45,8 @@ rule_pattern = re.compile(r"^(?P<enabled>#)*[\s#]*"
 
 # Rule actions we expect to see.
 actions = (
-    "alert", "log", "pass", "activate", "dynamic", "drop", "reject", "sdrop")
+    "alert", "log", "pass", "activate", "dynamic", "drop", "reject", "sdrop",
+    "rejectsrc", "rejectdst", "rejectboth")
 
 class NoEndOfOptionError(Exception):
     """Exception raised when the end of option terminator (semicolon) is
