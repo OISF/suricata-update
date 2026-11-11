@@ -59,8 +59,8 @@ def compare_sources(initial_content, final_content):
     if initial_content == final_content:
         logger.info("No change in sources")
         return
-    initial_sources = initial_content.get("sources")
-    final_sources = final_content.get("sources")
+    initial_sources = initial_content.get("sources") or {}
+    final_sources = (final_content or {}).get("sources") or {}
     added_sources = get_sources(before=initial_sources, after=final_sources)
     removed_sources = get_sources(before=final_sources, after=initial_sources)
     log_sources(sources_map={"added": added_sources,
